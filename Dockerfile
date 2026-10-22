@@ -34,7 +34,8 @@ RUN if [ ! -d "vendor" ]; then composer install --no-dev --prefer-dist --optimiz
 
 RUN chmod -R 777 storage bootstrap/cache
 
-ENV PORT=10000
+ENV PORT=7860
+EXPOSE 7860
 EXPOSE 10000
 
-CMD ["sh", "-c", "php artisan config:clear || true; php -S 0.0.0.0:${PORT:-10000} server.php"]
+CMD ["sh", "-c", "php artisan config:clear || true; php -S 0.0.0.0:${PORT:-7860} server.php"]
