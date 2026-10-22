@@ -1,0 +1,53 @@
+{
+  "version": 2,
+  "framework": null,
+  "functions": {
+    "api/index.php": {
+      "runtime": "vercel-php@0.6.2",
+      "memory": 1024,
+      "maxDuration": 15
+    }
+  },
+  "routes": [
+    { "src": "/admin/(.*)", "dest": "/public/admin/$1" },
+    { "src": "/asset/(.*)", "dest": "/public/asset/$1" },
+    { "src": "/assets/(.*)", "dest": "/public/assets/$1" },
+    { "src": "/build/(.*)", "dest": "/public/build/$1" },
+    { "src": "/common/(.*)", "dest": "/public/common/$1" },
+    { "src": "/css/(.*)", "dest": "/public/css/$1" },
+    { "src": "/gifimg/(.*)", "dest": "/public/gifimg/$1" },
+    { "src": "/h5/(.*)", "dest": "/public/h5/$1" },
+    { "src": "/icon/(.*)", "dest": "/public/icon/$1" },
+    { "src": "/img/(.*)", "dest": "/public/img/$1" },
+    { "src": "/images/(.*)", "dest": "/public/images/$1" },
+    { "src": "/js/(.*)", "dest": "/public/js/$1" },
+    { "src": "/lottery/(.*)", "dest": "/public/lottery/$1" },
+    { "src": "/mui/(.*)", "dest": "/public/mui/$1" },
+    { "src": "/pimg/(.*)", "dest": "/public/pimg/$1" },
+    { "src": "/site/(.*)", "dest": "/public/site/$1" },
+    { "src": "/static/(.*)", "dest": "/public/static/$1" },
+    { "src": "/toastr/(.*)", "dest": "/public/toastr/$1" },
+    { "src": "/ui1/(.*)", "dest": "/public/ui1/$1" },
+    { "src": "/upload/(.*)", "dest": "/public/upload/$1" },
+    { "src": "/uploads/(.*)", "dest": "/public/uploads/$1" },
+    { "src": "/v1/(.*)", "dest": "/public/v1/$1" },
+    { "src": "/v2/(.*)", "dest": "/public/v2/$1" },
+    { "src": "/_nuxt/(.*)", "dest": "/public/_nuxt/$1" },
+    { "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|json|webp|mp3|mp4))", "dest": "/public/$1" },
+    { "src": "/(.*)", "dest": "/api/index.php" }
+  ],
+  "env": {
+    "APP_ENV": "production",
+    "APP_DEBUG": "false",
+    "APP_KEY": "base64:M2XuFMKitRPOP23qsIkgs/3VnOUv4/c5kGFenW+S4+k=",
+    "DB_CONNECTION": "pgsql",
+    "DB_HOST": "aws-0-us-east-1.pooler.supabase.com",
+    "DB_PORT": "5432",
+    "DB_DATABASE": "postgres",
+    "DB_USERNAME": "postgres.fetkgknczvpsmlsstjxq",
+    "DB_PASSWORD": "Wa3845464748@#",
+    "CACHE_DRIVER": "array",
+    "SESSION_DRIVER": "cookie",
+    "LOG_CHANNEL": "stderr"
+  }
+}

@@ -1,0 +1,7 @@
+.git
+.github
+*.bat
+cloudflared.exe
+tests
+.env
+.env.bak
