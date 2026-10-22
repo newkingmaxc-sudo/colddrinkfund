@@ -4,6 +4,8 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\Deposit;
+use App\Models\Withdrawal;
 use App\Models\Recharge;
 use App\Models\User;
 use App\Models\Purchase;
@@ -185,6 +187,145 @@ class AdminController extends Controller
             }
         } else {
             return error_redirect('admin.changepassword', 'error',  'Password dose not match');
+        }
+    }
+
+    public function realtime_notifications(Request $request)
+    {
+        try {
+            // Pending counts
+            $pendingDepositsCount = Deposit::where('status', 'pending')->count();
+            $pendingWithdrawalsCount = Withdrawal::where('status', 'pending')->count();
+            $pendingRechargesCount = Recharge::where('status', 'pending')->count();
+            $totalPending = $pendingDepositsCount + $pendingWithdrawalsCount + $pendingRechargesCount;
+
+            // Pending records
+            $pendingDeposits = Deposit::with('user:id,name,phone,ref_id')
+                ->where('status', 'pending')
+                ->orderByDesc('id')
+                ->take(10)
+                ->get();
+
+            $pendingWithdrawals = Withdrawal::with('user:id,name,phone,ref_id')
+                ->where('status', 'pending')
+                ->orderByDesc('id')
+                ->take(10)
+                ->get();
+
+            $pendingRecharges = Recharge::with('user:id,name,phone,ref_id')
+                ->where('status', 'pending')
+                ->orderByDesc('id')
+                ->take(10)
+                ->get();
+
+            $notifications = [];
+
+            // Add Pending Deposits
+            foreach ($pendingDeposits as $row) {
+                $uName = $row->user ? ($row->user->name ?: ($row->user->phone ?: 'User #' . $row->user_id)) : 'User #' . $row->user_id;
+                $uPhone = $row->user ? ($row->user->phone ?: $row->number) : $row->number;
+                $notifications[] = [
+                    'id'          => 'dep_' . $row->id,
+                    'type'        => 'deposit',
+                    'is_pending'  => true,
+                    'title'       => 'Pending Deposit: Rs. ' . number_format((float)$row->amount, 0),
+                    'desc'        => $uName . ' (' . ($uPhone ?: 'No phone') . ')' . ($row->trx ? ' | Trx: ' . $row->trx : ''),
+                    'time'        => $row->created_at ? $row->created_at->diffForHumans() : ($row->date ?? 'Pending'),
+                    'url'         => '/admin/customer/pending/payment',
+                    'icon'        => 'bx bx-dollar-circle',
+                    'color'       => 'success',
+                    'badge'       => 'Deposit',
+                    'badge_class' => 'badge-light-success',
+                    'timestamp'   => $row->created_at ? $row->created_at->timestamp : (time() - 60),
+                ];
+            }
+
+            // Add Pending Withdrawals
+            foreach ($pendingWithdrawals as $row) {
+                $uName = $row->user ? ($row->user->name ?: ($row->user->phone ?: 'User #' . $row->user_id)) : 'User #' . $row->user_id;
+                $uPhone = $row->user ? ($row->user->phone ?: $row->number) : $row->number;
+                $notifications[] = [
+                    'id'          => 'wd_' . $row->id,
+                    'type'        => 'withdraw',
+                    'is_pending'  => true,
+                    'title'       => 'Pending Withdraw: Rs. ' . number_format((float)$row->amount, 0),
+                    'desc'        => $uName . ' (' . ($uPhone ?: 'No phone') . ')' . ($row->number ? ' | Acc: ' . $row->number : ''),
+                    'time'        => $row->created_at ? $row->created_at->diffForHumans() : 'Pending',
+                    'url'         => '/admin/customer/pending/withdraw',
+                    'icon'        => 'bx bx-wallet',
+                    'color'       => 'warning',
+                    'badge'       => 'Withdraw',
+                    'badge_class' => 'badge-light-warning',
+                    'timestamp'   => $row->created_at ? $row->created_at->timestamp : (time() - 60),
+                ];
+            }
+
+            // Add Pending Recharges
+            foreach ($pendingRecharges as $row) {
+                $uName = $row->user ? ($row->user->name ?: ($row->user->phone ?: 'User #' . $row->user_id)) : 'User #' . $row->user_id;
+                $notifications[] = [
+                    'id'          => 'rech_' . $row->id,
+                    'type'        => 'recharge',
+                    'is_pending'  => true,
+                    'title'       => 'Pending Recharge: Rs. ' . number_format((float)$row->amount, 0),
+                    'desc'        => $uName . ($row->number ? ' (' . $row->number . ')' : ''),
+                    'time'        => $row->created_at ? $row->created_at->diffForHumans() : 'Pending',
+                    'url'         => '/admin/recharge',
+                    'icon'        => 'bx bx-mobile-alt',
+                    'color'       => 'info',
+                    'badge'       => 'Recharge',
+                    'badge_class' => 'badge-light-info',
+                    'timestamp'   => $row->created_at ? $row->created_at->timestamp : (time() - 60),
+                ];
+            }
+
+            // If pending items are few, supplement with recent registrations so dropdown always displays rich data
+            if (count($notifications) < 8) {
+                $newUsers = User::where('id', '!=', 1)
+                    ->orderByDesc('id')
+                    ->take(6)
+                    ->get(['id', 'name', 'phone', 'ref_id', 'created_at']);
+
+                foreach ($newUsers as $u) {
+                    $notifications[] = [
+                        'id'          => 'user_' . $u->id,
+                        'type'        => 'user',
+                        'is_pending'  => false,
+                        'title'       => 'New User: ' . ($u->name ?: 'Member'),
+                        'desc'        => 'Phone: ' . ($u->phone ?: 'N/A') . ' | Ref: ' . ($u->ref_id ?: '--'),
+                        'time'        => $u->created_at ? $u->created_at->diffForHumans() : 'Recently',
+                        'url'         => '/admin/customers',
+                        'icon'        => 'bx bx-user-plus',
+                        'color'       => 'primary',
+                        'badge'       => 'Customer',
+                        'badge_class' => 'badge-light-primary',
+                        'timestamp'   => $u->created_at ? $u->created_at->timestamp : 0,
+                    ];
+                }
+            }
+
+            // Sort by timestamp descending
+            usort($notifications, function ($a, $b) {
+                return $b['timestamp'] <=> $a['timestamp'];
+            });
+
+            return response()->json([
+                'status'              => true,
+                'total_pending'       => $totalPending,
+                'badge_count'         => $totalPending,
+                'pending_deposits'    => $pendingDepositsCount,
+                'pending_withdrawals' => $pendingWithdrawalsCount,
+                'pending_recharges'   => $pendingRechargesCount,
+                'notifications'       => array_slice($notifications, 0, 15),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'        => false,
+                'error'         => $e->getMessage(),
+                'total_pending' => 0,
+                'badge_count'   => 0,
+                'notifications' => [],
+            ], 500);
         }
     }
 }

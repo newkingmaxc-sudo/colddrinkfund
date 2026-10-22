@@ -140,153 +140,39 @@
                             <ul class="search-list"></ul>
                         </div>
                     </li>
-                    <li class="dropdown dropdown-notification nav-item"><a class="nav-link nav-link-label" href="#"
-                                                                           data-toggle="dropdown"><i
-                                class="ficon bx bx-bell bx-tada bx-flip-horizontal"></i><span
-                                class="badge badge-pill badge-danger badge-up">5</span></a>
-                        <ul class="dropdown-menu dropdown-menu-media dropdown-menu-right">
+                    <li class="dropdown dropdown-notification nav-item" id="adminNotifDropdown"><a class="nav-link nav-link-label" href="#"
+                                                                           data-toggle="dropdown" id="adminNotifBell"><i
+                                class="ficon bx bx-bell" id="adminBellIcon"></i><span
+                                class="badge badge-pill badge-danger badge-up font-small-1 font-weight-bold" id="adminNotifBadge" style="display:none;">0</span></a>
+                        <ul class="dropdown-menu dropdown-menu-media dropdown-menu-right" style="width: 375px; max-width: 95vw; box-shadow: 0 10px 30px rgba(0,0,0,0.18); border: 1px solid rgba(0,0,0,0.08); border-radius: 8px;">
                             <li class="dropdown-menu-header">
-                                <div class="dropdown-header px-1 py-75 d-flex justify-content-between"><span
-                                        class="notification-title">7 new Notification</span><span
-                                        class="text-bold-400 cursor-pointer">Mark all as read</span></div>
-                            </li>
-                            <li class="scrollable-container media-list"><a class="d-flex justify-content-between"
-                                                                           href="javascript:void(0)">
-                                    <div class="media d-flex align-items-center">
-                                        <div class="media-left pr-0">
-                                            <div class="avatar mr-1 m-0"><img
-                                                    src="{{asset(admin_file_root())}}/app-assets/images/portrait/small/avatar-s-11.jpg"
-                                                    alt="avatar" height="39" width="39"></div>
-                                        </div>
-                                        <div class="media-body">
-                                            <h6 class="media-heading"><span class="text-bold-500">Congratulate Socrates Itumay</span>
-                                                for work anniversaries</h6><small class="notification-text">Mar 15
-                                                12:32pm</small>
-                                        </div>
+                                <div class="dropdown-header px-1 py-75 d-flex justify-content-between align-items-center border-bottom">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bx bx-bell mr-50 text-primary font-medium-1"></i>
+                                        <span class="notification-title font-weight-bold" id="adminNotifTitle" style="color: #475f7b; font-size: 13px;">Realtime Alerts</span>
                                     </div>
+                                    <div class="d-flex align-items-center">
+                                        <button type="button" class="btn btn-sm btn-light py-25 px-50 mr-50" id="adminSoundToggle" title="Toggle Sound Alert" style="border: 1px solid #d2d6dc; line-height: 1;">
+                                            <i class="bx bx-volume-full font-small-1" id="adminSoundIcon"></i>
+                                        </button>
+                                        <span class="text-bold-500 cursor-pointer font-small-1 text-primary" id="adminMarkAllRead">Mark read</span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="scrollable-container media-list" id="adminNotifList" style="max-height: 380px; overflow-y: auto;">
+                                <div class="text-center py-2 text-muted" id="adminNotifLoading">
+                                    <div class="spinner-border spinner-border-sm text-primary mb-50" role="status"></div>
+                                    <small class="d-block text-secondary">Checking updates...</small>
+                                </div>
+                            </li>
+                            <li class="dropdown-menu-footer p-75 border-top d-flex justify-content-between align-items-center" style="background: #f8f9fa;">
+                                <a class="btn btn-sm btn-outline-success font-small-1 py-25 px-75" href="{{route('admin.payment.pending')}}">
+                                    <i class="bx bx-dollar-circle"></i> Deposits (<span id="adminPendingDepCount">0</span>)
                                 </a>
-                                <div class="d-flex justify-content-between read-notification cursor-pointer">
-                                    <div class="media d-flex align-items-center">
-                                        <div class="media-left pr-0">
-                                            <div class="avatar mr-1 m-0"><img
-                                                    src="{{asset(admin_file_root())}}/app-assets/images/portrait/small/avatar-s-16.jpg"
-                                                    alt="avatar" height="39" width="39"></div>
-                                        </div>
-                                        <div class="media-body">
-                                            <h6 class="media-heading"><span class="text-bold-500">New Message</span>
-                                                received</h6><small class="notification-text">You have 18 unread
-                                                messages</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-between cursor-pointer">
-                                    <div class="media d-flex align-items-center py-0">
-                                        <div class="media-left pr-0"><img class="mr-1"
-                                                                          src="{{asset(admin_file_root())}}/app-assets/images/icon/sketch-mac-icon.png"
-                                                                          alt="avatar" height="39" width="39"></div>
-                                        <div class="media-body">
-                                            <h6 class="media-heading"><span
-                                                    class="text-bold-500">Updates Available</span></h6><small
-                                                class="notification-text">Sketch 50.2 is currently newly added</small>
-                                        </div>
-                                        <div class="media-right pl-0">
-                                            <div class="row border-left text-center">
-                                                <div class="col-12 px-50 py-75 border-bottom">
-                                                    <h6 class="media-heading text-bold-500 mb-0">Update</h6>
-                                                </div>
-                                                <div class="col-12 px-50 py-75">
-                                                    <h6 class="media-heading mb-0">Close</h6>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-between cursor-pointer">
-                                    <div class="media d-flex align-items-center">
-                                        <div class="media-left pr-0">
-                                            <div class="avatar bg-primary bg-lighten-5 mr-1 m-0 p-25"><span
-                                                    class="avatar-content text-primary font-medium-2">LD</span></div>
-                                        </div>
-                                        <div class="media-body">
-                                            <h6 class="media-heading"><span class="text-bold-500">New customer</span> is
-                                                registered</h6><small class="notification-text">1 hrs ago</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="cursor-pointer">
-                                    <div class="media d-flex align-items-center justify-content-between">
-                                        <div class="media-left pr-0">
-                                            <div class="media-body">
-                                                <h6 class="media-heading">New Offers</h6>
-                                            </div>
-                                        </div>
-                                        <div class="media-right">
-                                            <div class="custom-control custom-switch">
-                                                <input class="custom-control-input" type="checkbox" checked
-                                                       id="notificationSwtich">
-                                                <label class="custom-control-label" for="notificationSwtich"></label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-between cursor-pointer">
-                                    <div class="media d-flex align-items-center">
-                                        <div class="media-left pr-0">
-                                            <div class="avatar bg-danger bg-lighten-5 mr-1 m-0 p-25"><span
-                                                    class="avatar-content"><i
-                                                        class="bx bxs-heart text-danger"></i></span></div>
-                                        </div>
-                                        <div class="media-body">
-                                            <h6 class="media-heading"><span class="text-bold-500">Application</span> has
-                                                been approved</h6><small class="notification-text">6 hrs ago</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-between read-notification cursor-pointer">
-                                    <div class="media d-flex align-items-center">
-                                        <div class="media-left pr-0">
-                                            <div class="avatar mr-1 m-0"><img
-                                                    src="{{asset(admin_file_root())}}/app-assets/images/portrait/small/avatar-s-4.jpg"
-                                                    alt="avatar" height="39" width="39"></div>
-                                        </div>
-                                        <div class="media-body">
-                                            <h6 class="media-heading"><span class="text-bold-500">New file</span> has
-                                                been uploaded</h6><small class="notification-text">4 hrs ago</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-between cursor-pointer">
-                                    <div class="media d-flex align-items-center">
-                                        <div class="media-left pr-0">
-                                            <div class="avatar bg-rgba-danger m-0 mr-1 p-25">
-                                                <div class="avatar-content"><i class="bx bx-detail text-danger"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="media-body">
-                                            <h6 class="media-heading"><span class="text-bold-500">Finance report</span>
-                                                has been generated</h6><small class="notification-text">25 hrs
-                                                ago</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-between cursor-pointer">
-                                    <div class="media d-flex align-items-center border-0">
-                                        <div class="media-left pr-0">
-                                            <div class="avatar mr-1 m-0"><img
-                                                    src="{{asset(admin_file_root())}}/app-assets/images/portrait/small/avatar-s-16.jpg"
-                                                    alt="avatar" height="39" width="39"></div>
-                                        </div>
-                                        <div class="media-body">
-                                            <h6 class="media-heading"><span class="text-bold-500">New customer</span>
-                                                comment received</h6><small class="notification-text">2 days ago</small>
-                                        </div>
-                                    </div>
-                                </div>
+                                <a class="btn btn-sm btn-outline-warning font-small-1 py-25 px-75" href="{{route('admin.withdraw.pending')}}">
+                                    <i class="bx bx-wallet"></i> Withdraws (<span id="adminPendingWdCount">0</span>)
+                                </a>
                             </li>
-                            <li class="dropdown-menu-footer"><a
-                                    class="dropdown-item p-50 text-primary justify-content-center"
-                                    href="javascript:void(0)">Read all notifications</a></li>
                         </ul>
                     </li>
                     <li class="dropdown dropdown-user nav-item"><a class="dropdown-toggle nav-link dropdown-user-link"
@@ -561,6 +447,369 @@
 <script src="{{asset('public/common/sweetalert2.js')}}"></script>
 <script src="{{asset('public/common/developer.js')}}"></script>
 <!-- END: Page JS-->
+
+<!-- BEGIN: Admin Realtime Notification System -->
+<style>
+    .admin-notif-item {
+        transition: background-color 0.2s ease;
+        text-decoration: none !important;
+    }
+    .admin-notif-item:hover {
+        background-color: #f2f4f8 !important;
+    }
+    .admin-notif-unread {
+        background: rgba(90, 141, 238, 0.06);
+    }
+    .admin-bell-ring {
+        animation: adminBellShake 2s infinite ease-in-out;
+        color: #ff5b5c !important;
+    }
+    @keyframes adminBellShake {
+        0%, 100% { transform: rotate(0); }
+        10%, 30%, 50% { transform: rotate(14deg); }
+        20%, 40% { transform: rotate(-14deg); }
+        60% { transform: rotate(0); }
+    }
+</style>
+
+<script>
+(function() {
+    'use strict';
+
+    const NOTIF_URL = '{{ route("admin.realtime.notifications") }}';
+    const POLL_INTERVAL = 10000; // 10 seconds
+
+    let isFirstRun = true;
+    let isFetching = false;
+    let seenNotifIds = new Set();
+    let readNotifIds = new Set();
+
+    // Load read IDs from localStorage
+    try {
+        const storedRead = localStorage.getItem('admin_read_notif_ids');
+        if (storedRead) {
+            readNotifIds = new Set(JSON.parse(storedRead));
+        }
+    } catch (e) {}
+
+    // Audio Context & Synthesizer
+    let audioCtx = null;
+    function getAudioContext() {
+        if (!audioCtx) {
+            const AudioClass = window.AudioContext || window.webkitAudioContext;
+            if (AudioClass) {
+                audioCtx = new AudioClass();
+            }
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        return audioCtx;
+    }
+
+    // Unlock audio on first user click anywhere
+    function unlockAudio() {
+        getAudioContext();
+        document.removeEventListener('click', unlockAudio);
+        document.removeEventListener('keydown', unlockAudio);
+    }
+    document.addEventListener('click', unlockAudio, { once: true });
+    document.addEventListener('keydown', unlockAudio, { once: true });
+
+    // Sound toggle state
+    let isMuted = localStorage.getItem('admin_notif_muted') === 'true';
+    function updateSoundIcon() {
+        const icon = document.getElementById('adminSoundIcon');
+        if (icon) {
+            if (isMuted) {
+                icon.className = 'bx bx-volume-mute font-small-1 text-danger';
+            } else {
+                icon.className = 'bx bx-volume-full font-small-1 text-success';
+            }
+        }
+    }
+
+    function playAlertChime(isUrgent) {
+        if (isMuted) return;
+        try {
+            const ctx = getAudioContext();
+            if (!ctx) return;
+            const now = ctx.currentTime;
+
+            // Two-tone chime: High pitch pleasing ding
+            const freq1 = isUrgent ? 880 : 659.25; // A5 or E5
+            const freq2 = isUrgent ? 1174.66 : 987.77; // D6 or B5
+
+            const osc1 = ctx.createOscillator();
+            const gain1 = ctx.createGain();
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(freq1, now);
+            gain1.gain.setValueAtTime(0.18, now);
+            gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+            osc1.connect(gain1);
+            gain1.connect(ctx.destination);
+            osc1.start(now);
+            osc1.stop(now + 0.28);
+
+            const osc2 = ctx.createOscillator();
+            const gain2 = ctx.createGain();
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(freq2, now + 0.12);
+            gain2.gain.setValueAtTime(0.22, now + 0.12);
+            gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.50);
+            osc2.connect(gain2);
+            gain2.connect(ctx.destination);
+            osc2.start(now + 0.12);
+            osc2.stop(now + 0.50);
+        } catch (e) {
+            console.warn('[AdminNotif] Audio error:', e);
+        }
+    }
+
+    // Render an individual item
+    function renderItemHtml(item) {
+        const isRead = readNotifIds.has(item.id);
+        const unreadClass = !isRead && item.is_pending ? 'admin-notif-unread' : '';
+        const badgeClass = item.badge_class || 'badge-light-primary';
+        const badgeText = item.badge || 'Alert';
+        const iconColor = item.color || 'primary';
+
+        return `
+        <a class="d-flex justify-content-between cursor-pointer border-bottom-1 border-light p-75 text-reset admin-notif-item ${unreadClass}"
+           href="${item.url}"
+           data-id="${item.id}"
+           style="text-decoration: none; display: flex; align-items: center; border-bottom: 1px solid #f2f4f8;">
+            <div class="media d-flex align-items-center w-100">
+                <div class="media-left pr-75">
+                    <div class="avatar bg-rgba-${iconColor} m-0 p-25" style="border-radius: 50%; width: 38px; height: 38px; display:flex; align-items:center; justify-content:center;">
+                        <i class="${item.icon}" style="font-size: 20px;"></i>
+                    </div>
+                </div>
+                <div class="media-body" style="overflow: hidden; width: calc(100% - 46px);">
+                    <div class="d-flex justify-content-between align-items-center mb-25">
+                        <h6 class="media-heading mb-0 text-bold-600 font-small-3 text-truncate" style="color: #475f7b; max-width: 195px;">
+                            ${item.title}
+                        </h6>
+                        <span class="badge ${badgeClass} font-small-1 ml-50">${badgeText}</span>
+                    </div>
+                    <small class="notification-text text-muted d-block text-truncate" style="font-size: 11px;">
+                        ${item.desc}
+                    </small>
+                    <div class="d-flex justify-content-between align-items-center mt-25">
+                        <small class="text-muted font-small-1">
+                            <i class="bx bx-time-five font-small-1 mr-25"></i> ${item.time}
+                        </small>
+                        ${item.is_pending ? '<small class="text-danger font-weight-bold font-small-1">● Pending</small>' : ''}
+                    </div>
+                </div>
+            </div>
+        </a>`;
+    }
+
+    // Toast alert on new items
+    function showToastAlert(item) {
+        if (typeof toastr === 'undefined') return;
+
+        toastr.options = {
+            closeButton: true,
+            progressBar: true,
+            positionClass: 'toast-top-right',
+            timeOut: 9000,
+            extendedTimeOut: 3000,
+            showMethod: 'fadeIn',
+            hideMethod: 'fadeOut',
+            onclick: function() {
+                window.location.href = item.url;
+            }
+        };
+
+        if (item.type === 'deposit') {
+            toastr.success(
+                `${item.desc}<br><div style="margin-top:6px;"><span class="badge badge-light" style="color:#28c76f; font-weight:bold; font-size:11px;">👉 Click to Approve</span></div>`,
+                `💰 ${item.title}`
+            );
+        } else if (item.type === 'withdraw') {
+            toastr.warning(
+                `${item.desc}<br><div style="margin-top:6px;"><span class="badge badge-light" style="color:#ff9f43; font-weight:bold; font-size:11px;">👉 Click to Approve</span></div>`,
+                `💸 ${item.title}`
+            );
+        } else if (item.type === 'recharge') {
+            toastr.info(
+                `${item.desc}<br><div style="margin-top:6px;"><span class="badge badge-light" style="color:#00cfe8; font-weight:bold; font-size:11px;">👉 Click to Process</span></div>`,
+                `📱 ${item.title}`
+            );
+        } else {
+            toastr.info(`${item.desc}`, `👤 ${item.title}`);
+        }
+    }
+
+    // Main fetch & update routine
+    function fetchAdminNotifications() {
+        if (isFetching) return;
+        isFetching = true;
+
+        fetch(NOTIF_URL, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            credentials: 'same-origin'
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+        })
+        .then(data => {
+            if (!data || !data.status) return;
+
+            const badgeElem = document.getElementById('adminNotifBadge');
+            const bellIcon = document.getElementById('adminBellIcon');
+            const titleElem = document.getElementById('adminNotifTitle');
+            const listElem = document.getElementById('adminNotifList');
+            const depCountElem = document.getElementById('adminPendingDepCount');
+            const wdCountElem = document.getElementById('adminPendingWdCount');
+
+            const totalPending = data.total_pending || 0;
+            const notifications = data.notifications || [];
+
+            // Update pending counters
+            if (depCountElem) depCountElem.textContent = data.pending_deposits || 0;
+            if (wdCountElem) wdCountElem.textContent = data.pending_withdrawals || 0;
+
+            // Update badge & bell animation
+            if (badgeElem) {
+                if (totalPending > 0) {
+                    badgeElem.textContent = totalPending > 99 ? '99+' : totalPending;
+                    badgeElem.style.display = 'inline-block';
+                } else {
+                    badgeElem.style.display = 'none';
+                }
+            }
+
+            if (bellIcon) {
+                if (totalPending > 0) {
+                    bellIcon.classList.add('admin-bell-ring');
+                } else {
+                    bellIcon.classList.remove('admin-bell-ring');
+                }
+            }
+
+            if (titleElem) {
+                if (totalPending > 0) {
+                    titleElem.textContent = `${totalPending} Action Required`;
+                    titleElem.style.color = '#ff5b5c';
+                } else {
+                    titleElem.textContent = 'Realtime Alerts';
+                    titleElem.style.color = '#475f7b';
+                }
+            }
+
+            // Check for brand new items to alert
+            let hasNewPending = false;
+            let newestPendingItem = null;
+
+            notifications.forEach(item => {
+                if (!seenNotifIds.has(item.id)) {
+                    if (!isFirstRun && item.is_pending) {
+                        hasNewPending = true;
+                        newestPendingItem = item;
+                        showToastAlert(item);
+                    }
+                    seenNotifIds.add(item.id);
+                }
+            });
+
+            if (hasNewPending && newestPendingItem) {
+                playAlertChime(true);
+            }
+
+            // Render list
+            if (listElem) {
+                if (notifications.length === 0) {
+                    listElem.innerHTML = `
+                    <div class="text-center py-2 text-muted px-1">
+                        <i class="bx bx-check-circle font-large-1 mb-50 text-success d-block"></i>
+                        <p class="mb-25 font-small-3 font-weight-bold text-dark">All Caught Up!</p>
+                        <small class="text-muted">No pending deposits or withdrawals.</small>
+                    </div>`;
+                } else {
+                    listElem.innerHTML = notifications.map(renderItemHtml).join('');
+                }
+            }
+
+            isFirstRun = false;
+        })
+        .catch(err => {
+            // Silently suppress network errors
+        })
+        .finally(() => {
+            isFetching = false;
+        });
+    }
+
+    // Initialize on DOM ready
+    document.addEventListener('DOMContentLoaded', function() {
+        updateSoundIcon();
+
+        // Sound toggle button click
+        const soundBtn = document.getElementById('adminSoundToggle');
+        if (soundBtn) {
+            soundBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                isMuted = !isMuted;
+                localStorage.setItem('admin_notif_muted', isMuted);
+                updateSoundIcon();
+                if (!isMuted) {
+                    playAlertChime(false);
+                    if (typeof toastr !== 'undefined') {
+                        toastr.info('Sound alerts enabled', 'Notification Sound');
+                    }
+                } else {
+                    if (typeof toastr !== 'undefined') {
+                        toastr.info('Sound alerts muted', 'Notification Sound');
+                    }
+                }
+            });
+        }
+
+        // Mark all as read button
+        const markAllBtn = document.getElementById('adminMarkAllRead');
+        if (markAllBtn) {
+            markAllBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                seenNotifIds.forEach(id => readNotifIds.add(id));
+                try {
+                    localStorage.setItem('admin_read_notif_ids', JSON.stringify(Array.from(readNotifIds).slice(-100)));
+                } catch(e) {}
+
+                document.querySelectorAll('.admin-notif-unread').forEach(el => {
+                    el.classList.remove('admin-notif-unread');
+                });
+
+                const badge = document.getElementById('adminNotifBadge');
+                if (badge) badge.style.display = 'none';
+
+                const bell = document.getElementById('adminBellIcon');
+                if (bell) bell.classList.remove('admin-bell-ring');
+
+                if (typeof toastr !== 'undefined') {
+                    toastr.success('Notifications marked as read', 'Success');
+                }
+            });
+        }
+
+        // Initial poll
+        fetchAdminNotifications();
+
+        // Recurring background polling
+        setInterval(fetchAdminNotifications, POLL_INTERVAL);
+    });
+})();
+</script>
+<!-- END: Admin Realtime Notification System -->
 @stack('scripts')
 </body>
 </html>

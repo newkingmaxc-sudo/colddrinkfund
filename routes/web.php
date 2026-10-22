@@ -72,6 +72,7 @@ Route::middleware('throttle:limit-check')->group(function () {
     Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('logout', [AdminController::class, 'logout'])->name('admin.logout');
         Route::get('dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        Route::get('realtime-notifications', [AdminController::class, 'realtime_notifications'])->name('admin.realtime.notifications');
 
         //All Table Status
         Route::post('/table/status', [CommonController::class, 'status']);
