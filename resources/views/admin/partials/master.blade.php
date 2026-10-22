@@ -405,7 +405,7 @@
                 <a href="{{route('admin.purchase.index')}}"><i class="bx bx-right-arrow-alt"></i><span
                         class="menu-item" data-i18n="Section">Purchase Record</span></a></li>
 
-            <li class="@if(str_contains($route, 'admin.notice')) active @else @endif">
+            <li class="@if(request()->routeIs('admin.notice.*')) active @endif">
                 <a href="{{route('admin.notice.index')}}"><i class="bx bx-broadcast text-warning"></i><span
                         class="menu-item text-warning font-weight-bold" data-i18n="Section">📢 Broadcast & Notices</span></a></li>
 
