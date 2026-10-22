@@ -294,9 +294,7 @@
                             <div class="user-nav d-sm-flex d-none"><span
                                     class="user-name">{{admin()->user()->name ?? 'Wasif'}}</span><span
                                     class="user-status text-muted">Owner</span></div>
-                            <span><img class="round"
-                                       src="@if(admin()->user()->photo) {{asset(admin()->user()->photo)}} @else {{asset(not_found_img())}} @endif"
-                                       alt="avatar" height="40" width="40"></span>
+                            <span><img class="round" src="{{ admin()->user()->photo ? asset(admin()->user()->photo) : '/admin/app-assets/images/portrait/small/avatar-s-11.jpg' }}" alt="avatar" height="40" width="40"></span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right pb-0">
                             <a class="dropdown-item" href="{{route('admin.profile')}}"><i class="bx bx-user mr-50"></i>
@@ -406,6 +404,10 @@
             <li class="@if($route == 'admin.purchase.index') active @else @endif">
                 <a href="{{route('admin.purchase.index')}}"><i class="bx bx-right-arrow-alt"></i><span
                         class="menu-item" data-i18n="Section">Purchase Record</span></a></li>
+
+            <li class="@if(str_contains($route, 'admin.notice')) active @else @endif">
+                <a href="{{route('admin.notice.index')}}"><i class="bx bx-broadcast text-warning"></i><span
+                        class="menu-item text-warning font-weight-bold" data-i18n="Section">📢 Broadcast & Notices</span></a></li>
 
             <li class="nav-item @if($route == 'admin.payment.pending' || $route == 'admin.payment.rejected' || $route == 'admin.payment.approved') sidebar-group-active open active @else @endif">
                 <a href="#"> <i class="bx bx-right-arrow"></i> <span class="menu-title" data-i18n="Invoice">Payments</span></a>

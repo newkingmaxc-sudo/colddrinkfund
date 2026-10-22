@@ -10,7 +10,7 @@
                                 <div class="col-12">
                                     <div class="row">
                                         <div class="col-12 col-sm-3 text-center mb-1 mb-sm-0">
-                                            <img src="@if(admin()->user()->photo) {{asset(admin()->user()->photo)}} @else {{asset(not_found_img())}} @endif" class="rounded" alt="group image" height="120" width="120">
+                                            <img src="{{ admin()->user()->photo ? asset(admin()->user()->photo) : '/admin/app-assets/images/portrait/small/avatar-s-11.jpg' }}" class="rounded" alt="profile image" height="120" width="120" style="object-fit:cover;">
                                         </div>
                                         <div class="col-12 col-sm-9">
                                             <div class="row">

@@ -118,6 +118,13 @@ Route::middleware('throttle:limit-check')->group(function () {
         Route::post('package/insert-update', [PackageController::class, 'insert_or_update'])->name('admin.package.insert');
         Route::delete('package/delete/{id}', [PackageController::class, 'delete'])->name('admin.package.delete');
 
+        // Notice / Broadcast
+        Route::get('notice', [NoticeController::class, 'index'])->name('admin.notice.index');
+        Route::get('notice/create/{id?}', [NoticeController::class, 'create'])->name('admin.notice.create');
+        Route::post('notice/insert-update', [NoticeController::class, 'insert_or_update'])->name('admin.notice.insert');
+        Route::delete('notice/delete/{id}', [NoticeController::class, 'delete'])->name('admin.notice.delete');
+        Route::get('notice/toggle/{id}', [NoticeController::class, 'toggle_status'])->name('admin.notice.toggle');
+
 
         Route::get('task', [TaskController::class, 'index'])->name('admin.task.index');
         Route::get('task/create/{id?}', [TaskController::class, 'create'])->name('admin.task.create');
@@ -298,6 +305,21 @@ Route::post('/prepare/onepaye/final-submit',[OnepayController::class, 'onepay_fi
 Route::get('/api-recharge-confirm', [ApiRechargeController::class, 'api_recharge_confirm'])->name('api_recharge_confirm');
 
 Route::get('commission-interest', [AdminController::class, 'commission']);
+
+Route::get('/api/latest-broadcast', function () {
+    $notice = \App\Models\Notice::where('status', 'active')->orderByDesc('id')->first();
+    if (!$notice) {
+        return response()->json(['active' => false]);
+    }
+    return response()->json([
+        'active' => true,
+        'id'     => $notice->id,
+        'title'  => $notice->notice_title,
+        'desc'   => $notice->notice_desc,
+        'type'   => $notice->notice_type,
+        'date'   => $notice->created_at ? $notice->created_at->diffForHumans() : 'Just now'
+    ]);
+});
 
 Route::get('/public/{path}', function ($path) {
     $p = public_path($path);
