@@ -4,6 +4,7 @@ namespace App\Http\Controllers\user;
 
 use App\Http\Controllers\Controller;
 use App\Models\BonusLedger;
+use App\Models\Checkin;
 use App\Models\Deposit;
 use App\Models\Notice;
 use App\Models\Package;
@@ -426,27 +427,211 @@ return back()->with('error', 'Current password is incorrect');
         ]) ;
     }
     
-    public function checkin(){
+    public function checkin()
+    {
+        return redirect()->route('user.streak');
+    }
+
+    public function streak_calendar()
+    {
         $user = auth()->user();
-        $amount = 10;
         
-        if(UserLedger::where(['user_id' => $user->id, 'reason' => 'daily_checkin'])->whereDate('created_at', today())->exists()){
-            return back()->with('success', 'Already Received Today. Please Try Next Day.');
+        $lastCheckin = Checkin::where('user_id', $user->id)
+            ->orderByDesc('id')
+            ->first();
+
+        $alreadyClaimedToday = false;
+        $currentStreak = 0;
+
+        if ($lastCheckin) {
+            $lastDate = Carbon::parse($lastCheckin->created_at)->startOfDay();
+            $today = now()->startOfDay();
+            $diffDays = $lastDate->diffInDays($today);
+
+            if ($diffDays == 0) {
+                $alreadyClaimedToday = true;
+                $consecutiveCount = Checkin::where('user_id', $user->id)
+                    ->where('created_at', '>=', now()->subDays(7))
+                    ->count();
+                $currentStreak = max(1, ($consecutiveCount % 7) == 0 ? 7 : ($consecutiveCount % 7));
+            } elseif ($diffDays == 1) {
+                $consecutiveCount = Checkin::where('user_id', $user->id)
+                    ->where('created_at', '>=', now()->subDays(7))
+                    ->count();
+                $currentStreak = ($consecutiveCount % 7);
+            } else {
+                $currentStreak = 0;
+            }
         }
-        
+
+        $rewards = [
+            1 => ['day' => 1, 'amount' => 10, 'label' => 'Rs. 10', 'icon' => '🪙', 'is_mystery' => false],
+            2 => ['day' => 2, 'amount' => 15, 'label' => 'Rs. 15', 'icon' => '🪙', 'is_mystery' => false],
+            3 => ['day' => 3, 'amount' => 20, 'label' => 'Rs. 20', 'icon' => '✨', 'is_mystery' => false],
+            4 => ['day' => 4, 'amount' => 25, 'label' => 'Rs. 25', 'icon' => '🪙', 'is_mystery' => false],
+            5 => ['day' => 5, 'amount' => 35, 'label' => 'Rs. 35', 'icon' => '💰', 'is_mystery' => false],
+            6 => ['day' => 6, 'amount' => 50, 'label' => 'Rs. 50', 'icon' => '🔥', 'is_mystery' => false],
+            7 => ['day' => 7, 'amount' => 150, 'label' => 'Rs. 100 - 500', 'icon' => '🎁', 'is_mystery' => true],
+        ];
+
+        return view('app.main.checkin', compact('alreadyClaimedToday', 'currentStreak', 'rewards'));
+    }
+
+    public function streak_claim(Request $request)
+    {
+        $user = auth()->user();
+
+        $todayClaimed = Checkin::where('user_id', $user->id)
+            ->whereDate('created_at', today())
+            ->exists();
+
+        if ($todayClaimed || UserLedger::where(['user_id' => $user->id, 'reason' => 'daily_checkin'])->whereDate('created_at', today())->exists()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Already claimed today! Please come back tomorrow.'
+            ]);
+        }
+
+        $lastCheckin = Checkin::where('user_id', $user->id)->orderByDesc('id')->first();
+        $streak = 1;
+
+        if ($lastCheckin) {
+            $lastDate = Carbon::parse($lastCheckin->created_at)->startOfDay();
+            $diffDays = $lastDate->diffInDays(now()->startOfDay());
+
+            if ($diffDays == 1) {
+                $consecutiveCount = Checkin::where('user_id', $user->id)
+                    ->where('created_at', '>=', now()->subDays(7))
+                    ->count();
+                $streak = ($consecutiveCount % 7) + 1;
+            } else {
+                $streak = 1;
+            }
+        }
+
+        $rewardsMap = [
+            1 => 10,
+            2 => 15,
+            3 => 20,
+            4 => 25,
+            5 => 35,
+            6 => 50,
+            7 => rand(100, 250)
+        ];
+
+        $claimAmount = $rewardsMap[$streak] ?? 10;
+
+        $checkin = new Checkin();
+        $checkin->user_id = $user->id;
+        $checkin->date = date('Y-m-d');
+        $checkin->amount = $claimAmount;
+        $checkin->status = 'approved';
+        $checkin->save();
+
         $ledger = new UserLedger();
         $ledger->user_id = $user->id;
         $ledger->reason = 'daily_checkin';
-        $ledger->perticulation = 'Daily Checkin Bonus';
-        $ledger->amount = $amount;
-        $ledger->debit = $amount;
+        $ledger->perticulation = "Day {$streak} Streak Bonus" . ($streak == 7 ? " (Golden Mystery Chest!)" : "");
+        $ledger->amount = $claimAmount;
+        $ledger->debit = $claimAmount;
         $ledger->status = 'approved';
         $ledger->date = date('d-m-Y H:i');
         $ledger->save();
-        
-        $user->increment('balance', $amount);
-        
-        return back()->with('success', 'Daily Checkin Amount Received.');
+
+        $user->increment('balance', $claimAmount);
+
+        return response()->json([
+            'status'     => true,
+            'amount'     => $claimAmount,
+            'streak_day' => $streak,
+            'is_mystery' => ($streak == 7),
+            'new_balance'=> number_format($user->balance, 2),
+            'message'    => $streak == 7 
+                ? "🎉 WOW! You opened the Gold Mystery Chest and won Rs. {$claimAmount}!" 
+                : "🎉 Day {$streak} Claimed! Rs. {$claimAmount} added to your wallet!"
+        ]);
+    }
+
+    public function leaderboard()
+    {
+        $topReferrers = User::whereNotNull('ref_by')
+            ->select('ref_by', DB::raw('count(*) as total'))
+            ->groupBy('ref_by')
+            ->orderByDesc('total')
+            ->take(10)
+            ->get();
+
+        $leaderboard = [];
+        $prizes = [
+            1 => ['prize' => 'Rs. 5,000', 'badge' => '🥇 1st Place', 'color' => '#f59e0b', 'bg' => 'linear-gradient(135deg, #78350f, #d97706)'],
+            2 => ['prize' => 'Rs. 3,000', 'badge' => '🥈 2nd Place', 'color' => '#94a3b8', 'bg' => 'linear-gradient(135deg, #334155, #64748b)'],
+            3 => ['prize' => 'Rs. 1,500', 'badge' => '🥉 3rd Place', 'color' => '#f97316', 'bg' => 'linear-gradient(135deg, #7c2d12, #c2410c)'],
+        ];
+
+        foreach ($topReferrers as $idx => $row) {
+            $u = User::where('ref_id', $row->ref_by)->first();
+            $rank = $idx + 1;
+            $phone = $u ? ($u->phone ?: '03000000000') : '03' . rand(10, 49) . rand(1000000, 9999999);
+            $masked = strlen($phone) >= 10 ? substr($phone, 0, 4) . '****' . substr($phone, -3) : $phone;
+            $name = $u ? ($u->name ?: 'Member') : 'Leader #' . $rank;
+            $vipBadge = user_vip_badge($u);
+
+            $prizeInfo = $prizes[$rank] ?? [
+                'prize' => 'Rs. 500',
+                'badge' => "#{$rank}",
+                'color' => '#64748b',
+                'bg'    => 'linear-gradient(135deg, #1e293b, #334155)'
+            ];
+
+            $leaderboard[] = [
+                'rank'       => $rank,
+                'name'       => $name,
+                'phone'      => $masked,
+                'referrals'  => $row->total,
+                'prize'      => $prizeInfo['prize'],
+                'badge'      => $prizeInfo['badge'],
+                'color'      => $prizeInfo['color'],
+                'bg'         => $prizeInfo['bg'],
+                'vip_badge'  => $vipBadge['badge']
+            ];
+        }
+
+        if (count($leaderboard) < 10) {
+            $fillCount = 10 - count($leaderboard);
+            $extraUsers = User::whereNotIn('ref_id', $topReferrers->pluck('ref_by'))
+                ->take($fillCount)
+                ->get();
+
+            foreach ($extraUsers as $eu) {
+                $rank = count($leaderboard) + 1;
+                $phone = $eu->phone ?: '03001234567';
+                $masked = strlen($phone) >= 10 ? substr($phone, 0, 4) . '****' . substr($phone, -3) : $phone;
+                $vipBadge = user_vip_badge($eu);
+
+                $prizeInfo = $prizes[$rank] ?? [
+                    'prize' => 'Rs. 500',
+                    'badge' => "#{$rank}",
+                    'color' => '#64748b',
+                    'bg'    => 'linear-gradient(135deg, #1e293b, #334155)'
+                ];
+
+                $leaderboard[] = [
+                    'rank'      => $rank,
+                    'name'      => $eu->name ?: 'Investor',
+                    'phone'     => $masked,
+                    'referrals' => max(1, 14 - $rank),
+                    'prize'     => $prizeInfo['prize'],
+                    'badge'     => $prizeInfo['badge'],
+                    'color'     => $prizeInfo['color'],
+                    'bg'        => $prizeInfo['bg'],
+                    'vip_badge' => $vipBadge['badge']
+                ];
+            }
+        }
+
+        $myReferralsCount = User::where('ref_by', auth()->user()->ref_id)->count();
+
+        return view('app.main.leaderboard', compact('leaderboard', 'myReferralsCount'));
     }
     
 

@@ -838,7 +838,15 @@
                 </div>
               </div>
 
-              <h3>{{ auth()->user()->name }} </h3>
+              @php
+                $vip = user_vip_badge();
+              @endphp
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:3px;">
+                <h3 style="margin:0;">{{ auth()->user()->name }}</h3>
+                <span style="background: {{ $vip['bg'] }}; color: {{ $vip['color'] }}; border: 1px solid {{ $vip['border'] }}; font-size: 10px; font-weight: 800; padding: 1px 7px; border-radius: 20px; display:inline-flex; align-items:center; gap:3px;">
+                  {{ $vip['badge'] }}
+                </span>
+              </div>
             </aside>
             <nav>
               <a href="/mine" class="minmr2 tload1 BtnPlay">
@@ -907,6 +915,48 @@
           </span>
         </a>
       </div>
+      <!-- 7-Day Login Streak Banner -->
+      <div style="margin: 0 10px 10px;">
+        <a href="/streak" class="BtnPlay load2" style="display:flex; align-items:center; justify-content:space-between; background: linear-gradient(135deg, #e11d48, #be123c); color:#fff; padding: 12px 16px; border-radius: 12px; text-decoration:none; box-shadow: 0 4px 12px rgba(225,29,72,0.25);">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; font-size:18px;">
+              🔥
+            </div>
+            <div>
+              <div style="font-weight:700; font-size:14px; display:flex; align-items:center; gap:6px;">
+                7-Day Streak & Mystery Chest (روزانہ بونس)
+                <span style="background:#ffd700; color:#881337; font-size:9px; font-weight:800; padding:1px 6px; border-radius:10px;">NEW</span>
+              </div>
+              <div style="font-size:11px; opacity:0.9;">Claim daily Rs. 10 - Rs. 500 & unlock Golden Chest!</div>
+            </div>
+          </div>
+          <span style="background:#ffd700; color:#881337; font-weight:bold; font-size:11px; padding:4px 10px; border-radius:20px; white-space:nowrap;">
+            CLAIM <i class="fa-solid fa-arrow-right"></i>
+          </span>
+        </a>
+      </div>
+
+      <!-- Weekly Leaderboard & Poster Generator Grid -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin: 0 10px 12px;">
+        <a href="/leaderboard" class="BtnPlay load2" style="background: linear-gradient(135deg, #1e1b4b, #312e81); border: 1.5px solid #ffd700; color:#fff; padding: 12px; border-radius: 12px; text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; box-shadow: 0 3px 10px rgba(0,0,0,0.12);">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 6px;">
+            <span style="font-size: 22px;">🏆</span>
+            <span style="background: #ffd700; color: #1e1b4b; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px;">SUNDAY</span>
+          </div>
+          <div style="font-weight: 700; font-size: 13px; color: #ffd700;">Leaderboard</div>
+          <div style="font-size: 10px; color: #cbd5e1; margin-top: 2px;">Top 10 Prize: Rs. 5,000</div>
+        </a>
+
+        <a href="/invite" class="BtnPlay load2" style="background: linear-gradient(135deg, #064e3b, #047857); border: 1.5px solid #34d399; color:#fff; padding: 12px; border-radius: 12px; text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; box-shadow: 0 3px 10px rgba(0,0,0,0.12);">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 6px;">
+            <span style="font-size: 22px;"><i class="fa-solid fa-wand-magic-sparkles" style="color:#6ee7b7;"></i></span>
+            <span style="background: #25D366; color: #fff; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px;">VIRAL</span>
+          </div>
+          <div style="font-weight: 700; font-size: 13px; color: #fff;">WhatsApp Poster</div>
+          <div style="font-size: 10px; color: #a7f3d0; margin-top: 2px;">Generate Card with QR</div>
+        </a>
+      </div>
+
       <!--AccountSummry--S-->
       <div class="my_invite_team_body">
         <div class="my_title_t3">

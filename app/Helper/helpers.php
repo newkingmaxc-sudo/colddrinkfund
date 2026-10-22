@@ -246,5 +246,99 @@ function hourlyamount($validity, $amount)
     return $calculate_amount;
 }
 
+if (!function_exists('user_vip_badge')) {
+    function user_vip_badge($user = null)
+    {
+        $user = $user ?: auth()->user();
+        if (!$user) {
+            return [
+                'level'        => 0,
+                'name'         => 'Free Member',
+                'badge'        => '🌱 Free Tier',
+                'color'        => '#15803d',
+                'bg'           => 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)',
+                'border'       => '#22c55e',
+                'icon'         => '🌱',
+                'perks'        => 'Daily Check-in Active',
+                'payout_speed' => 'Standard'
+            ];
+        }
+
+        try {
+            $maxPackage = \App\Models\Purchase::where('user_id', $user->id)
+                ->where('status', 'active')
+                ->join('packages', 'purchases.package_id', '=', 'packages.id')
+                ->orderByDesc('packages.price')
+                ->first(['packages.price', 'packages.name']);
+
+            $price = $maxPackage ? (float)$maxPackage->price : 0;
+
+            if ($price >= 15000) {
+                return [
+                    'level'        => 4,
+                    'name'         => 'Diamond Partner',
+                    'badge'        => '👑 Diamond VIP',
+                    'color'        => '#3730a3',
+                    'bg'           => 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)',
+                    'border'       => '#6366f1',
+                    'icon'         => '👑',
+                    'perks'        => 'Instant Payouts • VIP Club Access',
+                    'payout_speed' => '⚡ 5 Minutes'
+                ];
+            } elseif ($price >= 3500) {
+                return [
+                    'level'        => 3,
+                    'name'         => 'Gold Partner',
+                    'badge'        => '🥇 Gold VIP',
+                    'color'        => '#854d0e',
+                    'bg'           => 'linear-gradient(135deg, #fef08a 0%, #facc15 100%)',
+                    'border'       => '#eab308',
+                    'icon'         => '🥇',
+                    'perks'        => 'Priority Payouts • 5% Team Bonus',
+                    'payout_speed' => '⚡ 15 Minutes'
+                ];
+            } elseif ($price >= 800) {
+                return [
+                    'level'        => 2,
+                    'name'         => 'Silver Distributor',
+                    'badge'        => '🥈 Silver VIP',
+                    'color'        => '#334155',
+                    'bg'           => 'linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%)',
+                    'border'       => '#94a3b8',
+                    'icon'         => '🥈',
+                    'perks'        => 'Daily Mining Income Active',
+                    'payout_speed' => 'Standard'
+                ];
+            } elseif ($price >= 350) {
+                return [
+                    'level'        => 1,
+                    'name'         => 'Bronze Bottler',
+                    'badge'        => '🥉 Bronze VIP',
+                    'color'        => '#9a3412',
+                    'bg'           => 'linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%)',
+                    'border'       => '#f97316',
+                    'icon'         => '🥉',
+                    'perks'        => 'Verified Investor',
+                    'payout_speed' => 'Standard'
+                ];
+            }
+        } catch (\Exception $e) {
+            // fallback
+        }
+
+        return [
+            'level'        => 0,
+            'name'         => 'Free Member',
+            'badge'        => '🌱 Free Tier',
+            'color'        => '#15803d',
+            'bg'           => 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)',
+            'border'       => '#22c55e',
+            'icon'         => '🌱',
+            'perks'        => 'Daily Check-in Active',
+            'payout_speed' => 'Standard'
+        ];
+    }
+}
+
 
 ?>

@@ -366,6 +366,42 @@
         </div>
       </div>
       <!--Team-Account--E-->
+      <!-- Viral Features: WhatsApp Poster & Leaderboard -->
+      <div style="margin: 12px 10px; display: flex; flex-direction: column; gap: 10px;">
+        <a href="/invite" class="load2 minmr2" style="background: linear-gradient(135deg, #1e084d, #310d64); color: #fff; padding: 14px 16px; border-radius: 14px; text-decoration: none; display: flex; align-items: center; justify-content: space-between; border: 1.5px solid #ffd700; box-shadow: 0 4px 15px rgba(30,8,77,0.3);">
+          <div style="display:flex; align-items:center; gap: 12px;">
+            <div style="width: 42px; height: 42px; border-radius: 12px; background: rgba(255,215,0,0.18); color: #ffd700; display:flex; align-items:center; justify-content:center; font-size: 22px;">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <div>
+              <div style="font-weight: 700; font-size: 14px; color: #fff; display:flex; align-items:center; gap:6px;">
+                WhatsApp Poster Card Studio
+                <span style="background: #25D366; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 10px;">HOT</span>
+              </div>
+              <div style="font-size: 11px; color: #cbd5e1; margin-top: 2px;">Generate photo poster with your QR code & share on WhatsApp!</div>
+            </div>
+          </div>
+          <div style="background: #ffd700; color: #1e084d; font-weight: bold; font-size: 11px; padding: 6px 12px; border-radius: 20px; white-space: nowrap;">
+            OPEN STUDIO <i class="fa-solid fa-arrow-right"></i>
+          </div>
+        </a>
+
+        <a href="/leaderboard" class="load2 minmr2" style="background: linear-gradient(135deg, #1e1b4b, #2e1065); color: #fff; padding: 12px 16px; border-radius: 14px; text-decoration: none; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+          <div style="display:flex; align-items:center; gap: 12px;">
+            <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(253, 224, 71, 0.15); color: #facc15; display:flex; align-items:center; justify-content:center; font-size: 20px;">
+              🏆
+            </div>
+            <div>
+              <div style="font-weight: 700; font-size: 13px; color: #fff;">Weekly Top Referrers Leaderboard</div>
+              <div style="font-size: 11px; color: #facc15; font-weight: 600;">Rank #1: Rs. 5,000 Prize • Live Sunday Countdown</div>
+            </div>
+          </div>
+          <div style="background: rgba(255,255,255,0.15); color: #fff; font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 20px;">
+            View Board
+          </div>
+        </a>
+      </div>
+
       <!--Invite--S-->
       <div class="my_invite">
         <div class="my_ref_title"><i class="fas fa-user-plus"></i> Your Referral Invitation</div>

@@ -530,6 +530,84 @@
       </p>
       <div class="swiper-defult-pagination pagination-dots style-1 p-0"></div>
 
+      @php
+        $vipInfo = user_vip_badge();
+        $refUrl = url('register') . '?inviteCode=' . auth()->user()->ref_id;
+        $maskedPhone = strlen(auth()->user()->phone) >= 10 ? substr(auth()->user()->phone, 0, 4) . '****' . substr(auth()->user()->phone, -3) : auth()->user()->phone;
+      @endphp
+
+      <!-- Instant WhatsApp Poster Card Studio -->
+      <div class="refer-card" style="background: linear-gradient(135deg, #260a52 0%, #150033 100%); color: #fff; border: 2px solid rgba(255, 215, 0, 0.4); box-shadow: 0 10px 30px rgba(38, 10, 82, 0.35);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+          <div style="font-size: 17px; font-weight: 700; color: #ffd700; display:flex; align-items:center; gap:8px;">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> WhatsApp Poster Studio
+          </div>
+          <span style="background: #25D366; color: #fff; font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 20px; display:inline-flex; align-items:center; gap:4px;">
+            <i class="fa-brands fa-whatsapp"></i> Viral 3x
+          </span>
+        </div>
+
+        <p style="font-size: 13px; color: #e2e8f0; margin-bottom: 15px; line-height: 1.5;">
+          Apna personalized photo card generate karein jis par aapka QR code aur referral code bana ho. WhatsApp Status aur groups me share karke rozana naye referrals banayein!
+        </p>
+
+        <!-- Theme Selector -->
+        <div style="display:flex; gap:8px; margin-bottom: 15px; justify-content:center;">
+          <button type="button" onclick="setPosterTheme('purple')" id="theme-btn-purple" style="flex:1; padding: 7px 5px; font-size: 12px; font-weight: 600; border-radius: 8px; border: 2px solid #ffd700; background: #3b137a; color:#fff; cursor:pointer;">
+            🟣 Royal Purple
+          </button>
+          <button type="button" onclick="setPosterTheme('green')" id="theme-btn-green" style="flex:1; padding: 7px 5px; font-size: 12px; font-weight: 600; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: #064e3b; color:#fff; cursor:pointer;">
+            🟢 Emerald
+          </button>
+          <button type="button" onclick="setPosterTheme('red')" id="theme-btn-red" style="flex:1; padding: 7px 5px; font-size: 12px; font-weight: 600; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: #881337; color:#fff; cursor:pointer;">
+            🔴 Cola Red
+          </button>
+        </div>
+
+        <!-- Canvas Container -->
+        <div style="text-align: center; margin: 10px 0 15px;">
+          <canvas id="invitePosterCanvas" width="720" height="1080" style="width: 100%; max-width: 330px; height: auto; border-radius: 14px; box-shadow: 0 12px 35px rgba(0,0,0,0.5); border: 2px solid rgba(255,255,255,0.2); display: inline-block;"></canvas>
+        </div>
+
+        <!-- Poster Action Buttons -->
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button type="button" onclick="sharePosterToWhatsApp()" style="background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; border:none; padding: 13px; border-radius: 10px; font-size: 15px; font-weight: 700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);">
+            <i class="fa-brands fa-whatsapp" style="font-size: 20px;"></i> Share to WhatsApp (واٹس ایپ شیئر)
+          </button>
+
+          <div style="display:flex; gap:10px;">
+            <button type="button" onclick="downloadPosterImage()" style="flex:1; background: #ffd700; color: #1e084d; border:none; padding: 11px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+              <i class="fa-solid fa-download"></i> Save PNG
+            </button>
+            <button type="button" onclick="copyToClipboard('{{ $refUrl }}')" style="flex:1; background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); padding: 11px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+              <i class="fa-regular fa-copy"></i> Copy Link
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Feature Links: Weekly Leaderboard & Login Streak -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom: 20px;">
+        <a href="/leaderboard" style="background:#fff; border-radius:12px; padding:12px; text-decoration:none; display:flex; align-items:center; gap:10px; box-shadow:0 3px 10px rgba(0,0,0,0.05); border:1px solid #e0e7ff;">
+          <div style="width:36px; height:36px; border-radius:10px; background:#fef3c7; color:#d97706; display:flex; align-items:center; justify-content:center; font-size:18px;">
+            🏆
+          </div>
+          <div>
+            <div style="font-size:12px; font-weight:700; color:#1e1b4b;">Leaderboard</div>
+            <div style="font-size:10px; color:#d97706; font-weight:600;">Rs. 5,000 Prize</div>
+          </div>
+        </a>
+
+        <a href="/streak" style="background:#fff; border-radius:12px; padding:12px; text-decoration:none; display:flex; align-items:center; gap:10px; box-shadow:0 3px 10px rgba(0,0,0,0.05); border:1px solid #fee2e2;">
+          <div style="width:36px; height:36px; border-radius:10px; background:#fee2e2; color:#ef4444; display:flex; align-items:center; justify-content:center; font-size:18px;">
+            🔥
+          </div>
+          <div>
+            <div style="font-size:12px; font-weight:700; color:#1e1b4b;">Daily Streak</div>
+            <div style="font-size:10px; color:#ef4444; font-weight:600;">Mystery Chest</div>
+          </div>
+        </a>
+      </div>
 
       <div class="refer-card">
         <div class="refer-title">
@@ -548,10 +626,10 @@
 
         <div style="font-size: 13px; color: #666; margin-bottom: 5px;">Your Referral Link</div>
         <div style="word-break: break-all; font-size: 14px; margin-bottom: 15px; color: #444;">
-          {{url('register').'?inviteCode='.auth()->user()->ref_id}} </div>
+          {{ $refUrl }} </div>
 
         <div class="share-buttons">
-          <button class="share-btn" onclick="copyToClipboard('{{url('register').'?inviteCode='.auth()->user()->ref_id}}')" data-cf-modified-fa87047e0b3650d36a16211e-="">
+          <button class="share-btn" onclick="copyToClipboard('{{ $refUrl }}')" data-cf-modified-fa87047e0b3650d36a16211e-="">
             <i class="fas fa-copy"></i> Copy Link
           </button>
           <button class="share-btn" onclick="if (!window.__cfRLUnblockHandlers) return false; shareLink()" data-cf-modified-fa87047e0b3650d36a16211e-="">
@@ -675,33 +753,385 @@
 
     <script type="text/javascript">
       function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(() => {
-          notify("success", "Copy Success !!");
-        }).catch(err => {
-          notify("error", "Failed to copy: " + err);
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(() => {
+            notify("success", "Copied to clipboard!");
+          }).catch(err => {
+            fallbackCopyText(text);
+          });
+        } else {
+          fallbackCopyText(text);
+        }
+      }
+
+      function fallbackCopyText(text) {
+        var textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          notify("success", "Copied to clipboard!");
+        } catch (err) {
+          notify("error", "Could not copy text");
+        }
+        document.body.removeChild(textArea);
+      }
+
+      const USER_INVITE_DATA = {
+        name: @json(auth()->user()->name ?? 'Member'),
+        refId: @json(auth()->user()->ref_id),
+        phone: @json($maskedPhone),
+        vipName: @json($vipInfo['name'] ?? 'Bronze Bottler'),
+        vipIcon: @json($vipInfo['icon'] ?? '🥤'),
+        refUrl: @json($refUrl),
+        siteUrl: "colddrinkfund.vercel.app"
+      };
+
+      let currentPosterTheme = 'purple';
+      let qrImageCache = null;
+
+      function setPosterTheme(theme) {
+        currentPosterTheme = theme;
+        ['purple', 'green', 'red'].forEach(t => {
+          const btn = document.getElementById('theme-btn-' + t);
+          if (btn) {
+            btn.style.border = (t === theme) ? '2px solid #ffd700' : '1px solid rgba(255,255,255,0.2)';
+          }
         });
+        renderPosterCanvas(theme);
+      }
+
+      function renderPosterCanvas(theme = 'purple') {
+        const canvas = document.getElementById('invitePosterCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const W = canvas.width;  // 720
+        const H = canvas.height; // 1080
+
+        // Theme Palettes
+        const themes = {
+          purple: {
+            bg1: '#1a0538',
+            bg2: '#2c0a5e',
+            bg3: '#0c001a',
+            accent: '#ffd700',
+            border: 'rgba(168, 85, 247, 0.5)',
+            glow: 'rgba(147, 51, 234, 0.35)',
+            pillBg: 'rgba(255, 255, 255, 0.12)'
+          },
+          green: {
+            bg1: '#022c22',
+            bg2: '#064e3b',
+            bg3: '#011913',
+            accent: '#facc15',
+            border: 'rgba(16, 185, 129, 0.5)',
+            glow: 'rgba(16, 185, 129, 0.35)',
+            pillBg: 'rgba(255, 255, 255, 0.12)'
+          },
+          red: {
+            bg1: '#3f0413',
+            bg2: '#881337',
+            bg3: '#1c0108',
+            accent: '#fde047',
+            border: 'rgba(244, 63, 94, 0.5)',
+            glow: 'rgba(225, 29, 72, 0.35)',
+            pillBg: 'rgba(255, 255, 255, 0.12)'
+          }
+        };
+
+        const pal = themes[theme] || themes.purple;
+
+        // 1. Background Gradient
+        const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+        bgGrad.addColorStop(0, pal.bg1);
+        bgGrad.addColorStop(0.5, pal.bg2);
+        bgGrad.addColorStop(1, pal.bg3);
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, W, H);
+
+        // 2. Subtle Glow Orbs
+        function drawGlow(x, y, radius, color) {
+          const radGrad = ctx.createRadialGradient(x, y, 0, x, y, radius);
+          radGrad.addColorStop(0, color);
+          radGrad.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = radGrad;
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        drawGlow(120, 160, 260, pal.glow);
+        drawGlow(600, 780, 280, pal.glow);
+        drawGlow(360, 500, 200, 'rgba(255, 215, 0, 0.12)');
+
+        // 3. Bubbles / Effervescence (Cold Drink Fizz)
+        ctx.save();
+        const bubbles = [
+          {x: 80, y: 350, r: 8, o: 0.25}, {x: 140, y: 720, r: 14, o: 0.2},
+          {x: 620, y: 280, r: 10, o: 0.3}, {x: 580, y: 640, r: 18, o: 0.25},
+          {x: 90, y: 920, r: 12, o: 0.3},  {x: 640, y: 940, r: 16, o: 0.2},
+          {x: 240, y: 200, r: 6, o: 0.2},  {x: 480, y: 150, r: 7, o: 0.22}
+        ];
+        bubbles.forEach(b => {
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${b.o})`;
+          ctx.fill();
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = `rgba(255, 215, 0, ${b.o + 0.1})`;
+          ctx.stroke();
+        });
+        ctx.restore();
+
+        // 4. Outer Framed Border
+        ctx.save();
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = pal.border;
+        ctx.strokeRect(20, 20, W - 40, H - 40);
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgba(255, 215, 0, 0.4)';
+        ctx.strokeRect(26, 26, W - 52, H - 52);
+        ctx.restore();
+
+        // Helper: Rounded Rectangle
+        function roundRect(x, y, w, h, r, fillStyle, strokeStyle, lineWidth) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(x + r, y);
+          ctx.arcTo(x + w, y, x + w, y + h, r);
+          ctx.arcTo(x + w, y + h, x, y + h, r);
+          ctx.arcTo(x, y + h, x, y, r);
+          ctx.arcTo(x, y, x + w, y, r);
+          ctx.closePath();
+          if (fillStyle) {
+            ctx.fillStyle = fillStyle;
+            ctx.fill();
+          }
+          if (strokeStyle) {
+            ctx.lineWidth = lineWidth || 1;
+            ctx.strokeStyle = strokeStyle;
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        // 5. Header Branding
+        ctx.save();
+        ctx.textAlign = 'center';
+        
+        // Brand Title
+        ctx.font = '900 42px "Poppins", sans-serif';
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = 'rgba(0,0,0,0.6)';
+        ctx.shadowBlur = 10;
+        ctx.fillText('COLD DRINK FUND', W / 2, 85);
+        ctx.shadowBlur = 0;
+
+        // Subtitle
+        ctx.font = '700 15px "Poppins", sans-serif';
+        ctx.fillStyle = pal.accent;
+        ctx.letterSpacing = '3px';
+        ctx.fillText('🥤 OFFICIAL PARTNER NETWORK • PAKISTAN', W / 2, 115);
+        ctx.restore();
+
+        // 6. User VIP / Partner Badge Box
+        roundRect(60, 140, W - 120, 95, 14, pal.pillBg, 'rgba(255,255,255,0.2)', 1.5);
+
+        ctx.save();
+        ctx.textAlign = 'left';
+        ctx.font = '700 20px "Poppins", sans-serif';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(USER_INVITE_DATA.name, 90, 180);
+
+        ctx.font = '500 14px "Poppins", sans-serif';
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillText('📱 Phone: ' + USER_INVITE_DATA.phone, 90, 210);
+
+        // VIP Pill on right
+        roundRect(W - 270, 160, 180, 42, 21, 'rgba(255, 215, 0, 0.18)', pal.accent, 1.5);
+        ctx.textAlign = 'center';
+        ctx.font = '700 14px "Poppins", sans-serif';
+        ctx.fillStyle = pal.accent;
+        ctx.fillText(USER_INVITE_DATA.vipIcon + ' ' + USER_INVITE_DATA.vipName, W - 180, 187);
+        ctx.restore();
+
+        // 7. Value Proposition Cards (Bullet Highlights)
+        const perks = [
+          '⚡ Daily Bottling Income Credited Every 24 Hours',
+          '💳 Instant Withdrawals via JazzCash & Easypaisa',
+          '🎁 27% Direct Referral Commission On Deposits',
+          '🛡️ 100% Transparent, Verified & Risk-Free Project'
+        ];
+
+        let startY = 265;
+        perks.forEach((p, idx) => {
+          roundRect(60, startY, W - 120, 48, 10, 'rgba(0, 0, 0, 0.25)', 'rgba(255, 215, 0, 0.2)', 1);
+          ctx.save();
+          ctx.font = '600 15px "Poppins", sans-serif';
+          ctx.fillStyle = '#f8fafc';
+          ctx.textAlign = 'left';
+          ctx.fillText(p, 85, startY + 30);
+          ctx.restore();
+          startY += 58;
+        });
+
+        // 8. White Card for QR Code
+        const qrCardY = 515;
+        const qrCardSize = 270;
+        const qrCardX = (W - qrCardSize) / 2;
+        roundRect(qrCardX, qrCardY, qrCardSize, qrCardSize, 18, '#ffffff', pal.accent, 3);
+
+        // QR Code Drawing
+        const qrSize = 210;
+        const qrX = qrCardX + (qrCardSize - qrSize) / 2;
+        const qrY = qrCardY + 20;
+
+        function drawQRImage(img) {
+          ctx.drawImage(img, qrX, qrY, qrSize, qrSize);
+          ctx.save();
+          ctx.font = '700 13px "Poppins", sans-serif';
+          ctx.fillStyle = '#0f172a';
+          ctx.textAlign = 'center';
+          ctx.fillText('SCAN TO JOIN & CLAIM BONUS', W / 2, qrCardY + qrCardSize - 14);
+          ctx.restore();
+        }
+
+        if (qrImageCache && qrImageCache.complete) {
+          drawQRImage(qrImageCache);
+        } else {
+          // Placeholder while loading
+          ctx.save();
+          ctx.font = '600 14px "Poppins", sans-serif';
+          ctx.fillStyle = '#64748b';
+          ctx.textAlign = 'center';
+          ctx.fillText('Generating QR Code...', W / 2, qrCardY + qrCardSize / 2);
+          ctx.restore();
+
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=' + encodeURIComponent(USER_INVITE_DATA.refUrl);
+          img.onload = function() {
+            qrImageCache = img;
+            renderPosterCanvas(currentPosterTheme);
+          };
+          img.onerror = function() {
+            // Draw clean geometric QR surrogate
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(qrX + 30, qrY + 30, 40, 40);
+            ctx.fillRect(qrX + qrSize - 70, qrY + 30, 40, 40);
+            ctx.fillRect(qrX + 30, qrY + qrSize - 70, 40, 40);
+            ctx.font = '700 13px "Poppins", sans-serif';
+            ctx.fillText('SCAN TO JOIN & CLAIM BONUS', W / 2, qrCardY + qrCardSize - 14);
+          };
+        }
+
+        // 9. Golden Highlight: Referral Code Banner
+        const refBoxY = 810;
+        const refGrad = ctx.createLinearGradient(60, refBoxY, W - 60, refBoxY);
+        refGrad.addColorStop(0, '#fef08a');
+        refGrad.addColorStop(0.5, '#ffd700');
+        refGrad.addColorStop(1, '#f59e0b');
+        roundRect(60, refBoxY, W - 120, 80, 16, refGrad, '#ffffff', 2);
+
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.font = '800 13px "Poppins", sans-serif';
+        ctx.fillStyle = '#78350f';
+        ctx.fillText('ENTER THIS INVITATION CODE ON SIGNUP', W / 2, refBoxY + 28);
+
+        ctx.font = '900 36px "Poppins", sans-serif';
+        ctx.fillStyle = '#1c1917';
+        ctx.fillText(USER_INVITE_DATA.refId, W / 2, refBoxY + 65);
+        ctx.restore();
+
+        // 10. Bonus Callout
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.font = '700 16px "Poppins", sans-serif';
+        ctx.fillStyle = pal.accent;
+        ctx.fillText('🔥 RS. 50 FREE SIGNUP BONUS FOR NEW MEMBERS 🔥', W / 2, 925);
+        ctx.restore();
+
+        // 11. Footer Security & Trust
+        roundRect(60, 955, W - 120, 65, 12, 'rgba(0,0,0,0.3)', 'rgba(255,255,255,0.1)', 1);
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.font = '600 13px "Poppins", sans-serif';
+        ctx.fillStyle = '#e2e8f0';
+        ctx.fillText('🌐 Official Website: ' + USER_INVITE_DATA.siteUrl, W / 2, 982);
+
+        ctx.font = '500 12px "Poppins", sans-serif';
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText('24/7 WhatsApp & Telegram Support • SSL Secured Platform', W / 2, 1004);
+        ctx.restore();
+      }
+
+      function downloadPosterImage() {
+        const canvas = document.getElementById('invitePosterCanvas');
+        if (!canvas) return;
+        const link = document.createElement('a');
+        link.download = `ColdDrinkFund_Invite_${USER_INVITE_DATA.refId}.png`;
+        link.href = canvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        notify("success", "Poster downloaded successfully!");
+      }
+
+      function sharePosterToWhatsApp() {
+        const canvas = document.getElementById('invitePosterCanvas');
+        const shareMsg = `🥤 *Cold Drink Fund - Daily Bottling Profits!* 🥤\n\n` +
+          `Maine Cold Drink Fund join karke daily income shuru ki hai!\n` +
+          `✅ Rozana munafa seedha account me\n` +
+          `✅ Instant Easypaisa & JazzCash Withdrawals\n` +
+          `✅ 27% Direct Referral Bonus\n` +
+          `✅ Rs. 50 Free Signup Bonus\n\n` +
+          `📌 Mera Invitation Code: *${USER_INVITE_DATA.refId}*\n` +
+          `📲 Abhi Join Karein: ${USER_INVITE_DATA.refUrl}`;
+
+        // Attempt Web Share with image file
+        if (canvas && navigator.canShare && canvas.toBlob) {
+          canvas.toBlob(blob => {
+            const file = new File([blob], `ColdDrinkFund_${USER_INVITE_DATA.refId}.png`, { type: 'image/png' });
+            if (navigator.canShare({ files: [file] })) {
+              navigator.share({
+                files: [file],
+                title: 'Cold Drink Fund Partner',
+                text: shareMsg
+              }).catch(err => {
+                fallbackWhatsAppText(shareMsg);
+              });
+              return;
+            } else {
+              fallbackWhatsAppText(shareMsg);
+            }
+          }, 'image/png');
+        } else {
+          fallbackWhatsAppText(shareMsg);
+        }
+      }
+
+      function fallbackWhatsAppText(shareMsg) {
+        // Also trigger PNG download so user has the card ready to post on Status
+        downloadPosterImage();
+        const waUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(shareMsg);
+        window.open(waUrl, '_blank');
+        notify("info", "Poster saved! Opening WhatsApp to share...");
       }
 
       function shareLink() {
-        const url = "https://solar-ai55.com/home/register?invite=P0DBDMG8";
-        const text = "Join Solar Ai using my referral code P0DBDMG8 and we both earn rewards!";
-
-        if (navigator.share) {
-          navigator.share({
-            title: "Earn with Solar Ai",
-            text: text,
-            url: url,
-          }).catch(err => {
-            // Fallback if user cancels share
-            copyToClipboard(url);
-            notify("info", "Link copied! You can now share it manually.");
-          });
-        } else {
-          // Fallback for browsers without Web Share API
-          copyToClipboard(url);
-          notify("info", "Link copied! You can now share it manually.");
-        }
+        sharePosterToWhatsApp();
       }
+
+      // Initialize Poster Canvas on DOM Ready
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+          renderPosterCanvas(currentPosterTheme);
+        }, 150);
+      });
     </script>
 
 

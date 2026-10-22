@@ -238,9 +238,14 @@ Route::middleware('throttle:limit-check')->group(function () {
         Route::get('deposit/record', [UserController::class, 'deposit_record'])->name('deposit.record');
         Route::get('withdraw/record', [UserController::class, 'withdraw_record'])->name('withdraw.record');
 
-        //invite
+        //invite & leaderboard
         Route::get('/invite', [UserController::class, 'invite'])->name('user.invite');
+        Route::get('/leaderboard', [UserController::class, 'leaderboard'])->name('user.leaderboard');
+
+        // 7-Day Login Streak & Mystery Chest
         Route::get('/checkin', [UserController::class, 'checkin'])->name('user.checkin');
+        Route::get('/streak', [UserController::class, 'streak_calendar'])->name('user.streak');
+        Route::post('/streak/claim', [UserController::class, 'streak_claim'])->name('user.streak.claim');
 
         //Notice
         Route::get('/card', [UserController::class, 'card'])->name('user.card');

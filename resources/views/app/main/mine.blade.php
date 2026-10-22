@@ -328,7 +328,15 @@
               </div>
             </div>
 
-            <h3>{{ auth()->user()->name }} </h3>
+            @php
+              $vip = user_vip_badge();
+            @endphp
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:4px;">
+              <h3 style="margin:0;">{{ auth()->user()->name }}</h3>
+              <span style="background: {{ $vip['bg'] }}; color: {{ $vip['color'] }}; border: 1px solid {{ $vip['border'] }}; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 20px; display:inline-flex; align-items:center; gap:4px; box-shadow:0 2px 5px rgba(0,0,0,0.08);">
+                {{ $vip['badge'] }}
+              </span>
+            </div>
           </aside>
           <nav>
             <a href="#" class="minmr2 tload1 BtnPlay">
@@ -340,6 +348,26 @@
 
       </div>
 
+        <!-- VIP Rank Status Banner -->
+        <div style="background: linear-gradient(135deg, #1e084d 0%, #2e1065 100%); border: 1.5px solid {{ $vip['border'] }}; border-radius: 14px; padding: 14px 16px; margin: 12px 10px; color: #fff; box-shadow: 0 4px 15px rgba(30,8,77,0.25);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size: 22px;">{{ $vip['icon'] }}</span>
+              <div>
+                <div style="font-size: 14px; font-weight: 800; color: #ffd700;">{{ $vip['name'] }} (Level {{ $vip['level'] }})</div>
+                <div style="font-size: 11px; color: #cbd5e1;">⚡ Payout Speed: <b>{{ $vip['payout_speed'] }}</b></div>
+              </div>
+            </div>
+            <a href="/vip" class="load2 minmr2" style="background: #ffd700; color: #1e084d; font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 20px; text-decoration: none;">
+              Upgrade VIP
+            </a>
+          </div>
+          <div style="font-size: 11px; color: #e2e8f0; background: rgba(255,255,255,0.08); padding: 6px 10px; border-radius: 8px; display:flex; justify-content:space-between; align-items:center;">
+            <span><i class="fa-solid fa-gift" style="color:#ffd700;"></i> Perks: {{ $vip['perks'] }}</span>
+            <span style="color:#a78bfa; font-weight:700;">Tier Active</span>
+          </div>
+        </div>
+
       <!--Team-Account--S-->
       <div class="my_invite_team_body">
         <div class="my_title_t3">
@@ -449,6 +477,30 @@
           </div>
         </a>
         <!--Promo--E-->
+        <!--Leaderboard--S-->
+        <a href="/leaderboard" class="my_account_tab6_tab" style="background: linear-gradient(135deg, #1e1b4b, #2e1065); color:#fff; border-radius:12px; padding:15px; text-decoration:none; display:block; margin-bottom:10px; box-shadow:0 3px 10px rgba(0,0,0,0.15); border: 1px solid #ffd700;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h1 style="color:#ffd700; font-size:16px; font-weight:700; margin:0;">🏆 Weekly Leaderboard</h1>
+              <p style="color:#e2e8f0; font-size:12px; margin:4px 0 0;">Top 10 Referrers • Sunday Prize Rs. 5,000</p>
+            </div>
+            <span style="background:#ffd700; color:#1e1b4b; font-size:11px; font-weight:bold; padding:4px 10px; border-radius:20px;">Rankings</span>
+          </div>
+        </a>
+        <!--Leaderboard--E-->
+
+        <!--PosterStudio--S-->
+        <a href="/invite" class="my_account_tab6_tab" style="background: linear-gradient(135deg, #0c453a, #1a7560); color:#fff; border-radius:12px; padding:15px; text-decoration:none; display:block; margin-bottom:10px; box-shadow:0 3px 10px rgba(12,69,58,0.25);">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h1 style="color:#fff; font-size:16px; font-weight:700; margin:0;"><i class="fa-solid fa-wand-magic-sparkles"></i> WhatsApp Poster Studio</h1>
+              <p style="color:#e2e8f0; font-size:12px; margin:4px 0 0;">Create photo invite card with your QR code</p>
+            </div>
+            <span style="background:#25D366; color:#fff; font-size:11px; font-weight:bold; padding:4px 10px; border-radius:20px;">Create Card</span>
+          </div>
+        </a>
+        <!--PosterStudio--E-->
+
         <!--DailyReward--S-->
         <a href="/checkin" class="my_account_tab6_tab my_daily_bonus">
           <h1>Daily Login Bonus.</h1>
