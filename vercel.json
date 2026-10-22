@@ -12,11 +12,19 @@
   },
   "routes": [
     {
-      "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|json|webp|mp3|mp4|map|eot))",
+      "src": "^/public/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|json|webp|mp3|mp4|map|eot))$",
       "dest": "/public/$1"
     },
     {
-      "src": "/(.*)",
+      "src": "^/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|json|webp|mp3|mp4|map|eot))$",
+      "dest": "/public/$1"
+    },
+    {
+      "src": "^/public/(.*)$",
+      "dest": "/$1"
+    },
+    {
+      "src": "^/(.*)$",
       "dest": "/api/index.php"
     }
   ],

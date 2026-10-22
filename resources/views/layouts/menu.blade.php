@@ -4,7 +4,7 @@
         <div class="uni-tabbar__item" onclick="goLink('/')">
             <div class="uni-tabbar__bd" style="height: 60px;">
                 <div class="uni-tabbar__icon" style="width: 24px; height: 24px;"><img
-                        src="/public/static/home.png">
+                        src="/static/home.png">
                 </div>
                 <div class="uni-tabbar__label"
                     style="color: rgb(191, 191, 191); font-size: 12px; line-height: normal; margin-top: 3px;">
@@ -17,7 +17,7 @@
         <div class="uni-tabbar__item" onclick="goLink('/my/vip')">
             <div class="uni-tabbar__bd" style="height: 60px;">
                 <div class="uni-tabbar__icon" style="width: 24px; height: 24px;"><img
-                        src="/public/static/order.png"></div>
+                        src="/static/order.png"></div>
                 <div class="uni-tabbar__label"
                     style="color: rgb(4, 165, 80); font-size: 12px; line-height: normal; margin-top: 3px;">
                     <font style="vertical-align: inherit;">
@@ -30,7 +30,7 @@
         <div class="uni-tabbar__item" onclick="goLink('/vip')">
             <div class="uni-tabbar__bd" style="height: 60px;">
                 <div class="uni-tabbar__icon" style="width: 24px; height: 24px;"><img
-                        src="/public/static/icon_vip.png"></div>
+                        src="/static/icon_vip.png"></div>
                 <div class="uni-tabbar__label"
                     style="color: rgb(4, 165, 80); font-size: 12px; line-height: normal; margin-top: 3px;">
                     <font style="vertical-align: inherit;">
@@ -43,7 +43,7 @@
         <div class="uni-tabbar__item" onclick="goLink('/my-team')">
             <div class="uni-tabbar__bd" style="height: 60px;">
                 <div class="uni-tabbar__icon" style="width: 24px; height: 24px;"><img
-                        src="/public/static/team.png">
+                        src="/static/team.png">
                 </div>
                 <div class="uni-tabbar__label"
                     style="color: rgb(191, 191, 191); font-size: 12px; line-height: normal; margin-top: 3px;">
@@ -57,7 +57,7 @@
         <div class="uni-tabbar__item" onclick="goLink('/mine')">
             <div class="uni-tabbar__bd" style="height: 60px;">
                 <div class="uni-tabbar__icon" style="width: 24px; height: 24px;"><img
-                        src="/public/static/user.png">
+                        src="/static/user.png">
                 </div>
                 <div class="uni-tabbar__label"
                     style="color: rgb(191, 191, 191); font-size: 12px; line-height: normal; margin-top: 3px;">
