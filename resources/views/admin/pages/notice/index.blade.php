@@ -64,7 +64,7 @@
                                                     @endif
                                                 </a>
                                             </td>
-                                            <td><small class="text-muted">{{$row->created_at ? $row->created_at->diffForHumans() : '-'}}</small></td>
+                                            <td><small class="text-muted">{{$row->created_at ? \Carbon\Carbon::parse($row->created_at)->diffForHumans() : '-'}}</small></td>
                                             <td>
                                                 <a href="{{route('admin.notice.create', $row->id)}}"
                                                    class="btn btn-sm btn-warning" data-toggle="tooltip" title='Edit'>
