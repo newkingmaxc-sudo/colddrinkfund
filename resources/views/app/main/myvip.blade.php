@@ -275,7 +275,7 @@
       </header>
 
 
-      <link type="text/css" rel="stylesheet" href="/css/product-info.css" />
+      <link type="text/css" rel="stylesheet" href="/css/product-info.css?v=4" />
 
       <!--Cat--S-->
       <div class="sv_table_menu1_body">
@@ -316,7 +316,7 @@
             @endphp
           <div class="my_trade_chart_body ">
             <div class="my_trade_product_body  OrderNow " data-id="0">
-              <div class="my_trade_product_tab1" style="background: #f8fafc; display: flex; align-items: center; justify-content: center; overflow: hidden;"><img src="{{ view_image($element->photo) }}" style="max-height: 100%; max-width: 100%; object-fit: contain;" alt="{{ $element->name }}" /></div>
+              <div class="my_trade_product_tab1" style="flex: 0 0 110px; width: 110px; min-width: 110px; min-height: 140px; background-color: #f8fafc; background-image: url('{{ view_image($element->photo) }}?v=4'); background-size: contain; background-repeat: no-repeat; background-position: center; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 6px;"><img src="{{ view_image($element->photo) }}?v=4" style="width: 100%; height: 100%; max-height: 125px; object-fit: contain; display: block;" alt="{{ $element->name }}" onerror="this.style.opacity='0'" /></div>
               <div class="my_trade_product_tab2">
                 <div class="my_trade_b1" data-id="0">
                   <div class="my_trade_b1_free">FREE</div>
@@ -408,7 +408,7 @@
             
           <div class="my_trade_chart_body ">
             <div class="my_trade_product_body  OrderNow " data-id="0">
-              <div class="my_trade_product_tab1" style="background: #f8fafc; display: flex; align-items: center; justify-content: center; overflow: hidden;"><img src="{{ view_image($element->photo) }}" style="max-height: 100%; max-width: 100%; object-fit: contain;" alt="{{ $element->name }}" /></div>
+              <div class="my_trade_product_tab1" style="flex: 0 0 110px; width: 110px; min-width: 110px; min-height: 140px; background-color: #f8fafc; background-image: url('{{ view_image($element->photo) }}?v=4'); background-size: contain; background-repeat: no-repeat; background-position: center; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 6px;"><img src="{{ view_image($element->photo) }}?v=4" style="width: 100%; height: 100%; max-height: 125px; object-fit: contain; display: block;" alt="{{ $element->name }}" onerror="this.style.opacity='0'" /></div>
               <div class="my_trade_product_tab2">
                 <div class="my_trade_b1" data-id="0">
                   <div class="my_trade_b1_free">FREE</div>
@@ -461,7 +461,7 @@
         <div id="sv_all_tabes_box2_c">
           <div class="my_trade_chart_body ">
             <div class="my_trade_product_body  OrderNow " data-id="15">
-              <div class="my_trade_product_tab1" style="background: #f8fafc; display: flex; align-items: center; justify-content: center; overflow: hidden;"><img src="/upload/package/1764875441mkB.jpeg" style="max-height: 100%; max-width: 100%; object-fit: contain;" alt="Maaza Cold Drink" /></div>
+              <div class="my_trade_product_tab1" style="flex: 0 0 110px; width: 110px; min-width: 110px; min-height: 140px; background-color: #f8fafc; background-image: url('/upload/package/1764875441mkB.jpeg?v=4'); background-size: contain; background-repeat: no-repeat; background-position: center; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 6px;"><img src="/upload/package/1764875441mkB.jpeg?v=4" style="width: 100%; height: 100%; max-height: 125px; object-fit: contain; display: block;" alt="Maaza Cold Drink" onerror="this.style.opacity='0'" /></div>
               <div class="my_trade_product_tab2">
                 <div class="my_trade_b1" data-id="15">
                   <section>

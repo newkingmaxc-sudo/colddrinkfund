@@ -132,16 +132,13 @@ if (!function_exists('view_image')) {
     function view_image($imageName)
     {
         if (empty($imageName) || !is_string($imageName)) {
-            return asset(not_found_img());
+            return '/common/img/404.png';
         }
         if (str_starts_with($imageName, 'http://') || str_starts_with($imageName, 'https://')) {
             return $imageName;
         }
-        $mainUrl = env('IMAGE_VIEW_SET');
-        if ($mainUrl != null) {
-            return rtrim($mainUrl, '/') . '/' . ltrim($imageName, '/');
-        }
-        return asset('/' . ltrim($imageName, '/'));
+        $clean = preg_replace('#^/?public/#', '', $imageName);
+        return '/' . ltrim($clean, '/');
     }
 }
 
