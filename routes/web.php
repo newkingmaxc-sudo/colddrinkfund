@@ -312,17 +312,36 @@ Route::get('/api-recharge-confirm', [ApiRechargeController::class, 'api_recharge
 Route::get('commission-interest', [AdminController::class, 'commission']);
 
 Route::get('/realtime-notice', function () {
-    $notice = \App\Models\Notice::where('status', 'active')->orderByDesc('id')->first();
+    $userId = \Illuminate\Support\Facades\Auth::id();
+    
+    // Check personal notification first (if user is logged in)
+    $notice = null;
+    if ($userId) {
+        $notice = \App\Models\Notice::where('status', 'active')
+            ->where('user_id', $userId)
+            ->orderByDesc('id')
+            ->first();
+    }
+    
+    // If no personal notice, check general broadcast
+    if (!$notice) {
+        $notice = \App\Models\Notice::where('status', 'active')
+            ->whereNull('user_id')
+            ->orderByDesc('id')
+            ->first();
+    }
+
     if (!$notice) {
         return response()->json(['active' => false]);
     }
     return response()->json([
-        'active' => true,
-        'id'     => $notice->id,
-        'title'  => $notice->notice_title,
-        'desc'   => $notice->notice_desc,
-        'type'   => $notice->notice_type,
-        'date'   => $notice->created_at ? $notice->created_at->diffForHumans() : 'Just now'
+        'active'      => true,
+        'id'          => $notice->id,
+        'is_personal' => !is_null($notice->user_id),
+        'title'       => $notice->notice_title,
+        'desc'        => $notice->notice_desc,
+        'type'        => $notice->notice_type,
+        'date'        => $notice->created_at ? $notice->created_at->diffForHumans() : 'Just now'
     ]);
 });
 Route::get('/broadcast-notice', function () {

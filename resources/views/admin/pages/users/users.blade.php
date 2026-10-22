@@ -61,6 +61,12 @@
                                             <td>{{number_format($row->balance, 2)}}</td>
                                             <td>{{$row->status}}</td>
                                             <td>
+                                                <a href="{{route('admin.notice.create', ['user_id' => $row->id])}}"
+                                                   class="btn btn-dark"
+                                                   style="padding: 3px 7px;font-size: 20px"
+                                                   data-toggle="tooltip" title='Send Notification to {{$row->name}}'>
+                                                    <i class="bx bx-bell"></i></a>
+
                                                 <a href="{{route('admin.deposit.manual', ['user_id' => $row->id])}}"
                                                    class="btn btn-warning"
                                                    style="padding: 3px 7px;font-size: 20px"

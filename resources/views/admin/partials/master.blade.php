@@ -291,9 +291,26 @@
                 <a href="{{route('admin.purchase.index')}}"><i class="bx bx-right-arrow-alt"></i><span
                         class="menu-item" data-i18n="Section">Purchase Record</span></a></li>
 
-            <li class="@if(request()->routeIs('admin.notice.*')) active @endif">
-                <a href="{{route('admin.notice.index')}}"><i class="bx bx-broadcast text-warning"></i><span
-                        class="menu-item text-warning font-weight-bold" data-i18n="Section">📢 Broadcast & Notices</span></a></li>
+            <li class="nav-item @if(request()->routeIs('admin.notice.*')) sidebar-group-active open active @endif">
+                <a href="#">
+                    <i class="bx bx-bell font-medium-1 text-warning"></i>
+                    <span class="menu-title font-weight-bold" data-i18n="Notifications" style="color: #ff9f43;">User Notifications</span>
+                </a>
+                <ul class="menu-content">
+                    <li class="@if(request()->routeIs('admin.notice.create')) active @endif">
+                        <a href="{{route('admin.notice.create')}}">
+                            <i class="bx bx-send text-success"></i>
+                            <span class="menu-item" data-i18n="SendNotice">🔔 Send Notification</span>
+                        </a>
+                    </li>
+                    <li class="@if(request()->routeIs('admin.notice.index')) active @endif">
+                        <a href="{{route('admin.notice.index')}}">
+                            <i class="bx bx-list-ul"></i>
+                            <span class="menu-item" data-i18n="AllNotices">📢 Sent Notifications</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
             <li class="nav-item @if($route == 'admin.payment.pending' || $route == 'admin.payment.rejected' || $route == 'admin.payment.approved') sidebar-group-active open active @else @endif">
                 <a href="#"> <i class="bx bx-right-arrow"></i> <span class="menu-title" data-i18n="Invoice">Payments</span></a>

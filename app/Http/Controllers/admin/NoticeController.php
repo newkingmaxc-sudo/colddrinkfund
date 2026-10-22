@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Notice;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class NoticeController extends Controller
@@ -12,23 +13,31 @@ class NoticeController extends Controller
 
     public function index()
     {
-        $datas = Notice::orderByDesc('id')->get();
+        $datas = Notice::with('user:id,name,phone,ref_id')->orderByDesc('id')->get();
         return view('admin.pages.notice.index', compact('datas'));
     }
 
     public function view($id)
     {
-        $data = Notice::find($id);
+        $data = Notice::with('user')->find($id);
         return view('admin.pages.notice.view', compact('data'));
     }
 
-    public function create($id = null)
+    public function create(Request $request, $id = null)
     {
         $data = null;
+        $selectedUser = null;
+
         if ($id) {
-            $data = Notice::find($id);
+            $data = Notice::with('user')->find($id);
+            if ($data && $data->user) {
+                $selectedUser = $data->user;
+            }
+        } elseif ($request->filled('user_id')) {
+            $selectedUser = User::find($request->user_id);
         }
-        return view('admin.pages.notice.insert', compact('data'));
+
+        return view('admin.pages.notice.insert', compact('data', 'selectedUser'));
     }
 
     public function insert_or_update(Request $request)
@@ -39,6 +48,23 @@ class NoticeController extends Controller
             'notice_desc'  => 'required',
         ]);
 
+        $userId = null;
+        if ($request->target_type === 'specific') {
+            $identifier = trim($request->user_identifier ?? '');
+            if (!empty($identifier)) {
+                $user = User::where('phone', $identifier)
+                    ->orWhere('id', $identifier)
+                    ->orWhere('ref_id', $identifier)
+                    ->first();
+                if (!$user) {
+                    return back()->withInput()->with('error', "User not found with phone/ID: '{$identifier}'");
+                }
+                $userId = $user->id;
+            } else {
+                return back()->withInput()->with('error', 'Please enter a User Phone or User ID for specific user notification.');
+            }
+        }
+
         if ($request->id) {
             $model = Notice::findOrFail($request->id);
             $model->status = $request->status ?? 'active';
@@ -47,12 +73,18 @@ class NoticeController extends Controller
             $model->status = $request->status ?? 'active';
         }
 
+        $model->user_id      = $userId;
         $model->notice_type  = $request->notice_type;
         $model->notice_title = $request->notice_title;
         $model->notice_desc  = $request->notice_desc;
 
         $model->save();
-        return redirect()->route($this->route . '.index')->with('success', $request->id ? 'Notice Updated Successfully.' : 'Broadcast Notice Published Successfully.');
+
+        $successMsg = $userId 
+            ? "Notification sent successfully to User ({$request->user_identifier})!"
+            : "Broadcast notification published successfully to All Users!";
+
+        return redirect()->route($this->route . '.index')->with('success', $successMsg);
     }
 
     public function delete($id)
@@ -61,7 +93,7 @@ class NoticeController extends Controller
         if ($model) {
             $model->delete();
         }
-        return redirect()->route($this->route . '.index')->with('success', 'Notice Deleted Successfully.');
+        return redirect()->route($this->route . '.index')->with('success', 'Notification Deleted Successfully.');
     }
 
     public function toggle_status($id)

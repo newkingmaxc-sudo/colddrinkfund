@@ -2,13 +2,13 @@
 <div id="cdf-broadcast-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 999999; backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px;">
     <div style="background: #ffffff; border-radius: 16px; max-width: 420px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.3); overflow: hidden; animation: cdfPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
         <!-- Header -->
-        <div style="background: linear-gradient(135deg, #1f7c03 0%, #04a550 100%); padding: 18px 20px; color: #fff; position: relative;">
+        <div id="cdf-broadcast-header" style="background: linear-gradient(135deg, #1f7c03 0%, #04a550 100%); padding: 18px 20px; color: #fff; position: relative;">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="background: rgba(255,255,255,0.25); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                <div id="cdf-broadcast-icon" style="background: rgba(255,255,255,0.25); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">
                     📢
                 </div>
                 <div>
-                    <h3 id="cdf-broadcast-type" style="margin: 0; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #fff;">Official Announcement</h3>
+                    <h3 id="cdf-broadcast-type" style="margin: 0; font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #fff;">Official Announcement</h3>
                     <small id="cdf-broadcast-time" style="opacity: 0.9; font-size: 11px;">Just now</small>
                 </div>
             </div>
@@ -53,25 +53,68 @@
 <script>
 var currentBroadcast = null;
 
+// User audio chime via Web Audio API
+function playUserNoticeChime() {
+    try {
+        var AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        var ctx = new AudioCtx();
+        var now = ctx.currentTime;
+
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(784, now); // G5
+        osc.frequency.setValueAtTime(1046.5, now + 0.12); // C6
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.4);
+    } catch(e) {}
+}
+
 function renderBroadcastData(data) {
     currentBroadcast = data;
     document.getElementById('cdf-broadcast-title').innerText = data.title;
     document.getElementById('cdf-broadcast-desc').innerText = data.desc;
     document.getElementById('cdf-broadcast-time').innerText = data.date || 'Just now';
     
+    var headerEl = document.getElementById('cdf-broadcast-header');
+    var iconEl = document.getElementById('cdf-broadcast-icon');
     var typeLabel = 'Official Announcement';
-    if (data.type === 'popup') typeLabel = 'Urgent Alert';
-    if (data.type === 'marquee') typeLabel = 'Rolling Notice';
+
+    if (data.is_personal) {
+        typeLabel = '🔒 Private Message For You';
+        if (headerEl) headerEl.style.background = 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)';
+        if (iconEl) iconEl.innerText = '👤';
+    } else {
+        if (data.type === 'popup') {
+            typeLabel = '⚠️ Urgent Alert';
+            if (headerEl) headerEl.style.background = 'linear-gradient(135deg, #d97706 0%, #b45309 100%)';
+            if (iconEl) iconEl.innerText = '⚠️';
+        } else if (data.type === 'reward') {
+            typeLabel = '🎁 Special Bonus Alert';
+            if (headerEl) headerEl.style.background = 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+            if (iconEl) iconEl.innerText = '🎁';
+        } else {
+            typeLabel = 'Official Announcement';
+            if (headerEl) headerEl.style.background = 'linear-gradient(135deg, #1f7c03 0%, #04a550 100%)';
+            if (iconEl) iconEl.innerText = '📢';
+        }
+    }
     document.getElementById('cdf-broadcast-type').innerText = typeLabel;
 
     // Show floating button
     var floatBtn = document.getElementById('cdf-broadcast-floating-btn');
     if (floatBtn) floatBtn.style.display = 'flex';
 
-    // If not seen yet, pop it up
+    // If not seen yet, pop it up with pleasant chime
     var lastSeen = localStorage.getItem('cdf_last_notice_id');
     if (!lastSeen || lastSeen != data.id) {
         openBroadcastModal();
+        playUserNoticeChime();
     }
 }
 
