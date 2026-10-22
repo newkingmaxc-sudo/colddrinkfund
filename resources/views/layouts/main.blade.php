@@ -8,16 +8,16 @@
     <title>@yield('title') Orion-apps</title>
     <meta name="viewport"
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover">
-    <link rel="stylesheet" href="/public/static/index.2da1efab.css">
+    <link rel="stylesheet" href="/static/index.2da1efab.css">
     <style type="text/css">
         @import url(https://fonts.font.im/css?family=Libre+Franklin:300,400,500,600,700,800,900);
     </style>
 
-    <link rel="stylesheet" href="/public/static/style-1.css">
-    <link rel="stylesheet" href="/public/static/style-2.css">
-    <link rel="stylesheet" href="/public/static/style-3.css">
-    <link rel="stylesheet" href="/public/static/style-4.css">
-    <link rel="stylesheet" href="/public/static/style-5.css">
+    <link rel="stylesheet" href="/static/style-1.css">
+    <link rel="stylesheet" href="/static/style-2.css">
+    <link rel="stylesheet" href="/static/style-3.css">
+    <link rel="stylesheet" href="/static/style-4.css">
+    <link rel="stylesheet" href="/static/style-5.css">
     <style>
         .d-b-c {
         

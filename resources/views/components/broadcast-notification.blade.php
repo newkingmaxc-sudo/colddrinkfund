@@ -92,7 +92,7 @@ function closeBroadcastModal() {
 
 // Initial fetch & Real-time polling
 function checkRealtimeBroadcast() {
-    fetch('/api/latest-broadcast')
+    fetch('/realtime-notice')
         .then(function(res) { return res.json(); })
         .then(function(data) {
             if (data && data.active) {

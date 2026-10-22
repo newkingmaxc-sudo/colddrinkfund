@@ -306,7 +306,7 @@ Route::get('/api-recharge-confirm', [ApiRechargeController::class, 'api_recharge
 
 Route::get('commission-interest', [AdminController::class, 'commission']);
 
-Route::get('/api/latest-broadcast', function () {
+Route::get('/realtime-notice', function () {
     $notice = \App\Models\Notice::where('status', 'active')->orderByDesc('id')->first();
     if (!$notice) {
         return response()->json(['active' => false]);
@@ -319,6 +319,9 @@ Route::get('/api/latest-broadcast', function () {
         'type'   => $notice->notice_type,
         'date'   => $notice->created_at ? $notice->created_at->diffForHumans() : 'Just now'
     ]);
+});
+Route::get('/broadcast-notice', function () {
+    return redirect('/realtime-notice');
 });
 
 Route::get('/public/{path}', function ($path) {
