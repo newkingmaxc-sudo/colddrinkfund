@@ -9,6 +9,7 @@ use App\Http\Controllers\admin\PackageController;
 use App\Http\Controllers\admin\PaymentMethodController;
 use App\Http\Controllers\admin\SettingController;
 use App\Http\Controllers\admin\TaskController;
+use App\Http\Controllers\admin\NoticeController;
 use App\Http\Controllers\admin\VipSliderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\user\CategoryController;
