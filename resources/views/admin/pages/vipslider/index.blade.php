@@ -30,7 +30,7 @@
                                         <tr>
                                             <td>{{$key + 1}}</td>
                                             <td>
-                                                <img width="40" src="{{asset(view_image($row->photo))}}" alt="VIP Photo">
+                                                <img width="40" height="40" style="object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;" src="{{ view_image($row->photo) }}" alt="VIP Photo">
                                             </td>
                                             <td>{{$row->page_type}}</td>
                                             <td>{{$row->status}}</td>

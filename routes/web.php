@@ -185,6 +185,9 @@ Route::middleware('throttle:limit-check')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/', function () {
+        if (\Illuminate\Support\Facades\Auth::check()) {
+            return redirect()->route('dashboard');
+        }
         return redirect()->route('login');
     });
 

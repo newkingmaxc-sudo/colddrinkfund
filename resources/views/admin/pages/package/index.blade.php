@@ -37,7 +37,7 @@
                                             <td>{{$row->label}}</td>
                                             <td>{{$row->tab}}</td>
                                             <td>
-                                                <img width="40" src="{{asset(view_image($row->photo))}}" alt="Package Photo">
+                                                <img width="40" height="40" style="object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;" src="{{ view_image($row->photo) }}" alt="Package Photo">
                                             </td>
                                             <td>{{$row->price}}</td>
                                             <td>{{$row->validity}}Days</td>

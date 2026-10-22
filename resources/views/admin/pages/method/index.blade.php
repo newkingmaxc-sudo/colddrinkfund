@@ -31,7 +31,7 @@
                                         <tr>
                                             <td>{{$key + 1}}</td>
                                             <td>
-                                                <img src="{{asset($row->photo)}}" style="width: 30px;height: 30px;border-radius: 50px;" alt="">
+                                                <img src="{{ view_image($row->photo) }}" style="width: 32px;height: 32px;border-radius: 50px;object-fit:cover;border:1px solid #e2e8f0;" alt="{{$row->name}}">
                                             </td>
                                             <td>{{$row->name}}</td>
                                             <td>{{$row->address}}</td>

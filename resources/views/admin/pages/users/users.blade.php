@@ -40,11 +40,11 @@
                                         <tr>
                                             <td>{{$key + 1}}</td>
                                             <td>
-                                                <a href="{{asset($row->photo ? view_image($row->photo) : not_found_img())}}"
+                                                <a href="{{ view_image($row->photo) }}"
                                                    target="_blank">
-                                                    <img width="40"
-                                                         src="{{asset($row->photo ? view_image($row->photo) : not_found_img())}}"
-                                                         alt="Package Photo">
+                                                    <img width="40" height="40" style="object-fit:cover;border-radius:50%;border:1px solid #e2e8f0;"
+                                                         src="{{ view_image($row->photo) }}"
+                                                         alt="User Photo">
                                                 </a>
                                             </td>
                                             <td>{{$row->ref_by ?? 'Not Use'}}</td>

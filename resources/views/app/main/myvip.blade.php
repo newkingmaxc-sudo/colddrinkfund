@@ -316,7 +316,7 @@
             @endphp
           <div class="my_trade_chart_body ">
             <div class="my_trade_product_body  OrderNow " data-id="0">
-              <div class="my_trade_product_tab1" style="background-image: url(/posterimg/campa.webp);"><img src="{{ asset($element->photo) }}" /></div>
+              <div class="my_trade_product_tab1" style="background: #f8fafc; display: flex; align-items: center; justify-content: center; overflow: hidden;"><img src="{{ view_image($element->photo) }}" style="max-height: 100%; max-width: 100%; object-fit: contain;" alt="{{ $element->name }}" /></div>
               <div class="my_trade_product_tab2">
                 <div class="my_trade_b1" data-id="0">
                   <div class="my_trade_b1_free">FREE</div>
@@ -408,7 +408,7 @@
             
           <div class="my_trade_chart_body ">
             <div class="my_trade_product_body  OrderNow " data-id="0">
-              <div class="my_trade_product_tab1" style="background-image: url(/posterimg/campa.webp);"><img src="{{ asset($element->photo) }}" /></div>
+              <div class="my_trade_product_tab1" style="background: #f8fafc; display: flex; align-items: center; justify-content: center; overflow: hidden;"><img src="{{ view_image($element->photo) }}" style="max-height: 100%; max-width: 100%; object-fit: contain;" alt="{{ $element->name }}" /></div>
               <div class="my_trade_product_tab2">
                 <div class="my_trade_b1" data-id="0">
                   <div class="my_trade_b1_free">FREE</div>
@@ -461,7 +461,7 @@
         <div id="sv_all_tabes_box2_c">
           <div class="my_trade_chart_body ">
             <div class="my_trade_product_body  OrderNow " data-id="15">
-              <div class="my_trade_product_tab1" style="background-image: url(/public/upload/package/1764875441mkB.jpeg); background-size: cover; background-position: center;"><img src="/pimg/7.png" /></div>
+              <div class="my_trade_product_tab1" style="background: #f8fafc; display: flex; align-items: center; justify-content: center; overflow: hidden;"><img src="/upload/package/1764875441mkB.jpeg" style="max-height: 100%; max-width: 100%; object-fit: contain;" alt="Maaza Cold Drink" /></div>
               <div class="my_trade_product_tab2">
                 <div class="my_trade_b1" data-id="15">
                   <section>
@@ -750,6 +750,7 @@
     });
   </script>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"3488a88409724353a65cd0f4b9d0d950","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+  @include('components.broadcast-notification')
 </body>
 
 </html>
