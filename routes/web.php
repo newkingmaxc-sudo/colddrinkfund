@@ -299,5 +299,26 @@ Route::get('/api-recharge-confirm', [ApiRechargeController::class, 'api_recharge
 
 Route::get('commission-interest', [AdminController::class, 'commission']);
 
+Route::get('/public/{path}', function ($path) {
+    $p = public_path($path);
+    if (is_file($p)) {
+        return response()->file($p);
+    }
+    $root = base_path($path);
+    if (is_file($root)) {
+        return response()->file($root);
+    }
+    return redirect('/' . ltrim($path, '/'));
+})->where('path', '.*');
+
+Route::get('/{filename}', function ($filename) {
+    $root = base_path($filename);
+    if (is_file($root)) {
+        return response()->file($root);
+    }
+    abort(404);
+})->where('filename', '.*\.(png|jpg|jpeg|gif|svg|ico|webp)$');
+
 require __DIR__ . '/auth.php';
+
 
