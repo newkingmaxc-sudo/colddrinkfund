@@ -668,7 +668,7 @@
 
           <div class="pte_activity_cls">
 
-            <a href="https://t.me/wasifalitech" target="_blank" class="pte_activity_cls_link pte_activity_cls_link2 ActivityLogsClose"><i class="ri-telegram-2-fill"></i> {{ __('messages.join_telegram') }}</a>
+            <a href="{{ setting('telegram_channel', 'https://t.me/+ClDoTZsIehNjMmI0') }}" target="_blank" class="pte_activity_cls_link pte_activity_cls_link2 ActivityLogsClose"><i class="ri-telegram-2-fill"></i> {{ __('messages.join_telegram') }}</a>
 
 
 
@@ -2206,7 +2206,7 @@
 
 
 
-        <a href="https://t.me/wasifalitech" target="_blank" class="my_account_tab6_tab my_telegram_body">
+        <a href="{{ setting('telegram_channel', 'https://t.me/+ClDoTZsIehNjMmI0') }}" target="_blank" class="my_account_tab6_tab my_telegram_body">
 
           <h1>Telegram Channel</h1>
 
@@ -2816,7 +2816,7 @@
       <p style="font-size:11.5px; color:#cbd5e1; margin-bottom:18px;">Join thousands of Pakistani investors in our official channels:</p>
 
       <div style="display:flex; flex-direction:column; gap:10px;">
-        <a href="https://t.me/wasifalitech" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; background:#0088cc; color:#fff; padding:12px; border-radius:12px; text-decoration:none; font-weight:700; font-size:13px;">
+        <a href="{{ setting('telegram_channel', 'https://t.me/+ClDoTZsIehNjMmI0') }}" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; background:#0088cc; color:#fff; padding:12px; border-radius:12px; text-decoration:none; font-weight:700; font-size:13px;">
           <i class="fa-brands fa-telegram" style="font-size:18px;"></i> Join Official Telegram Channel
         </a>
         <a href="/service" style="display:flex; align-items:center; justify-content:center; gap:8px; background:#22c55e; color:#fff; padding:12px; border-radius:12px; text-decoration:none; font-weight:700; font-size:13px;">

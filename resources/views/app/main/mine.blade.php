@@ -1016,7 +1016,7 @@
 
 
 
-        <a href="https://t.me/wasifalitech" target="_blank" class="my_account_tab6_tab my_telegram_body">
+        <a href="{{ setting('telegram_channel', 'https://t.me/+ClDoTZsIehNjMmI0') }}" target="_blank" class="my_account_tab6_tab my_telegram_body">
 
           <h1>Telegram Channel</h1>
 

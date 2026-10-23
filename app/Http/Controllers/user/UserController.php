@@ -495,14 +495,22 @@ return back()->with('error', 'Current password is incorrect');
             }
         }
 
+        $d1 = (float)setting('streak_day1_reward', 1.00);
+        $d2 = (float)setting('streak_day2_reward', 2.00);
+        $d3 = (float)setting('streak_day3_reward', 3.00);
+        $d4 = (float)setting('streak_day4_reward', 4.00);
+        $d5 = (float)setting('streak_day5_reward', 5.00);
+        $d6 = (float)setting('streak_day6_reward', 7.00);
+        $d7 = (float)setting('streak_day7_reward', 10.00);
+
         $rewards = [
-            1 => ['day' => 1, 'amount' => 10, 'label' => 'Rs. 10', 'icon' => '🪙', 'is_mystery' => false],
-            2 => ['day' => 2, 'amount' => 15, 'label' => 'Rs. 15', 'icon' => '🪙', 'is_mystery' => false],
-            3 => ['day' => 3, 'amount' => 20, 'label' => 'Rs. 20', 'icon' => '✨', 'is_mystery' => false],
-            4 => ['day' => 4, 'amount' => 25, 'label' => 'Rs. 25', 'icon' => '🪙', 'is_mystery' => false],
-            5 => ['day' => 5, 'amount' => 35, 'label' => 'Rs. 35', 'icon' => '💰', 'is_mystery' => false],
-            6 => ['day' => 6, 'amount' => 50, 'label' => 'Rs. 50', 'icon' => '🔥', 'is_mystery' => false],
-            7 => ['day' => 7, 'amount' => 150, 'label' => 'Rs. 100 - 500', 'icon' => '🎁', 'is_mystery' => true],
+            1 => ['day' => 1, 'amount' => $d1, 'label' => 'Rs. ' . (int)$d1, 'icon' => '🪙', 'is_mystery' => false],
+            2 => ['day' => 2, 'amount' => $d2, 'label' => 'Rs. ' . (int)$d2, 'icon' => '🪙', 'is_mystery' => false],
+            3 => ['day' => 3, 'amount' => $d3, 'label' => 'Rs. ' . (int)$d3, 'icon' => '✨', 'is_mystery' => false],
+            4 => ['day' => 4, 'amount' => $d4, 'label' => 'Rs. ' . (int)$d4, 'icon' => '🪙', 'is_mystery' => false],
+            5 => ['day' => 5, 'amount' => $d5, 'label' => 'Rs. ' . (int)$d5, 'icon' => '💰', 'is_mystery' => false],
+            6 => ['day' => 6, 'amount' => $d6, 'label' => 'Rs. ' . (int)$d6, 'icon' => '🔥', 'is_mystery' => false],
+            7 => ['day' => 7, 'amount' => $d7, 'label' => 'Rs. ' . (int)$d5 . ' - ' . (int)$d7, 'icon' => '🎁', 'is_mystery' => true],
         ];
 
         return view('app.main.checkin', compact('alreadyClaimedToday', 'currentStreak', 'rewards'));
@@ -540,17 +548,25 @@ return back()->with('error', 'Current password is incorrect');
             }
         }
 
+        $d1 = (float)setting('streak_day1_reward', 1.00);
+        $d2 = (float)setting('streak_day2_reward', 2.00);
+        $d3 = (float)setting('streak_day3_reward', 3.00);
+        $d4 = (float)setting('streak_day4_reward', 4.00);
+        $d5 = (float)setting('streak_day5_reward', 5.00);
+        $d6 = (float)setting('streak_day6_reward', 7.00);
+        $d7 = (float)setting('streak_day7_reward', 10.00);
+
         $rewardsMap = [
-            1 => 10,
-            2 => 15,
-            3 => 20,
-            4 => 25,
-            5 => 35,
-            6 => 50,
-            7 => rand(100, 250)
+            1 => $d1,
+            2 => $d2,
+            3 => $d3,
+            4 => $d4,
+            5 => $d5,
+            6 => $d6,
+            7 => (float)rand(max(1, (int)$d5), max(1, (int)$d7))
         ];
 
-        $claimAmount = $rewardsMap[$streak] ?? 10;
+        $claimAmount = $rewardsMap[$streak] ?? $d1;
 
         $checkin = new Checkin();
         $checkin->user_id = $user->id;
@@ -706,7 +722,7 @@ public function claimAll()
 
         // 2. High-converting Mock Pakistani Withdrawal Proofs
         $mockProofs = [
-            ['phone' => '0308****497', 'name' => 'Wasif A.', 'amount' => 4500, 'method' => 'JazzCash', 'time' => '2 mins ago', 'trx' => 'JC849201948', 'badge' => 'Real Payout'],
+            ['phone' => '0301****789', 'name' => 'Muhammad A.', 'amount' => 4500, 'method' => 'JazzCash', 'time' => '2 mins ago', 'trx' => 'JC849201948', 'badge' => 'Real Payout'],
             ['phone' => '0300****567', 'name' => 'Usman M.', 'amount' => 2800, 'method' => 'EasyPaisa', 'time' => '5 mins ago', 'trx' => 'EP918237461', 'badge' => 'Real Payout'],
             ['phone' => '0321****432', 'name' => 'Hamza T.', 'amount' => 8200, 'method' => 'Meezan Bank', 'time' => '9 mins ago', 'trx' => 'MB736152849', 'badge' => 'Verified Payout'],
             ['phone' => '0333****234', 'name' => 'Bilal A.', 'amount' => 1500, 'method' => 'EasyPaisa', 'time' => '14 mins ago', 'trx' => 'EP847291032', 'badge' => 'Real Payout'],
@@ -803,11 +819,11 @@ public function claimAll()
         $alreadyOpenedToday = $user->last_bottlecap_opened_at && Carbon::parse($user->last_bottlecap_opened_at)->isToday();
 
         $recentWinners = [
-            ['phone' => '0308****492', 'prize' => 'Rs. 35', 'time' => '1m ago'],
-            ['phone' => '0345****118', 'prize' => 'Rs. 20', 'time' => '3m ago'],
-            ['phone' => '0321****784', 'prize' => 'Rs. 50', 'time' => '7m ago'],
-            ['phone' => '0300****639', 'prize' => 'Rs. 15', 'time' => '12m ago'],
-            ['phone' => '0333****902', 'prize' => 'Rs. 40', 'time' => '18m ago'],
+            ['phone' => '0301****492', 'prize' => 'Rs. 5', 'time' => '1m ago'],
+            ['phone' => '0345****118', 'prize' => 'Rs. 2', 'time' => '3m ago'],
+            ['phone' => '0321****784', 'prize' => 'Rs. 8', 'time' => '7m ago'],
+            ['phone' => '0300****639', 'prize' => 'Rs. 3', 'time' => '12m ago'],
+            ['phone' => '0333****902', 'prize' => 'Rs. 4', 'time' => '18m ago'],
         ];
 
         return view('app.main.bottlecap', compact('alreadyOpenedToday', 'recentWinners'));
@@ -823,10 +839,13 @@ public function claimAll()
             ]);
         }
 
-        // Weighted random prize: Rs. 5 to Rs. 45
-        $prizes = [5, 10, 15, 20, 25, 30, 40, 50];
-        $weights = [25, 25, 20, 15, 8, 4, 2, 1];
-        $reward = 15;
+        $minCap = (float)setting('bottlecap_min_reward', 1.00);
+        $maxCap = (float)setting('bottlecap_max_reward', 10.00);
+
+        // Weighted small bonus: Rs. 1 to Rs. 10
+        $prizes = [1, 2, 3, 4, 5, 6, 8, 10];
+        $weights = [25, 25, 20, 12, 10, 5, 2, 1];
+        $reward = 2;
         $rand = rand(1, 100);
         $cumulative = 0;
         foreach ($prizes as $idx => $val) {
@@ -836,6 +855,7 @@ public function claimAll()
                 break;
             }
         }
+        $reward = round(min($maxCap, max($minCap, (float)$reward)), 2);
 
         $user->increment('balance', $reward);
         $user->last_bottlecap_opened_at = now();
@@ -870,11 +890,11 @@ public function claimAll()
         $totalSpins = ($hasFreeDaily ? 1 : 0) + $referralSpinsCount;
 
         $recentSpinWinners = [
-            ['phone' => '0301****458', 'amount' => 'Rs. 100', 'time' => '1m ago'],
-            ['phone' => '0345****889', 'amount' => 'Rs. 50', 'time' => '3m ago'],
-            ['phone' => '0323****558', 'amount' => 'Rs. 500', 'time' => '6m ago', 'is_jackpot' => true],
-            ['phone' => '0312****781', 'amount' => 'Rs. 20', 'time' => '10m ago'],
-            ['phone' => '0306****332', 'amount' => 'Rs. 30', 'time' => '15m ago'],
+            ['phone' => '0301****458', 'amount' => 'Rs. 4', 'time' => '1m ago'],
+            ['phone' => '0345****889', 'amount' => 'Rs. 2', 'time' => '3m ago'],
+            ['phone' => '0323****558', 'amount' => 'Rs. 10', 'time' => '6m ago', 'is_jackpot' => true],
+            ['phone' => '0312****781', 'amount' => 'Rs. 3', 'time' => '10m ago'],
+            ['phone' => '0306****332', 'amount' => 'Rs. 5', 'time' => '15m ago'],
         ];
 
         return view('app.main.lucky_spin', compact('hasFreeDaily', 'referralSpinsCount', 'totalSpins', 'recentSpinWinners'));
@@ -901,16 +921,19 @@ public function claimAll()
             $pendingSpin->save();
         }
 
-        // 8 slices on the wheel
+        $minSpin = (float)setting('spin_min_reward', 1.00);
+        $maxSpin = (float)setting('spin_max_reward', 10.00);
+
+        // 8 slices on the wheel (capped Rs. 1 to Rs. 10)
         $slices = [
-            ['label' => 'Rs. 10', 'amount' => 10, 'weight' => 30],
-            ['label' => 'Rs. 20', 'amount' => 20, 'weight' => 25],
-            ['label' => 'Rs. 30', 'amount' => 30, 'weight' => 15],
-            ['label' => 'Rs. 50', 'amount' => 50, 'weight' => 12],
-            ['label' => 'Rs. 15', 'amount' => 15, 'weight' => 10],
-            ['label' => 'Rs. 100', 'amount' => 100, 'weight' => 5],
-            ['label' => 'Rs. 25', 'amount' => 25, 'weight' => 2],
-            ['label' => 'Rs. 500', 'amount' => 500, 'weight' => 1], // Jackpot
+            ['label' => 'Rs. 1', 'amount' => 1, 'weight' => 25],
+            ['label' => 'Rs. 2', 'amount' => 2, 'weight' => 25],
+            ['label' => 'Rs. 3', 'amount' => 3, 'weight' => 20],
+            ['label' => 'Rs. 4', 'amount' => 4, 'weight' => 12],
+            ['label' => 'Rs. 5', 'amount' => 5, 'weight' => 10],
+            ['label' => 'Rs. 6', 'amount' => 6, 'weight' => 5],
+            ['label' => 'Rs. 8', 'amount' => 8, 'weight' => 2],
+            ['label' => '⭐ Rs. 10 ⭐', 'amount' => 10, 'weight' => 1],
         ];
 
         $rand = rand(1, 100);
@@ -925,7 +948,7 @@ public function claimAll()
         }
 
         $wonPrize = $slices[$sliceIndex];
-        $rewardAmount = $wonPrize['amount'];
+        $rewardAmount = round(min($maxSpin, max($minSpin, (float)$wonPrize['amount'])), 2);
 
         $user->increment('balance', $rewardAmount);
 
@@ -988,7 +1011,7 @@ public function claimAll()
                 'key'         => 'first_plan',
                 'title'       => 'Activate 1st Plant Plan (پہلا آرڈر)',
                 'description' => 'Invest in any cold drink bottling plan to start daily income.',
-                'reward'      => 30,
+                'reward'      => 5,
                 'icon'        => '🥤',
                 'current'     => $hasActivePlan ? 1 : 0,
                 'target'      => 1,
@@ -999,7 +1022,7 @@ public function claimAll()
                 'key'         => 'invite_3',
                 'title'       => 'Form Bottling Team (3 دوست مدعو کریں)',
                 'description' => 'Invite 3 friends using your referral link/code.',
-                'reward'      => 100,
+                'reward'      => 10,
                 'icon'        => '👥',
                 'current'     => min(3, $directRefCount),
                 'target'      => 3,
@@ -1010,7 +1033,7 @@ public function claimAll()
                 'key'         => 'streak_7',
                 'title'       => '7-Day Devotion (7 روزہ لاگ ان)',
                 'description' => 'Complete full 7-day login streak check-in.',
-                'reward'      => 150,
+                'reward'      => 10,
                 'icon'        => '🔥',
                 'current'     => min(7, $streakCount),
                 'target'      => 7,
@@ -1021,7 +1044,7 @@ public function claimAll()
                 'key'         => 'bottling_5',
                 'title'       => 'Plant Supervisor (5 بار منافع وصول کریں)',
                 'description' => 'Tap to collect bottling line income at least 5 times.',
-                'reward'      => 25,
+                'reward'      => 3,
                 'icon'        => '🏭',
                 'current'     => min(5, $bottlingCollectCount),
                 'target'      => 5,
@@ -1032,7 +1055,7 @@ public function claimAll()
                 'key'         => 'spin_2',
                 'title'       => 'Lucky Spinner (2 بار لکی ویل گھمائیں)',
                 'description' => 'Play the lucky spin wheel at least 2 times.',
-                'reward'      => 20,
+                'reward'      => 2,
                 'icon'        => '🎡',
                 'current'     => min(2, $spinCount),
                 'target'      => 2,
@@ -1043,7 +1066,7 @@ public function claimAll()
                 'key'         => 'vip_silver',
                 'title'       => 'VIP Ascension (سلور وی آئی پی بنیں)',
                 'description' => 'Upgrade your account to Silver VIP or above.',
-                'reward'      => 200,
+                'reward'      => 10,
                 'icon'        => '👑',
                 'current'     => $isSilverVIP ? 1 : 0,
                 'target'      => 1,
@@ -1068,12 +1091,12 @@ public function claimAll()
         }
 
         $rewards = [
-            'first_plan' => ['amount' => 30, 'check' => Purchase::where('user_id', $user->id)->exists()],
-            'invite_3'   => ['amount' => 100, 'check' => (User::where('ref_by', $user->ref_id)->count() >= 3)],
-            'streak_7'   => ['amount' => 150, 'check' => (Checkin::where('user_id', $user->id)->count() >= 7)],
-            'bottling_5' => ['amount' => 25, 'check' => (UserLedger::where(['user_id' => $user->id, 'reason' => 'bottling_income'])->count() >= 5)],
-            'spin_2'     => ['amount' => 20, 'check' => (UserLedger::where(['user_id' => $user->id, 'reason' => 'lucky_spin'])->count() >= 2)],
-            'vip_silver' => ['amount' => 200, 'check' => (user_vip_badge($user)['level'] >= 2)],
+            'first_plan' => ['amount' => 5, 'check' => Purchase::where('user_id', $user->id)->exists()],
+            'invite_3'   => ['amount' => 10, 'check' => (User::where('ref_by', $user->ref_id)->count() >= 3)],
+            'streak_7'   => ['amount' => 10, 'check' => (Checkin::where('user_id', $user->id)->count() >= 7)],
+            'bottling_5' => ['amount' => 3, 'check' => (UserLedger::where(['user_id' => $user->id, 'reason' => 'bottling_income'])->count() >= 5)],
+            'spin_2'     => ['amount' => 2, 'check' => (UserLedger::where(['user_id' => $user->id, 'reason' => 'lucky_spin'])->count() >= 2)],
+            'vip_silver' => ['amount' => 10, 'check' => (user_vip_badge($user)['level'] >= 2)],
         ];
 
         if (!isset($rewards[$key]) || !$rewards[$key]['check']) {
@@ -1268,9 +1291,13 @@ public function claimAll()
             ]);
         }
 
-        // Random portion
-        $min = (float)$envelope->min_reward;
-        $max = min((float)$envelope->max_reward, (float)$envelope->remaining_amount);
+        // Random portion capped by admin setting (max Rs. 10)
+        $maxSetting = (float)setting('red_envelope_max_claim', 10.00);
+        $min = max(1.00, (float)$envelope->min_reward);
+        $max = min($maxSetting, (float)$envelope->max_reward, (float)$envelope->remaining_amount);
+        if ($max < $min) {
+            $max = $min;
+        }
         $reward = round(rand((int)($min * 10), (int)($max * 10)) / 10, 2);
         if ($reward > $envelope->remaining_amount) {
             $reward = (float)$envelope->remaining_amount;

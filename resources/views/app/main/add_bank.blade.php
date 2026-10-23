@@ -279,7 +279,7 @@
           </section>
 
           <section><small>Account Title (اکاؤنٹ ہولڈر کا نام)</small>
-            <aside><span><i class="fa-solid fa-user-check"></i></span><input type="text" name="holdername" value="{{ auth()->user()->holder_name }}" placeholder="e.g. Wasif Ali (As per CNIC/Bank)" maxlength="40" required autofocus autocomplete="off" id="BeneficiaryName" /></aside>
+            <aside><span><i class="fa-solid fa-user-check"></i></span><input type="text" name="holdername" value="{{ auth()->user()->holder_name }}" placeholder="e.g. Muhammad Ali (As per CNIC/Bank)" maxlength="40" required autofocus autocomplete="off" id="BeneficiaryName" /></aside>
           </section>
 
           <section><small>Account / Mobile Number (نمبر)</small>
@@ -308,10 +308,10 @@
       <div class="my_note" style="background:#fff; border-radius:12px; padding:15px; margin-top:20px; box-shadow:0 2px 8px rgba(0,0,0,0.06); border:1px solid #e2f0d9;">
         <div class="my_note_t" style="color:#1f7c03; font-weight:bold; font-size:15px; margin-bottom:10px;"><i class="fa-solid fa-shield-halved"></i> ضروری ہدایات (Pakistani Banking Notice)</div>
         <div class="my_note_in" style="font-size:13px; line-height:1.7; color:#444;">
-          <li><b>JazzCash اور EasyPaisa:</b> اپنے 11 ہندسوں کا درست موبائل اکاؤنٹ نمبر درج کریں (مثلاً: <code>03089113497</code>)۔</li>
+          <li><b>JazzCash اور EasyPaisa:</b> اپنے 11 ہندسوں کا درست موبائل اکاؤنٹ نمبر درج کریں (مثلاً: <code>03001234567</code>)۔</li>
           <li><b>کمرشل بینک (Meezan, HBL, UBL, ABL وغیرہ):</b> اپنا مکمل درست اکاؤنٹ نمبر یا 24 ہندسوں کا IBAN درج کریں۔</li>
           <li>اکاؤنٹ ہولڈر کا نام بالکل شناختی کارڈ (CNIC) یا بینک اکاؤنٹ کے ریکارڈ کے مطابق ہونا چاہیے۔</li>
-          <li>کسی بھی قسم کی تبدیلی یا ہیلپ کے لیے ہمارے آفیشل ٹیلی گرام <b>@wasifalitech</b> سے رابطہ کریں۔</li>
+          <li>کسی بھی قسم کی تبدیلی یا ہیلپ کے لیے ہمارے آفیشل ٹیلی گرام <b>Official Telegram</b> سے رابطہ کریں۔</li>
         </div>
       </div>
       <!--Notes--E-->

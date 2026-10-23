@@ -187,8 +187,8 @@
       $isJazz = str_contains(strtolower($methods->name ?? ''), 'jazz');
       $isEasy = str_contains(strtolower($methods->name ?? ''), 'easy');
       $qrImg = $isEasy ? '/img/easypaisa_qr.svg' : '/img/jazzcash_qr.svg';
-      $accNumber = $methods->address ?? '03089113497';
-      $accTitle = 'Wasif Ali';
+      $accNumber = $methods->address ?? '';
+      $accTitle = $methods->account_name ?? 'Official Merchant';
     @endphp
 
     <!-- QR Code Scan -->
@@ -256,8 +256,8 @@
     <!-- Telegram Help Notice -->
     <div style="text-align: center; font-size: 12px; color: #666; padding: 10px 0 30px;">
       کسی بھی دشواری کی صورت میں ایڈمن سے ٹیلی گرام پر رابطہ کریں: <br>
-      <a href="https://t.me/wasifalitech" target="_blank" style="color: #1f7c03; font-weight: bold; text-decoration: none;">
-        <i class="bi bi-telegram"></i> @wasifalitech
+      <a href="https://t.me/+ssddpj32cYw1NDJk" target="_blank" style="color: #1f7c03; font-weight: bold; text-decoration: none;">
+        <i class="bi bi-telegram"></i> Official Support Group (سپورٹ گروپ)
       </a>
     </div>
 

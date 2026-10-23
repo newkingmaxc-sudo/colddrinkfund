@@ -75,7 +75,7 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="bx bx-phone"></i></span>
                                         </div>
-                                        <input type="text" name="phone" id="userPhoneInput" class="form-control" placeholder="e.g. 03089113497 or Ref ID" required>
+                                        <input type="text" name="phone" id="userPhoneInput" class="form-control" placeholder="e.g. 03001234567 or Ref ID" required>
                                     </div>
                                 </div>
                             @endif

@@ -178,7 +178,7 @@
                     <li class="dropdown dropdown-user nav-item"><a class="dropdown-toggle nav-link dropdown-user-link"
                                                                    href="#" data-toggle="dropdown">
                             <div class="user-nav d-sm-flex d-none"><span
-                                    class="user-name">{{admin()->user()->name ?? 'Wasif'}}</span><span
+                                    class="user-name">{{admin()->user()->name ?? 'Admin'}}</span><span
                                     class="user-status text-muted">Owner</span></div>
                             <span><img class="round" src="{{ (admin()->user() && admin()->user()->photo) ? asset(admin()->user()->photo) : '/admin/app-assets/images/portrait/small/avatar-s-11.jpg' }}" alt="avatar" height="40" width="40"></span>
                         </a>
@@ -419,11 +419,10 @@
 
 <!-- BEGIN: Footer-->
 <footer class="footer footer-static footer-light">
-    <p class="clearfix mb-0"><span class="float-left d-inline-block">Owner: <b>Wasif</b> | Telegram: <a href="https://t.me/wasifalitech" target="_blank" style="color:#1f7c03;font-weight:bold;">@wasifalitech</a></span><span
-            class="float-right d-sm-inline-block d-none">Created by <i
-                class="bx bxs-heart text-danger mx-50 font-small-3"></i><b>Wasif</b> (<a
-                                                                      href="https://t.me/wasifalitech"
-                                                                      target="_blank" style="color:#1f7c03;font-weight:bold;">@wasifalitech</a>)</span>
+    <p class="clearfix mb-0"><span class="float-left d-inline-block">Cold Drink Fund &copy; {{ date('Y') }} | Support Group: <a href="https://t.me/+ssddpj32cYw1NDJk" target="_blank" style="color:#1f7c03;font-weight:bold;">Join Telegram Group</a></span><span
+            class="float-right d-sm-inline-block d-none">Official Channel: <a
+                                                                      href="https://t.me/+ClDoTZsIehNjMmI0"
+                                                                      target="_blank" style="color:#1f7c03;font-weight:bold;">Telegram Channel</a></span>
         <button class="btn btn-primary btn-icon scroll-top" type="button"><i class="bx bx-up-arrow-alt"></i></button>
     </p>
 </footer>

@@ -59,6 +59,45 @@ class SettingController extends Controller
             $model->app_update_changelog = $request->app_update_changelog;
         }
 
+        // Gamified Bonus Controls
+        if ($request->has('spin_min_reward')) {
+            $model->spin_min_reward = $request->spin_min_reward;
+        }
+        if ($request->has('spin_max_reward')) {
+            $model->spin_max_reward = $request->spin_max_reward;
+        }
+        if ($request->has('bottlecap_min_reward')) {
+            $model->bottlecap_min_reward = $request->bottlecap_min_reward;
+        }
+        if ($request->has('bottlecap_max_reward')) {
+            $model->bottlecap_max_reward = $request->bottlecap_max_reward;
+        }
+        if ($request->has('streak_day1_reward')) {
+            $model->streak_day1_reward = $request->streak_day1_reward;
+        }
+        if ($request->has('streak_day2_reward')) {
+            $model->streak_day2_reward = $request->streak_day2_reward;
+        }
+        if ($request->has('streak_day3_reward')) {
+            $model->streak_day3_reward = $request->streak_day3_reward;
+        }
+        if ($request->has('streak_day4_reward')) {
+            $model->streak_day4_reward = $request->streak_day4_reward;
+        }
+        if ($request->has('streak_day5_reward')) {
+            $model->streak_day5_reward = $request->streak_day5_reward;
+        }
+        if ($request->has('streak_day6_reward')) {
+            $model->streak_day6_reward = $request->streak_day6_reward;
+        }
+        if ($request->has('streak_day7_reward')) {
+            $model->streak_day7_reward = $request->streak_day7_reward;
+        }
+        if ($request->has('red_envelope_max_claim')) {
+            $model->red_envelope_max_claim = $request->red_envelope_max_claim;
+        }
+        $model->bonus_withdrawal_require_plan = $request->has('bonus_withdrawal_require_plan');
+
         $model->update();
         \Illuminate\Support\Facades\Cache::forget('app_system_settings');
         return redirect()->route($this->route.'.index')->with('success', 'Settings Updated Successfully.');

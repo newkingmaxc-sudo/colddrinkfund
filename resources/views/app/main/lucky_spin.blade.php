@@ -169,7 +169,7 @@
   <div class="container">
     <div class="headline-card">
       <h2>🎡 لکی اسپن وہیل — گھمائیں اور جیتیں</h2>
-      <p>Rozana free spin ghumayein aur Rs. 500 jackpot jeetne ka shandar moqa payein!</p>
+      <p>Rozana free spin ghumayein aur cash reward jeetne ka shandar moqa payein!</p>
     </div>
 
     <div class="spins-badge">
@@ -221,14 +221,14 @@
 
   <script>
     const slices = [
-      { label: 'Rs. 10', color: '#1e1b4b' },
-      { label: 'Rs. 20', color: '#064e3b' },
-      { label: 'Rs. 30', color: '#78350f' },
-      { label: 'Rs. 50', color: '#831843' },
-      { label: 'Rs. 15', color: '#312e81' },
-      { label: 'Rs. 100', color: '#047857' },
-      { label: 'Rs. 25', color: '#b45309' },
-      { label: '⭐ Rs. 500 ⭐', color: '#b91c1c' }
+      { label: 'Rs. 1', color: '#1e1b4b' },
+      { label: 'Rs. 2', color: '#064e3b' },
+      { label: 'Rs. 3', color: '#78350f' },
+      { label: 'Rs. 4', color: '#831843' },
+      { label: 'Rs. 5', color: '#312e81' },
+      { label: 'Rs. 6', color: '#047857' },
+      { label: 'Rs. 8', color: '#b45309' },
+      { label: '⭐ Rs. 10 ⭐', color: '#b91c1c' }
     ];
 
     const canvas = document.getElementById('wheelCanvas');

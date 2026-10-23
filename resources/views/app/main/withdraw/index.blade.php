@@ -279,6 +279,20 @@
                     ? \App\Models\PaymentMethod::where('id', auth()->user()->gateway_method)->first() 
                     : null;
             @endphp
+
+      @if(isset($requirePlan) && $requirePlan && empty($hasActivePurchase))
+      <div style="background: linear-gradient(135deg, #fff1f2, #ffe4e6); border: 2px solid #f43f5e; border-radius: 14px; padding: 16px; margin: 15px 12px; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.15); text-align: center;">
+        <div style="font-size: 28px; margin-bottom: 6px;">🔒</div>
+        <h4 style="color: #be123c; font-size: 15px; font-weight: 800; margin: 0 0 6px 0;">ودڈرا فیچر فی الحال لاک ہے!</h4>
+        <p style="color: #4c0519; font-size: 12.5px; line-height: 1.6; margin: 0 0 12px 0;">
+          کمپنی پالیسی کے مطابق، مفت انعامات یا اکاؤنٹ بیلنس نکلوانے کے لیے کم از کم ایک <b>انویسٹمنٹ پلان (Active Plan)</b> خریدنا لازمی ہے۔
+          <br><span style="font-size: 11px; color: #881337;">(You must purchase an active investment plan before withdrawing balance or bonus rewards)</span>
+        </p>
+        <a href="/packages" class="load2" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, #10b981, #059669); color: #fff; padding: 10px 22px; border-radius: 25px; font-size: 13px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);">
+          <i class="fa-solid fa-cart-shopping"></i> انویسٹمنٹ پلانز دیکھیں (Buy Plan Now)
+        </a>
+      </div>
+      @endif
       <!--Account--Details--E-->
       <form id="withdrawForm" action="{{ route('user.withdraw-confirm-submit') }}" method="POST">
             @csrf
@@ -345,8 +359,14 @@
       </div>
       <!--Pass--E-->
 
-      <div class="my_recharge_btn" onclick="submitWithdraw()">
-        <button type="submit" id="WithdrawalSubmit" class="BtnPlay">SUBMIT <i class="fa-solid fa-arrow-right"></i></button>
+      <div class="my_recharge_btn" @if(isset($requirePlan) && $requirePlan && empty($hasActivePurchase)) onclick="alert('⚠️ رقم یا بونس نکالنے کے لیے پہلے کوئی بھی انویسٹمنٹ پلان خریدنا لازمی ہے!'); return false;" @else onclick="submitWithdraw()" @endif>
+        <button type="submit" id="WithdrawalSubmit" class="BtnPlay" @if(isset($requirePlan) && $requirePlan && empty($hasActivePurchase)) disabled style="background:#94a3b8; cursor:not-allowed;" @endif>
+          @if(isset($requirePlan) && $requirePlan && empty($hasActivePurchase))
+            <i class="fa-solid fa-lock"></i> WITHDRAW LOCKED (BUY PLAN FIRST)
+          @else
+            SUBMIT <i class="fa-solid fa-arrow-right"></i>
+          @endif
+        </button>
       </div>
        <input type="hidden" name="account_id" value="{{ auth()->user()->gateway_number }}">
       </form>

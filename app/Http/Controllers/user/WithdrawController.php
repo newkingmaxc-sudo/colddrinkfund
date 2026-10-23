@@ -23,7 +23,12 @@ class WithdrawController extends Controller
         {
             return redirect()->to('/add/card');
         }
-        return view('app.main.withdraw.index');
+        $requirePlan = (bool)setting('bonus_withdrawal_require_plan', true);
+        $hasActivePurchase = Purchase::where('user_id', Auth::id())
+            ->where('status', 'active')
+            ->exists();
+
+        return view('app.main.withdraw.index', compact('requirePlan', 'hasActivePurchase'));
     }
 
     public function usdt_withdraw()
@@ -58,13 +63,16 @@ class WithdrawController extends Controller
 
         $user = Auth::user();
 
-        // Package purchase check - VIP requirement
-        $hasActivePurchase = Purchase::where('user_id', $user->id)
-            ->where('status', 'active')
-            ->exists();
-            
-        if (!$hasActivePurchase) {
-            return back()->with('error', 'Active package purchase required for withdrawal');
+        // Package purchase check - Active plan required before withdrawal
+        $requirePlan = (bool)setting('bonus_withdrawal_require_plan', true);
+        if ($requirePlan) {
+            $hasActivePurchase = Purchase::where('user_id', $user->id)
+                ->where('status', 'active')
+                ->exists();
+                
+            if (!$hasActivePurchase) {
+                return back()->with('error', '⚠️ رقم یا بونس نکالنے کے لیے پہلے کوئی بھی انویسٹمنٹ پلان خریدنا لازمی ہے! (Active investment package required before withdrawing balance or bonus).');
+            }
         }
 
         if ($request->amount <= $user->balance) {

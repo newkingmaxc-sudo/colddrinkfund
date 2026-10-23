@@ -261,9 +261,9 @@
       <div style="background: linear-gradient(135deg, #0f172a, #1e293b); border: 1px solid #0284c7; border-radius: 12px; padding: 12px 14px; margin: 12px 15px; color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 10px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);">
         <div>
           <div style="font-weight: 700; font-size: 13px; color: #38bdf8;"><i class="fa-brands fa-telegram"></i> {{ __('messages.owner_support') }}</div>
-          <div style="font-size: 11px; color: #cbd5e1; margin-top: 2px;">Fastest support via Telegram: <strong>@wasifalitech</strong></div>
+          <div style="font-size: 11px; color: #cbd5e1; margin-top: 2px;">Fastest support via Telegram: <strong>Official Support Group</strong></div>
         </div>
-        <a href="https://t.me/wasifalitech" target="_blank" style="background: #0284c7; color: #fff; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap;">
+        <a href="https://t.me/+ssddpj32cYw1NDJk" target="_blank" style="background: #0284c7; color: #fff; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap;">
           <i class="fa-brands fa-telegram"></i> Chat
         </a>
       </div>

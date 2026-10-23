@@ -294,25 +294,30 @@
             <p style="margin: 0 0 12px 0; font-size: 12.5px; line-height: 1.5; color: #e2e8f0;">
               {{ __('messages.telegram_only_notice') }}
             </p>
-            <a href="https://t.me/wasifalitech" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; background: #0284c7; color: #fff; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; text-decoration: none; box-shadow: 0 3px 8px rgba(2, 132, 199, 0.4);">
-              <i class="fa-brands fa-telegram" style="font-size: 16px;"></i> {{ __('messages.chat_now') }} (@wasifalitech)
-            </a>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <a href="https://t.me/+ClDoTZsIehNjMmI0" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #0284c7; color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; text-decoration: none; box-shadow: 0 3px 8px rgba(2, 132, 199, 0.4);">
+                <i class="fa-brands fa-telegram" style="font-size: 15px;"></i> Telegram Channel
+              </a>
+              <a href="https://t.me/+ssddpj32cYw1NDJk" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #059669; color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; text-decoration: none; box-shadow: 0 3px 8px rgba(5, 150, 105, 0.4);">
+                <i class="fa-solid fa-users" style="font-size: 14px;"></i> Support Group
+              </a>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="my_account_tab6">
-        <!--WhatsApp Coming Soon-->
-        <a href="javascript:void(0)" onclick="showComingSoon('WhatsApp Channel')" class="my_account_tab6_tab my_daily_bonus" style="position:relative;opacity:0.88;cursor:pointer;">
-          <span style="position:absolute;top:8px;right:8px;background:#fef3c7;color:#92400e;font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:10px;text-transform:uppercase;">{{ __('messages.coming_soon') }}</span>
-          <h1>{{ __('messages.whatsapp_coming_soon') }}</h1>
-          <p>{{ __('messages.coming_soon') }}</p>
+        <!--Telegram Channel-->
+        <a href="https://t.me/+ClDoTZsIehNjMmI0" target="_blank" class="my_account_tab6_tab my_daily_bonus" style="position:relative;background: linear-gradient(135deg, #0284c7, #0369a1); color:#fff;">
+          <span style="position:absolute;top:8px;right:8px;background:#22c55e;color:#fff;font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:10px;text-transform:uppercase;">Official</span>
+          <h1 style="color:#fff;"><i class="fa-brands fa-telegram"></i> Telegram Channel</h1>
+          <p style="color:#e0f2fe;">Join 6,500+ Investors</p>
         </a>
-        <!--Telegram Active Support-->
-        <a href="https://t.me/wasifalitech" target="_blank" class="my_account_tab6_tab my_telegram_body" style="position:relative;">
-          <span style="position:absolute;top:8px;right:8px;background:#22c55e;color:#fff;font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:10px;text-transform:uppercase;">{{ __('messages.active_status') }}</span>
-          <h1>{{ __('messages.telegram_owner') }}</h1>
-          <p>{{ __('messages.owner_support') }}</p>
+        <!--Telegram Active Support Group-->
+        <a href="https://t.me/+ssddpj32cYw1NDJk" target="_blank" class="my_account_tab6_tab my_telegram_body" style="position:relative;">
+          <span style="position:absolute;top:8px;right:8px;background:#22c55e;color:#fff;font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:10px;text-transform:uppercase;">Active 24/7</span>
+          <h1><i class="fa-solid fa-users"></i> Support Group</h1>
+          <p>Live Admin Assistance</p>
         </a>
       </div>
 
@@ -321,10 +326,10 @@
         <section style="border-left: 4px solid #0284c7; background: #f0f9ff;">
           <dd>
             <h5 style="color: #0284c7; font-weight: 700;"><i class="fa-brands fa-telegram"></i> {{ __('messages.owner_support') }}</h5>
-            <h1 style="color: #0369a1; font-size: 15px;">@wasifalitech</h1>
+            <h1 style="color: #0369a1; font-size: 15px;">Official Support</h1>
             <p style="font-size: 11px; color: #16a34a; margin: 3px 0 0 0; font-weight: 600;">● {{ __('messages.active_status') }} (Click to Chat)</p>
           </dd>
-          <a href="https://t.me/wasifalitech" target="_blank" style="background: #0284c7; color: #fff; padding: 8px 12px; border-radius: 8px;"><i class="fa-solid fa-paper-plane"></i></a>
+          <a href="https://t.me/+ssddpj32cYw1NDJk" target="_blank" style="background: #0284c7; color: #fff; padding: 8px 12px; border-radius: 8px;"><i class="fa-solid fa-paper-plane"></i></a>
         </section>
 
         <!-- WhatsApp Support (Coming Soon) -->
@@ -361,7 +366,7 @@
       <!--Notes--S-->
       <div class="my_note">
         <div class="my_note_in">
-          <li><strong>Owner:</strong> Wasif (<a href="https://t.me/wasifalitech" target="_blank" style="color: #0284c7; font-weight: 600;">@wasifalitech</a>)</li>
+          <li><strong>Support:</strong> Official Telegram Group (<a href="https://t.me/+ssddpj32cYw1NDJk" target="_blank" style="color: #0284c7; font-weight: 600;">Official Support</a>)</li>
           <li><strong>Official Support:</strong> {{ __('messages.only_telegram_active') }}</li>
           <li><strong>Notice:</strong> WhatsApp and other contact platforms are coming soon. Please contact on Telegram only.</li>
           <li><strong>{{ __('messages.service_timing') }}</strong></li>
@@ -578,7 +583,7 @@ function showComingSoon(platform) {
     '<i class="fa-solid fa-clock" style="color:#f59e0b;font-size:22px;flex-shrink:0;"></i>' +
     '<div style="flex:1;text-align:left;">' +
       '<div style="font-weight:700;font-size:13px;color:#f8fafc;">' + platform + ' is Coming Soon!</div>' +
-      '<div style="font-size:11.5px;color:#94a3b8;margin-top:2px;">For support, contact Owner on Telegram: <a href="https://t.me/wasifalitech" target="_blank" style="color:#38bdf8;font-weight:600;text-decoration:underline;">@wasifalitech</a></div>' +
+      '<div style="font-size:11.5px;color:#94a3b8;margin-top:2px;">For support, contact Owner on Telegram: <a href="https://t.me/+ssddpj32cYw1NDJk" target="_blank" style="color:#38bdf8;font-weight:600;text-decoration:underline;">Official Support</a></div>' +
     '</div>' +
   '</div>';
   $('.all_msg2').html(msg).show();

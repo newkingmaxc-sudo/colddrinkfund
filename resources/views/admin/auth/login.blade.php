@@ -48,7 +48,7 @@
                     <img src="/img/icon.png" style="width:36px;height:36px;border-radius:6px;" alt="logo">
                     <a href="/admin/login" style="text-decoration:none;color:#1f7c03;font-weight:900;">ColdDrinkFund Admin</a>
                 </h1>
-                <p style="font-size:12px;color:#555;margin:6px 0 0 0;font-weight:600;">Owner: Wasif | Created by Wasif</p>
+                <p style="font-size:12px;color:#555;margin:6px 0 0 0;font-weight:600;">Cold Drink Fund Official Administration</p>
             </div>
             <div class="formbg-outer">
                 <div class="formbg">
@@ -72,7 +72,7 @@
                         <form id="stripe-login" method="POST" action="{{route('admin.login-submit')}}"> @csrf
                             <div class="field padding-bottom--24">
                                 <label for="email">Email Address</label>
-                                <input type="email" name="email" placeholder="admin@wasifali.com" required autofocus>
+                                <input type="email" name="email" placeholder="admin@colddrinkfund.com" required autofocus>
                             </div>
                             <div class="field padding-bottom--24">
                                 <label for="password">Password</label>
@@ -82,8 +82,8 @@
                                 <input type="submit" name="submit" value="Sign In to Dashboard" style="background:#1f7c03;cursor:pointer;font-weight:bold;">
                             </div>
                             <div style="text-align:center;font-size:12px;color:#555;padding-top:8px;border-top:1px solid #eee;margin-top:10px;">
-                                <div>Owner: <b style="color:#1f7c03;">Wasif</b> | Telegram: <a href="https://t.me/wasifalitech" target="_blank" style="color:#1f7c03;font-weight:bold;text-decoration:none;">@wasifalitech</a></div>
-                                <div style="font-size:11.5px;color:#888;margin-top:4px;">Created by Wasif</div>
+                                <div>Support Group: <a href="https://t.me/+ssddpj32cYw1NDJk" target="_blank" style="color:#1f7c03;font-weight:bold;text-decoration:none;">Join Telegram Group</a></div>
+                                <div style="font-size:11.5px;color:#888;margin-top:4px;">Cold Drink Fund Pakistan &copy; {{ date('Y') }}</div>
                             </div>
                         </form>
                     </div>

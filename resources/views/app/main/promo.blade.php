@@ -296,7 +296,7 @@
         </form>
 
         <div style="margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.2); font-size:12px; opacity:0.95; line-height:1.6;">
-          <i class="fa-brands fa-telegram"></i> <b>مفت کوڈز حاصل کریں:</b> روزانہ نئے پرومو کوڈز حاصل کرنے کے لیے ہمارے ٹیلی گرام چینل <a href="https://t.me/wasifalitech" target="_blank" style="color:#ffd700; font-weight:bold; text-decoration:underline;">@wasifalitech</a> کو جوائن کریں!
+          <i class="fa-brands fa-telegram"></i> <b>مفت کوڈز حاصل کریں:</b> روزانہ نئے پرومو کوڈز حاصل کرنے کے لیے ہمارے ٹیلی گرام چینل <a href="{{ setting('telegram_channel', 'https://t.me/+ClDoTZsIehNjMmI0') }}" target="_blank" style="color:#ffd700; font-weight:bold; text-decoration:underline;">Official Channel</a> کو جوائن کریں!
         </div>
       </div>
       <!--Reward--S------------------------------------>
