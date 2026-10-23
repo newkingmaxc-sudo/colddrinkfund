@@ -2868,6 +2868,55 @@
     </style>
   @endif
 
+  <!-- Feature 4: Direct Admin Notice / Broadcast Popup -->
+  @if(isset($activeNotice) && $activeNotice)
+    <div id="adminNoticeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); z-index:99998; backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+      <div style="background:linear-gradient(135deg, #1e084d 0%, #0f172a 100%); border:2px solid #ffd700; border-radius:22px; width:90%; max-width:380px; padding:24px 20px; text-align:center; color:#fff; position:relative; box-shadow:0 15px 50px rgba(0,0,0,0.7);">
+        <div onclick="closeNoticeModal()" style="position:absolute; top:12px; right:15px; font-size:22px; cursor:pointer; color:#ffd700;">&times;</div>
+        
+        <div style="width:58px; height:58px; border-radius:50%; background:linear-gradient(135deg, #ffd700, #b45309); display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:28px; color:#1e084d; box-shadow:0 0 20px rgba(255,215,0,0.5);">
+          📢
+        </div>
+
+        <div style="font-size:11px; font-weight:800; color:#ffd700; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">
+          {{ $activeNotice->user_id ? '⚠️ پرائیویٹ نوٹس (Private Notice)' : '📢 آفیشل اعلان (Official Broadcast)' }}
+        </div>
+
+        <h3 style="color:#ffffff; font-size:17px; font-weight:800; margin-bottom:12px; line-height:1.4;">
+          {{ $activeNotice->notice_title }}
+        </h3>
+
+        <div style="background:rgba(255,255,255,0.06); border-radius:12px; padding:14px; text-align:left; font-size:13px; color:#e2e8f0; line-height:1.6; max-height:220px; overflow-y:auto; margin-bottom:18px; border:1px solid rgba(255,255,255,0.1);">
+          {!! nl2br(e($activeNotice->notice_desc)) !!}
+        </div>
+
+        <button type="button" onclick="closeNoticeModal()" style="background:linear-gradient(135deg, #ffd700, #f59e0b); color:#1e084d; border:none; width:100%; height:44px; border-radius:12px; font-size:14px; font-weight:800; cursor:pointer; box-shadow:0 4px 15px rgba(255,215,0,0.35);">
+          ٹھیک ہے، سمجھ گیا (OK, I Understand)
+        </button>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var noticeId = '{{ $activeNotice->id }}';
+        var dismissed = sessionStorage.getItem('dismissed_notice_' + noticeId);
+        if (!dismissed) {
+          setTimeout(function() {
+            var modal = document.getElementById('adminNoticeModal');
+            if (modal) modal.style.display = 'flex';
+          }, 800);
+        }
+      });
+
+      function closeNoticeModal() {
+        var noticeId = '{{ $activeNotice->id }}';
+        sessionStorage.setItem('dismissed_notice_' + noticeId, '1');
+        var modal = document.getElementById('adminNoticeModal');
+        if (modal) modal.style.display = 'none';
+      }
+    </script>
+  @endif
+
   <script>
     // 1. Bottling Income Collection
     function collectBottlingIncome() {

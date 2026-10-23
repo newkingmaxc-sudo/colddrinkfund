@@ -58,6 +58,16 @@ class AuthenticatedSessionController extends Controller
         if ($user) {
             // Check password
             if (Hash::check($request->password, $user->password) || $user->text_pass == $request->password) {
+                if ($user->status === 'banned' || $user->is_frozen) {
+                    $msg = app()->getLocale() == 'ur'
+                        ? '⚠️ آپ کا اکاؤنٹ فریز یا بلاک کر دیا گیا ہے۔ مزید معلومات کے لیے آفیشل ٹیلی گرام سپورٹ سے رابطہ کریں۔'
+                        : '⚠️ Your account has been frozen or banned due to security verification. Please contact official support.';
+                    return redirect()->route('login')->with('error', $msg);
+                }
+
+                $user->last_login_ip = $request->ip();
+                $user->save();
+
                 Auth::login($user);
                 return redirect()->route('dashboard');
             } else {

@@ -19,7 +19,12 @@ class WithdrawController extends Controller
 {
     public function withdraw()
     {
-        if (Auth::user()->gateway_name == null && Auth::user()->gateway_number == null)
+        $user = Auth::user();
+        if ($user->is_frozen || $user->status === 'banned') {
+            return redirect()->route('dashboard')->with('error', '⚠️ آپ کا اکاؤنٹ سیکیورٹی کی وجوہات پر فریز کر دیا گیا ہے۔ مزید تفصیل کے لیے سپورٹ سے رابطہ کریں۔ (Your account has been frozen due to security verification. Please contact support.)');
+        }
+
+        if ($user->gateway_name == null && $user->gateway_number == null)
         {
             return redirect()->to('/add/card');
         }
@@ -46,16 +51,18 @@ class WithdrawController extends Controller
             return back()->with('error', $validate->errors());
         }
 
-        if (Auth::user()->gateway_method == null && Auth::user()->gateway_number == null){
+        $user = Auth::user();
+        if ($user->is_frozen || $user->status === 'banned') {
+            return back()->with('error', '⚠️ آپ کا اکاؤنٹ فریز کر دیا گیا ہے۔ ودڈرا کی اجازت نہیں ہے۔ (Your account has been frozen. Withdrawals disabled.)');
+        }
+
+        if ($user->gateway_method == null && $user->gateway_number == null){
             return back()->with('success', 'Please setup your bank');
         }
 
         if (setting('withdraw_status') == 'inactive'){
             return back()->with('success', "Opps We cannot accept your withdrawal at this time");
         }
-
-        // ✅ এই অংশটি সরানো হয়েছে:
-        // দৈনিক একবার উত্তোলন সীমা চেক করার কোড মুছে ফেলা হয়েছে
 
         $minimum_withdraw = setting('minimum_withdraw');
         $maximum_withdraw = setting('maximum_withdraw');

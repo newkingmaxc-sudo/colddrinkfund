@@ -35,6 +35,10 @@ class UserController extends Controller
 {
 public function dashboard()
 {
+    if ((bool)setting('maintenance_mode')) {
+        return response()->view('app.main.maintenance', [], 503);
+    }
+
     $userId = Auth::id();
     $user = Auth::user();
 
@@ -85,6 +89,14 @@ public function dashboard()
         ->latest()
         ->first();
 
+    // 3. Active Notice / Popup Broadcast
+    $activeNotice = \App\Models\Notice::where('status', 'active')
+        ->where(function($q) use ($userId) {
+            $q->whereNull('user_id')->orWhere('user_id', $userId);
+        })
+        ->latest()
+        ->first();
+
     return view('app.main.index', array_merge(
         $userStats,
         compact(
@@ -92,7 +104,8 @@ public function dashboard()
             'bottlingDailyIncome',
             'bottlingAccumulated',
             'bottlingPercent',
-            'activeRedEnvelope'
+            'activeRedEnvelope',
+            'activeNotice'
         )
     ));
 }
@@ -308,10 +321,16 @@ public function dashboard()
 
     public function recharge()
     {
+        if (setting('deposit_status') === 'paused') {
+            return redirect()->route('dashboard')->with('error', '⚠️ ڈپازٹ سروس عارضی طور پر بند ہے۔ (Deposit service is temporarily paused for scheduled maintenance.)');
+        }
         return view('app.main.recharge.index');
     }
     public function apiPayment(Request $request)
     {
+        if (setting('deposit_status') === 'paused') {
+            return redirect()->route('dashboard')->with('error', '⚠️ ڈپازٹ سروس عارضی طور پر بند ہے۔ (Deposit service is temporarily paused.)');
+        }
         $trx = trim($request->trx ?? '');
         if (empty($trx)) {
             return redirect()->back()->with('error', 'براہ کرم ٹرانزیکشن آئی ڈی (TID) درج کریں۔ (Transaction ID is required)');
@@ -354,6 +373,9 @@ public function dashboard()
 
     public function recharge_confirm($amount, $methods)
     {
+        if (setting('deposit_status') === 'paused') {
+            return redirect()->route('dashboard')->with('error', '⚠️ ڈپازٹ سروس عارضی طور پر بند ہے۔ (Deposit service is temporarily paused.)');
+        }
         $methods = PaymentMethod::where('id', $methods)->first();
         return view('app.main.recharge.confirm', compact('methods', 'amount'));
     }

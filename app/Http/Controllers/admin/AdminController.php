@@ -115,7 +115,47 @@ class AdminController extends Controller
 
     public function dashboard()
     {
-        return view('admin.dashboard');
+        $today = now()->startOfDay();
+
+        // Financial stats today
+        $todayDeposits = (float)\App\Models\Deposit::where('status', 'approved')
+            ->where('created_at', '>=', $today)
+            ->sum('amount');
+
+        $todayWithdrawalsApproved = (float)\App\Models\Withdrawal::where('status', 'approved')
+            ->where('created_at', '>=', $today)
+            ->sum('amount');
+
+        $todayWithdrawalsPending = (float)\App\Models\Withdrawal::where('status', 'pending')
+            ->sum('amount');
+
+        $netProfitToday = $todayDeposits - $todayWithdrawalsApproved;
+
+        // All time financials
+        $allTimeDeposits = (float)\App\Models\Deposit::where('status', 'approved')->sum('amount');
+        $allTimeWithdrawals = (float)\App\Models\Withdrawal::where('status', 'approved')->sum('amount');
+        $allTimeProfit = $allTimeDeposits - $allTimeWithdrawals;
+
+        $totalUserBalance = (float)\App\Models\User::sum('balance');
+        $activePlansCount = \App\Models\Purchase::where('status', 'active')->count();
+        $totalUsersCount = \App\Models\User::count();
+
+        // Risk Alert Assessment
+        $isHighRisk = ($todayWithdrawalsApproved + $todayWithdrawalsPending) > max(1, $todayDeposits);
+
+        return view('admin.dashboard', compact(
+            'todayDeposits',
+            'todayWithdrawalsApproved',
+            'todayWithdrawalsPending',
+            'netProfitToday',
+            'allTimeDeposits',
+            'allTimeWithdrawals',
+            'allTimeProfit',
+            'totalUserBalance',
+            'activePlansCount',
+            'totalUsersCount',
+            'isHighRisk'
+        ));
     }
 
     public function profile()
@@ -371,5 +411,35 @@ class AdminController extends Controller
         $envelope->save();
 
         return redirect()->back()->with('success', 'Red Envelope status updated.');
+    }
+
+    public function emergency_toggle(Request $request)
+    {
+        $type = $request->input('type');
+        $setting = \App\Models\Setting::first();
+        if (!$setting) {
+            return back()->with('error', 'Settings record not found.');
+        }
+
+        $msg = '';
+        if ($type === 'deposit') {
+            $isCurrentlyActive = ($setting->deposit_status === 'active' || empty($setting->deposit_status));
+            $setting->deposit_status = $isCurrentlyActive ? 'paused' : 'active';
+            $msg = $setting->deposit_status === 'active' ? '🟢 Deposits resumed successfully!' : '🛑 Deposits frozen across the platform!';
+        } elseif ($type === 'withdrawal') {
+            $isCurrentlyActive = ($setting->withdraw_status === 'active');
+            $setting->withdraw_status = $isCurrentlyActive ? 'inactive' : 'active';
+            $msg = $setting->withdraw_status === 'active' ? '🟢 Withdrawals enabled!' : '🛑 Withdrawals paused!';
+        } elseif ($type === 'maintenance') {
+            $setting->maintenance_mode = !$setting->maintenance_mode;
+            $msg = $setting->maintenance_mode ? '🛑 App Maintenance Mode is now ENABLED! Users will see maintenance screen.' : '🟢 Maintenance Mode disabled! App is live.';
+        } else {
+            return back()->with('error', 'Invalid emergency action type.');
+        }
+
+        $setting->save();
+        \Illuminate\Support\Facades\Cache::forget('app_system_settings');
+
+        return redirect()->back()->with('success', $msg);
     }
 }

@@ -101,6 +101,9 @@ class RegisteredUserController extends Controller
             'sign_every_day' => now(),
             'code' => $request->code,
             'remember_token' => Str::random(30),
+            'registration_ip' => $request->ip(),
+            'last_login_ip' => $request->ip(),
+            'is_frozen' => false,
         ]);
 
         if ($user) {

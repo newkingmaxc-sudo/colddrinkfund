@@ -1,6 +1,151 @@
 @extends('admin.partials.master')
 @section('admin_content')
     <section id="dashboard-ecommerce">
+
+        <!-- 🚨 Risk Alert (If Withdrawals Exceed Deposits) -->
+        @if(isset($isHighRisk) && $isHighRisk)
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-danger mb-2 d-flex align-items-center justify-content-between p-1" style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; border-radius: 8px; border: none; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);">
+                    <div class="d-flex align-items-center">
+                        <i class="bx bxs-error-circle mr-1 font-large-1"></i>
+                        <div>
+                            <strong style="font-size: 15px;">🚨 سیکیورٹی الرٹ: آج کا ودڈرا ڈپازٹ سے زیادہ ہے! (High Outflow Alert)</strong>
+                            <p class="mb-0 font-small-3" style="color: #fee2e2;">
+                                آج کل ڈپازٹ Rs. {{ number_format($todayDeposits ?? 0, 2) }} ہے جبکہ ودڈرا (منظور + پینڈنگ) Rs. {{ number_format(($todayWithdrawalsApproved ?? 0) + ($todayWithdrawalsPending ?? 0), 2) }} ہے۔ ضرورت پڑنے پر ایمرجنسی سوئچ استعمال کریں۔
+                            </p>
+                        </div>
+                    </div>
+                    <a href="{{ route('admin.payment.pending') }}" class="btn btn-light font-weight-bold btn-sm text-danger ml-1" style="white-space: nowrap;">
+                        Review Withdrawals
+                    </a>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <!-- 📊 REAL-TIME NET PROFIT & FINANCIAL METRICS (خالص منافع کا ڈیش بورڈ) -->
+        <div class="row">
+            <!-- 1. Net Profit Today -->
+            <div class="col-xl-3 col-sm-6 col-12">
+                <div class="card text-white mb-2" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); border-radius: 12px; box-shadow: 0 6px 18px rgba(16, 185, 129, 0.25);">
+                    <div class="card-body p-1">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="font-small-2 text-white-50 text-uppercase font-weight-bold">🟢 Today's Net Profit (آج کا منافع)</span>
+                                <h3 class="text-white font-weight-bold mb-0 mt-50">Rs. {{ number_format($netProfitToday ?? 0, 2) }}</h3>
+                                <small class="text-white-50 font-small-1">Deposits minus Approved Withdrawals</small>
+                            </div>
+                            <div class="badge-circle badge-circle-lg bg-white text-success">
+                                <i class="bx bx-trending-up font-medium-5" style="color: #059669 !important;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Today's Deposits -->
+            <div class="col-xl-3 col-sm-6 col-12">
+                <div class="card text-white mb-2" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); border-radius: 12px; box-shadow: 0 6px 18px rgba(59, 130, 246, 0.25);">
+                    <div class="card-body p-1">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="font-small-2 text-white-50 text-uppercase font-weight-bold">📥 Today Deposits (آج کا ڈپازٹ)</span>
+                                <h3 class="text-white font-weight-bold mb-0 mt-50">Rs. {{ number_format($todayDeposits ?? 0, 2) }}</h3>
+                                <small class="text-white-50 font-small-1">Approved incoming recharge</small>
+                            </div>
+                            <div class="badge-circle badge-circle-lg bg-white text-primary">
+                                <i class="bx bx-down-arrow-alt font-medium-5" style="color: #1e40af !important;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Today's Withdrawals -->
+            <div class="col-xl-3 col-sm-6 col-12">
+                <div class="card text-white mb-2" style="background: linear-gradient(135deg, #be123c 0%, #f43f5e 100%); border-radius: 12px; box-shadow: 0 6px 18px rgba(244, 63, 94, 0.25);">
+                    <div class="card-body p-1">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="font-small-2 text-white-50 text-uppercase font-weight-bold">📤 Today Withdrawals (آج کا ودڈرا)</span>
+                                <h3 class="text-white font-weight-bold mb-0 mt-50">Rs. {{ number_format($todayWithdrawalsApproved ?? 0, 2) }}</h3>
+                                <small class="text-white-50 font-small-1">Pending: Rs. {{ number_format($todayWithdrawalsPending ?? 0, 2) }}</small>
+                            </div>
+                            <div class="badge-circle badge-circle-lg bg-white text-danger">
+                                <i class="bx bx-up-arrow-alt font-medium-5" style="color: #be123c !important;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. All-Time Platform Profit -->
+            <div class="col-xl-3 col-sm-6 col-12">
+                <div class="card text-white mb-2" style="background: linear-gradient(135deg, #4c1d95 0%, #8b5cf6 100%); border-radius: 12px; box-shadow: 0 6px 18px rgba(139, 92, 246, 0.25);">
+                    <div class="card-body p-1">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="font-small-2 text-white-50 text-uppercase font-weight-bold">💎 All-Time Net Profit (کل منافع)</span>
+                                <h3 class="text-white font-weight-bold mb-0 mt-50">Rs. {{ number_format($allTimeProfit ?? 0, 2) }}</h3>
+                                <small class="text-white-50 font-small-1">Dep: Rs. {{ number_format($allTimeDeposits ?? 0, 0) }} | With: Rs. {{ number_format($allTimeWithdrawals ?? 0, 0) }}</small>
+                            </div>
+                            <div class="badge-circle badge-circle-lg bg-white text-warning">
+                                <i class="bx bx-wallet font-medium-5" style="color: #6d28d9 !important;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🚨 1-CLICK EMERGENCY ACTION BAR (ایمرجنسی کنٹرول پینل) -->
+        <div class="row mb-2">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm" style="background: #1e1b4b; color: #fff; border-radius: 10px;">
+                    <div class="card-body py-1 px-2 d-flex flex-wrap align-items-center justify-content-between">
+                        <div class="d-flex align-items-center mb-1 mb-md-0">
+                            <span class="badge badge-danger p-50 mr-1"><i class="bx bx-slider-alt font-medium-2"></i></span>
+                            <div>
+                                <strong class="text-white">🚨 Emergency Lockdown Switches (ایمرجنسی سوئچز)</strong>
+                                <span class="text-white-50 d-block font-small-2">1-Click instant control over Deposits, Withdrawals, and Site Maintenance</span>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center flex-wrap gap-2" style="gap: 12px;">
+                            <!-- Deposit Freeze Toggle -->
+                            <form action="{{ route('admin.emergency.toggle') }}" method="POST" class="d-inline">
+                                @csrf
+                                <input type="hidden" name="type" value="deposit">
+                                <button type="submit" class="btn btn-sm btn-{{ setting('deposit_status', 'active') == 'active' ? 'outline-success' : 'danger' }} text-white font-weight-bold">
+                                    <i class="bx {{ setting('deposit_status', 'active') == 'active' ? 'bx-check-circle' : 'bx-pause-circle' }}"></i>
+                                    Deposits: {{ setting('deposit_status', 'active') == 'active' ? 'ACTIVE 🟢' : 'PAUSED 🔴' }}
+                                </button>
+                            </form>
+
+                            <!-- Withdrawal Freeze Toggle -->
+                            <form action="{{ route('admin.emergency.toggle') }}" method="POST" class="d-inline">
+                                @csrf
+                                <input type="hidden" name="type" value="withdrawal">
+                                <button type="submit" class="btn btn-sm btn-{{ setting('withdraw_status', 'inactive') == 'active' ? 'outline-success' : 'danger' }} text-white font-weight-bold">
+                                    <i class="bx {{ setting('withdraw_status', 'inactive') == 'active' ? 'bx-check-circle' : 'bx-pause-circle' }}"></i>
+                                    Withdrawals: {{ setting('withdraw_status', 'inactive') == 'active' ? 'ACTIVE 🟢' : 'PAUSED 🔴' }}
+                                </button>
+                            </form>
+
+                            <!-- Maintenance Mode Toggle -->
+                            <form action="{{ route('admin.emergency.toggle') }}" method="POST" class="d-inline" onsubmit="return confirm('Change Maintenance Mode status?');">
+                                @csrf
+                                <input type="hidden" name="type" value="maintenance">
+                                <button type="submit" class="btn btn-sm btn-{{ setting('maintenance_mode', false) ? 'danger' : 'outline-light' }} font-weight-bold">
+                                    <i class="bx bx-wrench"></i>
+                                    Maintenance: {{ setting('maintenance_mode', false) ? 'ENABLED 🛑' : 'OFF (Normal) 🟢' }}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="row">
             <div class="col-xl-4 col-12 dashboard-users">
                 <div class="row  ">

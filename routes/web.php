@@ -12,6 +12,9 @@ use App\Http\Controllers\admin\TaskController;
 use App\Http\Controllers\admin\NoticeController;
 use App\Http\Controllers\admin\VipSliderController;
 use App\Http\Controllers\admin\AdminAppUpdateController;
+use App\Http\Controllers\admin\AdminFraudController;
+use App\Http\Controllers\admin\AdminBalanceController;
+use App\Http\Controllers\admin\AdminLeaderSalaryController;
 use App\Http\Controllers\AppUpdateController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\user\CategoryController;
@@ -194,6 +197,26 @@ Route::middleware('throttle:limit-check')->group(function () {
         Route::get('app-version', [AdminAppUpdateController::class, 'index'])->name('admin.app_version.index');
         Route::post('app-version/store', [AdminAppUpdateController::class, 'store'])->name('admin.app_version.store');
         Route::get('app-version/toggle/{id}', [AdminAppUpdateController::class, 'toggle'])->name('admin.app_version.toggle');
+
+        // 1. Anti-Fraud & Multi-Account Detector
+        Route::get('fraud-detector', [AdminFraudController::class, 'index'])->name('admin.fraud.index');
+        Route::match(['get', 'post'], 'fraud/toggle-freeze/{id}', [AdminFraudController::class, 'toggle_freeze'])->name('admin.fraud.toggle_freeze');
+        Route::post('fraud/freeze-ip', [AdminFraudController::class, 'freeze_ip'])->name('admin.fraud.freeze_ip');
+
+        // 2. Quick User Balance Credit / Debit Tool
+        Route::get('balance-adjuster', [AdminBalanceController::class, 'index'])->name('admin.balance.index');
+        Route::post('balance-adjuster/submit', [AdminBalanceController::class, 'submit'])->name('admin.balance.submit');
+
+        // 3. Team Leader Daily Salary Approvals
+        Route::get('leader-salaries', [AdminLeaderSalaryController::class, 'index'])->name('admin.leader_salaries.index');
+        Route::post('leader-salaries/pay/{id}', [AdminLeaderSalaryController::class, 'pay_single'])->name('admin.leader_salaries.pay');
+        Route::post('leader-salaries/batch-pay', [AdminLeaderSalaryController::class, 'pay_all'])->name('admin.leader_salaries.batch_pay');
+
+        // 4. Emergency Lockdown Switches
+        Route::post('emergency/toggle', [AdminController::class, 'emergency_toggle'])->name('admin.emergency.toggle');
+
+        // 5. Payment Method Rotator Toggle
+        Route::get('method/toggle/{id}', [PaymentMethodController::class, 'toggle_status'])->name('admin.method.toggle');
 
         //List
         Route::get('mining/with-customer', [ManageUserController::class, 'continue_mining'])->name('admin.mining_purchase.index');

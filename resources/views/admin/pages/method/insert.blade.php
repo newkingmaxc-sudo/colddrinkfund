@@ -62,35 +62,47 @@
                                         <label for="name">Method Name</label>
                                         <input type="text" class="form-control is-valid"
                                                name="name" id="name"
-                                               placeholder="Name" value="{{$data ? $data->name : old('name')}}" required>
-                                        <div class="valid-feedback">
-                                            <i class="bx bx-radio-circle"></i>
-                                            Note: This is filed is required
-                                        </div>
+                                               placeholder="e.g. JazzCash or EasyPaisa" value="{{$data ? $data->name : old('name')}}" required>
                                     </div>
 
                                     <div class="col-sm-6">
-                                        <label for="address">Method address</label>
+                                        <label for="address">Account Number / Phone / IBAN</label>
                                         <input type="text" class="form-control is-valid"
                                                name="address" id="address"
-                                               placeholder="address" value="{{$data ? $data->address : old('address')}}" required>
-                                        <div class="valid-feedback">
-                                            <i class="bx bx-radio-circle"></i>
-                                            Note: This is filed is required
-                                        </div>
+                                               placeholder="03XXXXXXXXX or Bank Account" value="{{$data ? $data->address : old('address')}}" required>
                                     </div>
 
+                                    <div class="col-sm-4 mt-1">
+                                        <label for="account_title">Account Title (Holder Name)</label>
+                                        <input type="text" class="form-control"
+                                               name="account_title" id="account_title"
+                                               placeholder="Account Title" value="{{$data ? ($data->account_title ?? $data->name) : old('account_title')}}">
+                                    </div>
 
-                                    @if($data)
-                                        <div class="col-sm-12">
-                                            <label for="recharge_charge">Status</label>
-                                            <select name="status" id="status" class="form-control is_valid">
-                                                <option value="">Select status</option>
-                                                <option value="active" @if($data->status == 'active') selected @endif>Active</option>
-                                                <option value="inactive" @if($data->status == 'inactive') selected @endif>In-Active</option>
-                                            </select>
-                                        </div>
-                                    @endif
+                                    <div class="col-sm-4 mt-1">
+                                        <label for="account_type">Account Type</label>
+                                        <select name="account_type" id="account_type" class="form-control">
+                                            <option value="mobile_wallet" @if(($data->account_type ?? '') == 'mobile_wallet') selected @endif>Mobile Wallet (EasyPaisa / JazzCash)</option>
+                                            <option value="bank" @if(($data->account_type ?? '') == 'bank') selected @endif>Commercial Bank Transfer</option>
+                                            <option value="digital_bank" @if(($data->account_type ?? '') == 'digital_bank') selected @endif>Digital Bank (SadaPay / NayaPay)</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-sm-4 mt-1">
+                                        <label for="daily_limit">Daily Deposit Limit (PKR)</label>
+                                        <input type="number" step="any" class="form-control"
+                                               name="daily_limit" id="daily_limit"
+                                               placeholder="50000" value="{{$data ? ($data->daily_limit ?? 50000) : 50000}}">
+                                        <small class="text-muted">Account auto-rotates or warns when daily inflow reaches limit.</small>
+                                    </div>
+
+                                    <div class="col-sm-12 mt-1">
+                                        <label for="status">Active Status (Rotation Status)</label>
+                                        <select name="status" id="status" class="form-control">
+                                            <option value="active" @if(!$data || $data->status == 'active') selected @endif>Active (Included in deposit rotation 🟢)</option>
+                                            <option value="inactive" @if($data && $data->status == 'inactive') selected @endif>In-Active (Rotated out / Paused 🔴)</option>
+                                        </select>
+                                    </div>
 
                                 </div>
                             </div>

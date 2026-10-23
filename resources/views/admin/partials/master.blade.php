@@ -319,6 +319,30 @@
                 </a>
             </li>
 
+            <!-- 1. Anti-Fraud Center -->
+            <li class="nav-item @if(request()->routeIs('admin.fraud.*')) active @endif">
+                <a href="{{ route('admin.fraud.index') }}">
+                    <i class="bx bx-shield-quarter text-danger font-medium-2"></i>
+                    <span class="menu-title font-weight-bold text-danger" data-i18n="AntiFraud">🛡️ Anti-Fraud Center</span>
+                </a>
+            </li>
+
+            <!-- 2. Quick User Balance Adjuster -->
+            <li class="nav-item @if(request()->routeIs('admin.balance.*')) active @endif">
+                <a href="{{ route('admin.balance.index') }}">
+                    <i class="bx bx-wallet text-success font-medium-2"></i>
+                    <span class="menu-title font-weight-bold text-success" data-i18n="BalanceAdjuster">💰 Balance Adjuster</span>
+                </a>
+            </li>
+
+            <!-- 3. Team Leader Daily Salaries -->
+            <li class="nav-item @if(request()->routeIs('admin.leader_salaries.*')) active @endif">
+                <a href="{{ route('admin.leader_salaries.index') }}">
+                    <i class="bx bx-award text-primary font-medium-2"></i>
+                    <span class="menu-title font-weight-bold" data-i18n="LeaderSalaries" style="color: #6366f1;">💼 Leader Salaries</span>
+                </a>
+            </li>
+
             <li class="nav-item @if($route == 'admin.payment.pending' || $route == 'admin.payment.rejected' || $route == 'admin.payment.approved') sidebar-group-active open active @else @endif">
                 <a href="#"> <i class="bx bx-right-arrow"></i> <span class="menu-title" data-i18n="Invoice">Payments</span></a>
                 <ul class="menu-content">
