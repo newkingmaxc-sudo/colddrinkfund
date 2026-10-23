@@ -80,26 +80,69 @@ class AdminController extends Controller
     }
 
 
-    public function login()
+    public function login(Request $request)
     {
         if (Auth::guard('admin')->check()) {
             return redirect()->route('admin.dashboard');
         }
+
+        $secretKey = setting('admin_secret_key', 'portal786');
+        if (empty($secretKey)) {
+            $secretKey = 'portal786';
+        }
+
+        // If secret key provided in query string, unlock the gate in session
+        if ($request->has('key') && $request->input('key') === $secretKey) {
+            session()->put('admin_gate_unlocked', true);
+        }
+
+        // Check if gate is unlocked
+        if (!session()->get('admin_gate_unlocked')) {
+            abort(404);
+        }
+
         return view('admin.auth.login');
     }
 
     public function login_submit(Request $request)
     {
+        $ip = $request->ip();
+
+        // 1. Check IP lockout
+        if (\Illuminate\Support\Facades\Cache::has("admin_ip_blocked_{$ip}")) {
+            abort(403, "Access Denied: Your IP address has been temporarily blocked for 24 hours due to multiple suspicious attempts.");
+        }
+
+        // 2. Verify secret key gate
+        $secretKey = setting('admin_secret_key', 'portal786');
+        if (empty($secretKey)) $secretKey = 'portal786';
+
+        if (!session()->get('admin_gate_unlocked') && $request->input('key') !== $secretKey) {
+            abort(404);
+        }
+
         $credentials = $request->only('email', 'password');
         if (Auth::guard('admin')->attempt($credentials)) {
             $admin = Auth::guard('admin')->user();
             if ($admin->type == 'admin') {
+                \Illuminate\Support\Facades\Cache::forget("admin_fail_count_{$ip}");
+                session()->put('admin_gate_unlocked', true);
                 return redirect()->route('admin.dashboard')->with('success', 'Logged In Successful.');
             } else {
                 return error_redirect('admin.login', 'error', 'Admin Credentials Very Secured Please Don"t try Again.');
             }
         } else {
-            return error_redirect('admin.login', 'error', 'Admin Credentials Does Not Match.');
+            // Anti-brute force counter
+            $fails = (int)\Illuminate\Support\Facades\Cache::get("admin_fail_count_{$ip}", 0) + 1;
+            if ($fails >= 3) {
+                \Illuminate\Support\Facades\Cache::put("admin_ip_blocked_{$ip}", true, now()->addHours(24));
+                \Illuminate\Support\Facades\Cache::forget("admin_fail_count_{$ip}");
+                abort(403, "Security Alert: 3 failed password attempts detected. Your IP ({$ip}) has been blocked for 24 hours.");
+            } else {
+                \Illuminate\Support\Facades\Cache::put("admin_fail_count_{$ip}", $fails, now()->addHours(24));
+                $remaining = 3 - $fails;
+                return redirect()->route('admin.login')->with('error', "غلط پاس ورڈ! آپ کے پاس صرف {$remaining} کوشش باقی ہیں ورنہ IP بلاک ہو جائے گی۔ (Invalid credentials. {$remaining} attempts remaining before IP lockout.)");
+            }
         }
     }
 
@@ -443,4 +486,100 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', $msg);
     }
+
+    public function flash_event_toggle(Request $request)
+    {
+        $setting = \App\Models\Setting::first();
+        if (!$setting) {
+            return back()->with('error', 'Settings record not found.');
+        }
+
+        $action = $request->input('action', 'toggle');
+        if ($action === 'stop' || ($action === 'toggle' && (bool)$setting->flash_event_active)) {
+            $setting->flash_event_active = 0;
+            $setting->flash_event_ends_at = null;
+            $setting->save();
+            \Illuminate\Support\Facades\Cache::forget('app_system_settings');
+            return redirect()->back()->with('success', '🛑 Flash Recharge Event stopped.');
+        }
+
+        $hours = max(1, (int)($request->hours ?: 2));
+        $bonusPct = max(1, (float)($request->bonus_pct ?: 15.0));
+        $title = $request->title ?: "⚡ {$hours}-Hour Flash Recharge Boost (+{$bonusPct}% Extra Instant Cashback)";
+
+        $setting->flash_event_active = 1;
+        $setting->flash_event_bonus_pct = $bonusPct;
+        $setting->flash_event_ends_at = now()->addHours($hours);
+        $setting->flash_event_title = $title;
+        $setting->save();
+
+        \Illuminate\Support\Facades\Cache::forget('app_system_settings');
+
+        return redirect()->back()->with('success', "🚀 Flash Recharge Event Launched! (+{$bonusPct}% Cashback active for {$hours} hours).");
+    }
+
+
+    public function stealth_key_update(Request $request)
+
+    {
+
+        $request->validate([
+
+            'secret_key' => 'required|string|min:4|max:50',
+
+        ]);
+
+
+
+        $setting = \App\Models\Setting::first();
+
+        if (!$setting) {
+
+            return back()->with('error', 'Settings record not found.');
+
+        }
+
+
+
+        $cleanKey = preg_replace('/[^a-zA-Z0-9_\-]/', '', $request->secret_key);
+
+        $setting->admin_secret_key = $cleanKey;
+
+        $setting->save();
+
+        \Illuminate\Support\Facades\Cache::forget('app_system_settings');
+
+
+
+        session()->put('admin_gate_unlocked', true);
+
+
+
+        return back()->with('success', "خفیہ ایڈمن کی کامیابی کے ساتھ اپ ڈیٹ ہو گئی! آپ کا نیا سیکرٹ لنک: /admin/login?key={$cleanKey}");
+
+    }
+
+
+
+    public function unblock_ip(Request $request)
+
+    {
+
+        $ip = trim($request->input('ip'));
+
+        if ($ip) {
+
+            \Illuminate\Support\Facades\Cache::forget("admin_ip_blocked_{$ip}");
+
+            \Illuminate\Support\Facades\Cache::forget("admin_fail_count_{$ip}");
+
+            return back()->with('success', "IP address {$ip} has been unblocked successfully!");
+
+        }
+
+        return back()->with('error', 'Please provide a valid IP address.');
+
+    }
+
 }
+

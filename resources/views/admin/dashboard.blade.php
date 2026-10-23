@@ -146,7 +146,174 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+
+        <!-- ⚡ 1-CLICK FLASH RECHARGE EVENT BOOSTER -->
+        @php
+            $flashActive = (bool)setting('flash_event_active') && (empty(setting('flash_event_ends_at')) || now()->lt(\Carbon\Carbon::parse(setting('flash_event_ends_at'))));
+            $flashEndsAt = setting('flash_event_ends_at') ? \Carbon\Carbon::parse(setting('flash_event_ends_at')) : null;
+            $flashBonus = setting('flash_event_bonus_pct', 15.0);
+        @endphp
+        <div class="row mb-2">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #7c2d12 0%, #b45309 100%); color: #fff; border-radius: 10px;">
+                    <div class="card-body py-1 px-2 d-flex flex-wrap align-items-center justify-content-between">
+                        <div class="d-flex align-items-center mb-1 mb-md-0">
+                            <span class="badge badge-warning p-50 mr-1" style="background: #fde047; color: #78350f;"><i class="bx bx-bolt-circle font-medium-3"></i></span>
+                            <div>
+                                <strong class="text-white font-medium-1">⚡ Flash Recharge Countdown Event (2 گھنٹے کا فلیش ایونٹ)</strong>
+                                <span class="text-white-50 d-block font-small-2">
+                                    @if($flashActive)
+                                        <span class="badge badge-success mr-25">ACTIVE 🟢</span>
+                                        +{{ $flashBonus }}% Bonus Cashback Active! Ends at: <strong>{{ $flashEndsAt ? $flashEndsAt->format('h:i A') : 'N/A' }}</strong>
+                                    @else
+                                        Boost immediate deposits by offering a timed +10% to +20% extra deposit cashback with live countdown on user app.
+                                    @endif
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center flex-wrap gap-1" style="gap: 10px;">
+                            @if($flashActive)
+                                <form action="{{ route('admin.flash.toggle') }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <input type="hidden" name="action" value="stop">
+                                    <button type="submit" class="btn btn-sm btn-danger font-weight-bold shadow-sm">
+                                        <i class="bx bx-stop-circle"></i> Stop Flash Event 🛑
+                                    </button>
+                                </form>
+                            @else
+                                <form action="{{ route('admin.flash.toggle') }}" method="POST" class="d-flex align-items-center flex-wrap gap-1" style="gap: 8px;">
+                                    @csrf
+                                    <input type="hidden" name="action" value="start">
+                                    <div class="d-flex align-items-center mr-1">
+                                        <small class="text-white-50 mr-50">Cashback:</small>
+                                        <select name="bonus_pct" class="form-control form-control-sm" style="width: 85px;">
+                                            <option value="10">10%</option>
+                                            <option value="15" selected>15%</option>
+                                            <option value="20">20%</option>
+                                            <option value="25">25%</option>
+                                        </select>
+                                    </div>
+                                    <div class="d-flex align-items-center mr-1">
+                                        <small class="text-white-50 mr-50">Duration:</small>
+                                        <select name="hours" class="form-control form-control-sm" style="width: 95px;">
+                                            <option value="1">1 Hour</option>
+                                            <option value="2" selected>2 Hours</option>
+                                            <option value="4">4 Hours</option>
+                                            <option value="8">8 Hours</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-sm btn-warning font-weight-bold text-dark shadow-sm">
+                                        <i class="bx bx-rocket"></i> Launch Flash Event 🚀
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+                <!-- Row: Vault Relief & Stealth Security Cloak -->
+        <div class="row mb-2">
+            <!-- Safe Vault Fund Card -->
+            <div class="col-md-6 col-12 mb-1">
+                <div class="card shadow-sm border-0 h-100" style="background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 12px; color: #fff;">
+                    <div class="card-body p-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="badge badge-warning font-weight-bold" style="background: #f59e0b; color: #000;">
+                                🏦 Cold Drink Piggy Vault
+                            </span>
+                            <span class="text-white-50 font-small-2">Daily Withdrawal Relief</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-end">
+                            <div>
+                                <small class="text-white-50 text-uppercase font-weight-bold">Locked in Safe Vault</small>
+                                <h2 class="text-warning font-weight-bolder mb-0 mt-50">Rs. {{ number_format($totalVaultBalance, 2) }}</h2>
+                                <small class="text-success font-weight-bold">
+                                    <i class="bx bx-shield-quarter"></i> {{ number_format($totalVaultUsers) }} users actively locking balance
+                                </small>
+                            </div>
+                            <div class="text-right">
+                                <span class="badge badge-light-warning font-weight-bold p-75" style="font-size: 13px;">
+                                    {{ setting('vault_interest_rate', 1.2) }}% / Day
+                                </span>
+                            </div>
+                        </div>
+                        <p class="font-small-2 text-white-50 mt-1 mb-0 border-top pt-1" style="border-color: rgba(255,255,255,0.1) !important;">
+                            💡 <strong>فوائد ایڈمن:</strong> یہ وہ رقم ہے جو یوزرز نے ودڈرا کرنے کے بجائے والٹ میں جمع رکھی ہوئی ہے۔ اس سے آپ کے کیش فلو پر ودڈرا کا بوجھ کم رہتا ہے۔
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stealth Admin Cloak & Anti-Brute Force Card -->
+            <div class="col-md-6 col-12 mb-1">
+                <div class="card shadow-sm border-0 h-100" style="background: linear-gradient(135deg, #090d16, #1a202c); border-radius: 12px; color: #fff; border: 1.5px solid #4a5568 !important;">
+                    <div class="card-body p-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="badge badge-dark font-weight-bold" style="background: #e11d48; color: #fff;">
+                                🕶️ Stealth Cloak & Anti-Brute Force
+                            </span>
+                            <span class="badge badge-light-success font-weight-bold font-small-1">
+                                <i class="bx bx-check-shield"></i> 404 Cloaking Active
+                            </span>
+                        </div>
+
+                        @php
+                            $curSecretKey = setting('admin_secret_key', 'portal786') ?: 'portal786';
+                            $secretAdminUrl = url('admin/login') . '?key=' . $curSecretKey;
+                        @endphp
+
+                        <div class="mb-1">
+                            <small class="text-white-50 font-weight-bold">خفیہ ایڈمن لاگ ان لنک (Bookmark this link):</small>
+                            <div class="input-group input-group-sm mt-25">
+                                <input type="text" class="form-control form-control-sm text-warning font-weight-bold" id="stealthLinkInput" value="{{ $secretAdminUrl }}" readonly style="background: #2d3748; border-color: #4a5568; color: #fbbf24 !important;">
+                                <div class="input-group-append">
+                                    <button class="btn btn-warning btn-sm font-weight-bold" type="button" onclick="navigator.clipboard.writeText('{{ $secretAdminUrl }}'); toastr.success('Secret Admin URL Copied!');">
+                                        <i class="bx bx-copy"></i> Copy
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="text-muted font-small-1 d-block mt-25">
+                                بغیر اس کی (Key) کے کوئی بھی یوزر یا ہیکر /admin کھولے گا تو اسے <strong>404 Not Found</strong> نظر آئے گا۔
+                            </small>
+                        </div>
+
+                        <!-- Update Key & Unblock IP in small forms -->
+                        <div class="row pt-50 border-top" style="border-color: rgba(255,255,255,0.1) !important;">
+                            <div class="col-6">
+                                <form action="{{ route('admin.stealth.update-key') }}" method="POST">
+                                    @csrf
+                                    <label class="text-white-50 font-small-1 font-weight-bold mb-0">Change Secret Key:</label>
+                                    <div class="input-group input-group-sm mt-25">
+                                        <input type="text" name="secret_key" class="form-control form-control-sm" value="{{ $curSecretKey }}" placeholder="e.g. portal99" required style="background: #2d3748; border-color: #4a5568; color: #fff;">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-info btn-sm" type="submit">Update</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-6">
+                                <form action="{{ route('admin.stealth.unblock-ip') }}" method="POST">
+                                    @csrf
+                                    <label class="text-white-50 font-small-1 font-weight-bold mb-0">Unblock Locked IP:</label>
+                                    <div class="input-group input-group-sm mt-25">
+                                        <input type="text" name="ip" class="form-control form-control-sm" placeholder="192.168.1.1" required style="background: #2d3748; border-color: #4a5568; color: #fff;">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-danger btn-sm" type="submit">Unblock</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<div class="row">
             <div class="col-xl-4 col-12 dashboard-users">
                 <div class="row  ">
                     <div class="col-12">

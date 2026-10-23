@@ -49,7 +49,31 @@
                                                                 src="{{$data ? asset(view_image($data->photo)) :  asset(not_found_img())}}"
                                                                 id="file-ip-1-preview" class="rounded"
                                                                 alt="Preview Image"
-                                                                style="width: 100px;height: 100px">
+                                                                style="width: 100px;height: 100px;object-fit:cover;">
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Custom QR Code Upload -->
+                                                    <div class="col-12 col-sm-6 mt-2">
+                                                        <fieldset class="form-group">
+                                                            <label for="inputQrFile">Upload Merchant QR Code <small>(EasyPaisa / JazzCash / Bank QR Image)</small> </label>
+                                                            <div class="custom-file">
+                                                                <input type="file" name="qr_code"
+                                                                       class="custom-file-input"
+                                                                       id="inputQrFile"
+                                                                       onchange="showQrPreview(event)">
+                                                                <label class="custom-file-label" for="inputQrFile">Choose QR image</label>
+                                                            </div>
+                                                            <small class="text-muted">Users scan this exact QR on the deposit page to pay you directly.</small>
+                                                        </fieldset>
+                                                    </div>
+                                                    <div class="col-12 col-sm-6 mt-2">
+                                                        <div class="image_preview">
+                                                            <img
+                                                                src="{{($data && $data->qr_code) ? asset($data->qr_code) : asset(not_found_img())}}"
+                                                                id="file-ip-qr-preview" class="rounded border p-1"
+                                                                alt="QR Preview"
+                                                                style="width: 100px;height: 100px;object-fit:contain;background:#fafafa;">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -136,6 +160,14 @@
             if(event.target.files.length > 0){
                 var src = URL.createObjectURL(event.target.files[0]);
                 var preview = document.getElementById("file-ip-1-preview");
+                preview.src = src;
+                preview.style.display = "block";
+            }
+        }
+        function showQrPreview(event){
+            if(event.target.files.length > 0){
+                var src = URL.createObjectURL(event.target.files[0]);
+                var preview = document.getElementById("file-ip-qr-preview");
                 preview.src = src;
                 preview.style.display = "block";
             }

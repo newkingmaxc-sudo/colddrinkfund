@@ -331,10 +331,19 @@ public function dashboard()
         if (setting('deposit_status') === 'paused') {
             return redirect()->route('dashboard')->with('error', '⚠️ ڈپازٹ سروس عارضی طور پر بند ہے۔ (Deposit service is temporarily paused.)');
         }
-        $trx = trim($request->trx ?? '');
-        if (empty($trx)) {
-            return redirect()->back()->with('error', 'براہ کرم ٹرانزیکشن آئی ڈی (TID) درج کریں۔ (Transaction ID is required)');
+        $rawTrx = trim($request->trx ?? '');
+        $cleanTrx = strtoupper(preg_replace('/[^a-zA-Z0-9]/', '', $rawTrx));
+        if (empty($cleanTrx) || strlen($cleanTrx) < 5) {
+            return redirect()->back()->with('error', 'براہ کرم درست ٹرانزیکشن آئی ڈی (TID) درج کریں۔ (Valid Transaction ID is required)');
         }
+
+        // 🚫 Duplicate TID / Fake Slip Blocker
+        $duplicate = Deposit::whereRaw("UPPER(REGEXP_REPLACE(trx, '[^a-zA-Z0-9]', '', 'g')) = ?", [$cleanTrx])->first();
+        if ($duplicate) {
+            return redirect()->back()->with('error', "⚠️ یہ ٹرانزیکشن آئی ڈی ({$cleanTrx}) پہلے سے سسٹم میں جمع ہو چکی ہے۔ ڈپلیکیٹ رسید جمع کروانا سخت منع ہے! (This TID has already been submitted).");
+        }
+
+        $trx = $cleanTrx;
 
         $amount = (double) ($request->amount ?? 0);
         if ($amount <= 0) {

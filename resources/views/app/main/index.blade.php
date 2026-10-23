@@ -295,7 +295,18 @@
 
             <dl><em class="fa-solid fa-angle-right"></em></dl>
 
-          </a><a href="/withdraw" class=" load3 minmr2"><span style="color:;"><i class="fa-solid fa-credit-card"></i></span>
+                    </a><a href="/vault" class=" load3 minmr2" style="background: linear-gradient(90deg, #fffbeb, #fff); border-left: 3px solid #f59e0b;"><span style="color:#d97706;"><i class="fa-solid fa-piggy-bank"></i></span>
+
+            <h2 style="color: #b45309; font-weight: 700;">🏦 سیف والٹ (روزانہ منافع)</h2>
+
+            <dl><em class="fa-solid fa-angle-right"></em></dl>
+
+          </a><a href="/jackpot" class=" load3 minmr2" style="background: linear-gradient(90deg, #f5f3ff, #fff); border-left: 3px solid #8b5cf6;"><span style="color:#7c3aed;"><i class="fa-solid fa-trophy"></i></span>
+
+            <h2 style="color: #6d28d9; font-weight: 700;">🎟️ اتوار میگا بوتل کیپ ڈرا</h2>
+
+            <dl><em class="fa-solid fa-angle-right"></em></dl>
+</a><a href="/withdraw" class=" load3 minmr2"><span style="color:;"><i class="fa-solid fa-credit-card"></i></span>
 
             <h2>My Withdrawal</h2>
 
@@ -729,6 +740,60 @@
       <div class="my_account_box1">
 
 
+
+        @php
+            $isFlashActive = (bool)setting('flash_event_active') && (empty(setting('flash_event_ends_at')) || now()->lt(\Carbon\Carbon::parse(setting('flash_event_ends_at'))));
+            $flashEndsTimestamp = setting('flash_event_ends_at') ? \Carbon\Carbon::parse(setting('flash_event_ends_at'))->timestamp : null;
+            $flashPct = setting('flash_event_bonus_pct', 15.0);
+        @endphp
+        @if($isFlashActive)
+        <div id="flashEventRibbon" style="margin: 10px 12px; background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); border: 2px solid #ffd700; border-radius: 12px; padding: 10px 14px; color: #fff; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: #ffd700; color: #7f1d1d; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+              ⚡
+            </div>
+            <div>
+              <div style="font-size: 13px; font-weight: 800; color: #ffd700;">
+                فلیش ریچارج آفر: +{{ $flashPct }}% اضافی کیش بیک!
+              </div>
+              <small style="font-size: 11px; color: #fee2e2;">ہر ریچارج پر فوری {{ $flashPct }}% اضافی کیش پائیں</small>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div id="flashCountdownBox" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,215,0,0.5); border-radius: 8px; padding: 4px 10px; font-size: 13px; font-weight: 800; color: #fef08a; letter-spacing: 1px; font-family: monospace;">
+              ⏳ <span id="flashTimerVal">--:--:--</span>
+            </div>
+            <a href="/user/recharge" style="background: #ffd700; color: #7f1d1d; padding: 5px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; text-decoration: none;">
+              ریچارج کریں
+            </a>
+          </div>
+        </div>
+
+        @if($flashEndsTimestamp)
+        <script>
+          (function() {
+            var endsAt = {{ $flashEndsTimestamp }} * 1000;
+            function updateTimer() {
+              var now = new Date().getTime();
+              var diff = endsAt - now;
+              if (diff <= 0) {
+                var el = document.getElementById('flashEventRibbon');
+                if (el) el.style.display = 'none';
+                return;
+              }
+              var h = Math.floor(diff / 3600000);
+              var m = Math.floor((diff % 3600000) / 60000);
+              var s = Math.floor((diff % 60000) / 1000);
+              var pad = function(n) { return (n < 10 ? '0' : '') + n; };
+              var timerEl = document.getElementById('flashTimerVal');
+              if (timerEl) timerEl.textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
+            }
+            setInterval(updateTimer, 1000);
+            updateTimer();
+          })();
+        </script>
+        @endif
+        @endif
 
         <!--News--S-->
 

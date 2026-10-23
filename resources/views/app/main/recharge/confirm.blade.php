@@ -186,9 +186,10 @@
     @php
       $isJazz = str_contains(strtolower($methods->name ?? ''), 'jazz');
       $isEasy = str_contains(strtolower($methods->name ?? ''), 'easy');
-      $qrImg = $isEasy ? '/img/easypaisa_qr.svg' : '/img/jazzcash_qr.svg';
+      $defaultQr = $isEasy ? '/img/easypaisa_qr.svg' : '/img/jazzcash_qr.svg';
+      $qrImg = !empty($methods->qr_code) ? $methods->qr_code : $defaultQr;
       $accNumber = $methods->address ?? '';
-      $accTitle = $methods->account_name ?? 'Official Merchant';
+      $accTitle = $methods->account_title ?? $methods->account_name ?? 'Official Merchant';
     @endphp
 
     <!-- QR Code Scan -->

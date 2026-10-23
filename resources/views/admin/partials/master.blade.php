@@ -343,6 +343,14 @@
                 </a>
             </li>
 
+            <!-- 4. Sunday Mega Jackpot -->
+            <li class="nav-item @if(request()->routeIs('admin.jackpot.*')) active @endif">
+                <a href="{{ route('admin.jackpot.index') }}">
+                    <i class="bx bx-trophy text-warning font-medium-2"></i>
+                    <span class="menu-title font-weight-bold text-warning" data-i18n="Jackpot">🎟️ Sunday Mega Jackpot</span>
+                </a>
+            </li>
+
             <li class="nav-item @if($route == 'admin.payment.pending' || $route == 'admin.payment.rejected' || $route == 'admin.payment.approved') sidebar-group-active open active @else @endif">
                 <a href="#"> <i class="bx bx-right-arrow"></i> <span class="menu-title" data-i18n="Invoice">Payments</span></a>
                 <ul class="menu-content">

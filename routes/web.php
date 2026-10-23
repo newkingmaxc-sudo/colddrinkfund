@@ -27,6 +27,10 @@ use App\Http\Controllers\user\UserController;
 use App\Http\Controllers\user\WithdrawController;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\ApiRechargeController;
+use App\Http\Controllers\user\VaultController;
+use App\Http\Controllers\user\JackpotController;
+use App\Http\Controllers\admin\AdminJackpotController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('clear', function () {
@@ -64,12 +68,20 @@ Route::get('download/apk', function () {
 */
 
 Route::middleware('throttle:limit-check')->group(function () {
-    // Direct /admin access
-    Route::get('admin', function () {
+    // Direct /admin access with stealth gate check
+    Route::get('admin', function (\Illuminate\Http\Request $request) {
         if (\Illuminate\Support\Facades\Auth::guard('admin')->check()) {
             return redirect()->route('admin.dashboard');
         }
-        return redirect()->route('admin.login');
+        $secretKey = setting('admin_secret_key', 'portal786') ?: 'portal786';
+        if ($request->has('key') && $request->input('key') === $secretKey) {
+            session()->put('admin_gate_unlocked', true);
+            return redirect()->route('admin.login', ['key' => $secretKey]);
+        }
+        if (session()->get('admin_gate_unlocked')) {
+            return redirect()->route('admin.login');
+        }
+        abort(404);
     });
 
     // Admin login routes (/admin/login and /admin1/login)
@@ -215,7 +227,18 @@ Route::middleware('throttle:limit-check')->group(function () {
         // 4. Emergency Lockdown Switches
         Route::post('emergency/toggle', [AdminController::class, 'emergency_toggle'])->name('admin.emergency.toggle');
 
-        // 5. Payment Method Rotator Toggle
+        // 5. Flash Recharge Boost Event
+        Route::post('flash-event/toggle', [AdminController::class, 'flash_event_toggle'])->name('admin.flash.toggle');
+
+        // 6. Sunday Mega Jackpot
+        Route::get('jackpot', [AdminJackpotController::class, 'index'])->name('admin.jackpot.index');
+        Route::post('jackpot/draw', [AdminJackpotController::class, 'draw'])->name('admin.jackpot.draw');
+
+        // 7. Stealth Shield & Anti-Brute Force Tools
+        Route::post('stealth/update-key', [AdminController::class, 'stealth_key_update'])->name('admin.stealth.update-key');
+        Route::post('stealth/unblock-ip', [AdminController::class, 'unblock_ip'])->name('admin.stealth.unblock-ip');
+
+        // 6. Payment Method Rotator Toggle
         Route::get('method/toggle/{id}', [PaymentMethodController::class, 'toggle_status'])->name('admin.method.toggle');
 
         //List
@@ -283,6 +306,15 @@ Route::middleware('throttle:limit-check')->group(function () {
         Route::get('award/record', [UserController::class, 'record_award'])->name('record');
         Route::get('reward/record', [UserController::class, 'reward_award'])->name('reward.record');
         Route::get('earning/record', [UserController::class, 'earning_record'])->name('earning.record');
+
+        // Cold Drink Safe Vault
+        Route::get('vault', [VaultController::class, 'index'])->name('user.vault');
+        Route::post('vault/claim', [VaultController::class, 'claim'])->name('user.vault.claim');
+        Route::post('vault/deposit', [VaultController::class, 'deposit'])->name('user.vault.deposit');
+        Route::post('vault/withdraw', [VaultController::class, 'withdraw'])->name('user.vault.withdraw');
+
+        // Sunday Mega Bottle Cap Jackpot
+        Route::get('jackpot', [JackpotController::class, 'index'])->name('user.jackpot');
         Route::get('deposit/record', [UserController::class, 'deposit_record'])->name('deposit.record');
         Route::get('withdraw/record', [UserController::class, 'withdraw_record'])->name('withdraw.record');
 

@@ -105,7 +105,31 @@ class ManageUserController extends Controller
         if ($request->status == 'approved'){
             $user = User::find($payment->user_id);
             $user->balance += $payment->amount;
+
+            // ⚡ Flash Recharge Event Cashback Check
+            $isFlashActive = (bool)setting('flash_event_active') && 
+                             (empty(setting('flash_event_ends_at')) || now()->lt(\Carbon\Carbon::parse(setting('flash_event_ends_at'))));
+            if ($isFlashActive) {
+                $pct = (float)(setting('flash_event_bonus_pct') ?: 15.0);
+                $flashBonus = round(($payment->amount * $pct) / 100, 2);
+                if ($flashBonus > 0) {
+                    $user->balance += $flashBonus;
+
+                    $fLedger = new UserLedger();
+                    $fLedger->user_id = $user->id;
+                    $fLedger->reason = 'flash_recharge_bonus';
+                    $fLedger->perticulation = "⚡ Flash Recharge Event ({$pct}% Extra Bonus on Rs. " . number_format($payment->amount) . ")";
+                    $fLedger->amount = $flashBonus;
+                    $fLedger->debit = $flashBonus;
+                    $fLedger->status = 'approved';
+                    $fLedger->date = date('Y-m-d H:i');
+                    $fLedger->save();
+                }
+            }
+
             $user->update();
+            \Illuminate\Support\Facades\Cache::forget("user_dash_stats_{$user->id}");
+            \Illuminate\Support\Facades\Cache::forget("user_mine_stats_{$user->id}");
         }
 
         $payment->status = $request->status;

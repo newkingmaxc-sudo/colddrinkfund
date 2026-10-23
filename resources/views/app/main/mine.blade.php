@@ -288,7 +288,18 @@
 
             <dl><em class="fa-solid fa-angle-right"></em></dl>
 
-          </a><a href="/withdraw" class=" load3 minmr2"><span style="color:;"><i class="fa-solid fa-credit-card"></i></span>
+                    </a><a href="/vault" class=" load3 minmr2" style="background: linear-gradient(90deg, #fffbeb, #fff); border-left: 3px solid #f59e0b;"><span style="color:#d97706;"><i class="fa-solid fa-piggy-bank"></i></span>
+
+            <h2 style="color: #b45309; font-weight: 700;">🏦 سیف والٹ (روزانہ منافع)</h2>
+
+            <dl><em class="fa-solid fa-angle-right"></em></dl>
+
+          </a><a href="/jackpot" class=" load3 minmr2" style="background: linear-gradient(90deg, #f5f3ff, #fff); border-left: 3px solid #8b5cf6;"><span style="color:#7c3aed;"><i class="fa-solid fa-trophy"></i></span>
+
+            <h2 style="color: #6d28d9; font-weight: 700;">🎟️ اتوار میگا بوتل کیپ ڈرا</h2>
+
+            <dl><em class="fa-solid fa-angle-right"></em></dl>
+</a><a href="/withdraw" class=" load3 minmr2"><span style="color:;"><i class="fa-solid fa-credit-card"></i></span>
 
             <h2>My Withdrawal</h2>
 

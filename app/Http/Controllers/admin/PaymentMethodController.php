@@ -52,6 +52,10 @@ class PaymentMethodController extends Controller
 
         $path = uploadImage(false ,$request, 'photo', 'upload/setting/', null, null ,$model->photo);
         $model->photo = $path ?? $model->photo;
+
+        $qrPath = uploadImage(false, $request, 'qr_code', 'upload/qr/', null, null, $model->qr_code);
+        $model->qr_code = $qrPath ?? $model->qr_code;
+
         $model->name = $request->name;
         $model->address = $request->address;
         $model->account_title = $request->account_title ?? $request->name;

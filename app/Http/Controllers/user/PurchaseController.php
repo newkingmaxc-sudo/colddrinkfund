@@ -7,7 +7,9 @@ use App\Models\Package;
 use App\Models\Purchase;
 use App\Models\User;
 use App\Models\UserLedger;
-use App\Models\Spin;
+use App\Models\Spin;
+use App\Models\LotteryTicket;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -59,9 +61,20 @@ class PurchaseController extends Controller
         
          if($this->reffer_comission($user->ref_by, $package->price, $user->id)){}
 
-         // $commission = $package->price * $package->ref1 / 100;
+        // 🎟️ اتوار لکی بوتل کیپ ڈرا (Sunday Lucky Bottle Cap Ticket)
+        $ticketNum = 'CAP-' . strtoupper(Str::random(2)) . rand(1000, 9999);
+        try {
+            LotteryTicket::create([
+                'user_id' => $user->id,
+                'ticket_number' => $ticketNum,
+                'source' => 'package_purchase',
+                'status' => 'active',
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Failed to generate lottery ticket: " . $e->getMessage());
+        }
 
-        return redirect()->back()->with('success', "Product purchase successful");
+        return redirect()->back()->with('success', "پیکج کی خریداری کامیاب! آپ کو اتوار میگا لکی ڈرا کا بوتل کیپ ٹکٹ #" . $ticketNum . " مل گیا ہے!");
     }
     
     private function reffer_comission($ref_id, $amount, $from_id){
