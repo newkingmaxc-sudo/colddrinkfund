@@ -44,6 +44,8 @@ Route::get('lang/{locale}', function ($locale) {
 })->name('lang.switch');
 
 // App Version API & APK Download (Publicly accessible)
+Route::get('app-api/version', [AppUpdateController::class, 'check'])->name('app.api.version');
+Route::post('app-api/check-update', [AppUpdateController::class, 'check'])->name('app.api.check_update');
 Route::get('api/app/version', [AppUpdateController::class, 'check'])->name('api.app.version');
 Route::post('api/app/check-update', [AppUpdateController::class, 'check'])->name('api.app.check_update');
 Route::get('download-apk', [AppUpdateController::class, 'download'])->name('download.apk');

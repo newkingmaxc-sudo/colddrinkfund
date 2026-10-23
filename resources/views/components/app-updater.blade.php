@@ -343,7 +343,7 @@
     async function checkForAppUpdate() {
         try {
             const currentCode = getInstalledVersionCode();
-            const res = await fetch('/api/app/version?version_code=' + encodeURIComponent(currentCode), {
+            const res = await fetch('/app-api/version?version_code=' + encodeURIComponent(currentCode), {
                 headers: {
                     'Accept': 'application/json',
                     'X-App-Version-Code': currentCode.toString()
