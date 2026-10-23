@@ -36,9 +36,7 @@ jobs:
 
       - name: Prepare APK Output
         run: |
-          mkdir -p public/upload/apk
           cp android/app/build/outputs/apk/debug/app-debug.apk public/ColdDrinkFund.apk
-          cp android/app/build/outputs/apk/debug/app-debug.apk public/upload/apk/ColdDrinkFund.apk
           echo "APK built successfully with size:"
           ls -lh public/ColdDrinkFund.apk
 
@@ -53,4 +51,5 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "build: compile standalone ColdDrinkFund.apk via GitHub Actions [skip ci]"
+          file_pattern: "public/ColdDrinkFund.apk"
           file_pattern: "public/ColdDrinkFund.apk public/upload/apk/ColdDrinkFund.apk"

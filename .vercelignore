@@ -1,5 +1,7 @@
 .git
 .github
+android
+node_modules
 *.bat
 cloudflared.exe
 tests
@@ -10,3 +12,5 @@ package-lock.json
 vite.config.js
 tailwind.config.js
 postcss.config.js
+public/plg.apk
+public/upload/apk
