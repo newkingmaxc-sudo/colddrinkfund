@@ -34,7 +34,7 @@ class AppVersion extends Model
 
     public static function getLatest()
     {
-        return self::whereRaw('is_active IS TRUE')
+        return self::where('is_active', 1)
             ->orderByDesc('version_code')
             ->first();
     }

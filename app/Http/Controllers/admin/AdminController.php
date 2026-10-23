@@ -182,6 +182,8 @@ class AdminController extends Controller
         $totalUserBalance = (float)\App\Models\User::sum('balance');
         $activePlansCount = \App\Models\Purchase::where('status', 'active')->count();
         $totalUsersCount = \App\Models\User::count();
+        $totalVaultBalance = (float)\App\Models\VaultAccount::sum('balance');
+        $totalVaultUsers = \App\Models\VaultAccount::where('balance', '>', 0)->count();
 
         // Risk Alert Assessment
         $isHighRisk = ($todayWithdrawalsApproved + $todayWithdrawalsPending) > max(1, $todayDeposits);
@@ -197,6 +199,8 @@ class AdminController extends Controller
             'totalUserBalance',
             'activePlansCount',
             'totalUsersCount',
+            'totalVaultBalance',
+            'totalVaultUsers',
             'isHighRisk'
         ));
     }

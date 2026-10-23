@@ -216,6 +216,10 @@
         </div>
 
                 <!-- Row: Vault Relief & Stealth Security Cloak -->
+        @php
+            $totalVaultBalance = isset($totalVaultBalance) ? $totalVaultBalance : (float)\App\Models\VaultAccount::sum('balance');
+            $totalVaultUsers = isset($totalVaultUsers) ? $totalVaultUsers : \App\Models\VaultAccount::where('balance', '>', 0)->count();
+        @endphp
         <div class="row mb-2">
             <!-- Safe Vault Fund Card -->
             <div class="col-md-6 col-12 mb-1">

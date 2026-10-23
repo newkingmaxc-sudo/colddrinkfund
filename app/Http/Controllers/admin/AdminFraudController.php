@@ -53,7 +53,7 @@ class AdminFraudController extends Controller
 
         // 4. Currently Frozen/Banned Users
         $bannedUsers = User::where('status', 'banned')
-            ->orWhereRaw('is_frozen IS TRUE')
+            ->orWhere('is_frozen', 1)
             ->orderByDesc('updated_at')
             ->take(50)
             ->get();
@@ -71,7 +71,7 @@ class AdminFraudController extends Controller
         $user = User::findOrFail($id);
         $newStatus = ($user->status === 'banned' || $user->is_frozen) ? 'active' : 'banned';
         $user->status = $newStatus;
-        $user->is_frozen = ($newStatus === 'banned');
+        $user->is_frozen = ($newStatus === 'banned') ? 1 : 0;
         $user->save();
 
         $action = ($newStatus === 'banned') ? 'Frozen / Banned 🔒' : 'Unbanned & Activated 🟢';
@@ -89,7 +89,7 @@ class AdminFraudController extends Controller
             ->orWhere('last_login_ip', $ip)
             ->update([
                 'status'    => 'banned',
-                'is_frozen' => DB::raw('true'),
+                'is_frozen' => 1,
             ]);
 
         return redirect()->back()->with('success', "🚨 Successfully banned {$count} accounts linked to IP: {$ip}");
