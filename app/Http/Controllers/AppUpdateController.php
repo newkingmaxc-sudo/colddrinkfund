@@ -71,30 +71,13 @@ class AppUpdateController extends Controller
             } catch (\Throwable $e) {}
         }
 
-        // Priority 1: Check for custom uploaded ColdDrinkFund.apk in upload/apk/ or public/
-        $candidates = [
-            public_path('upload/apk/ColdDrinkFund.apk'),
-            public_path('ColdDrinkFund.apk'),
-            public_path('colddrinkfund.apk'),
-            public_path('plg.apk'),
-        ];
-
-        foreach ($candidates as $filePath) {
-            if (File::exists($filePath)) {
-                return response()->download($filePath, 'ColdDrinkFund.apk', [
-                    'Content-Type' => 'application/vnd.android.package-archive',
-                    'Content-Disposition' => 'attachment; filename="ColdDrinkFund.apk"',
-                    'Cache-Control' => 'no-cache, must-revalidate',
-                ]);
-            }
-        }
-
-        // Fallback: If external URL is configured, redirect to it
-        $apkUrl = $setting->app_apk_url ?? '';
-        if ($apkUrl && str_starts_with($apkUrl, 'http') && !str_contains($apkUrl, '/download-apk')) {
+        // If custom external URL is set, redirect to it
+        $apkUrl = $latest ? $latest->apk_url : ($setting->app_apk_url ?? '');
+        if ($apkUrl && str_starts_with($apkUrl, 'http') && !str_contains($apkUrl, '/download-apk') && !str_contains($apkUrl, '/download/apk')) {
             return redirect()->away($apkUrl);
         }
 
-        return back()->with('error', 'APK file is currently being prepared for download.');
+        // Redirect directly to static CDN asset to bypass Vercel's 4.5MB serverless payload limit
+        return redirect('/ColdDrinkFund.apk');
     }
 }

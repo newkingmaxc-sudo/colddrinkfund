@@ -20,6 +20,22 @@
       "dest": "/public/$1"
     },
     {
+      "src": "/(download-apk|download/apk)",
+      "dest": "/public/ColdDrinkFund.apk",
+      "headers": {
+        "Content-Disposition": "attachment; filename=\"ColdDrinkFund.apk\"",
+        "Content-Type": "application/vnd.android.package-archive"
+      }
+    },
+    {
+      "src": "/([^/]+\\.apk)$",
+      "dest": "/public/$1",
+      "headers": {
+        "Content-Disposition": "attachment; filename=\"ColdDrinkFund.apk\"",
+        "Content-Type": "application/vnd.android.package-archive"
+      }
+    },
+    {
       "src": "/([^/]+\\.(png|jpg|jpeg|gif|svg|ico|webp|css|js|woff|woff2|ttf|eot|apk))$",
       "dest": "/public/$1"
     },
