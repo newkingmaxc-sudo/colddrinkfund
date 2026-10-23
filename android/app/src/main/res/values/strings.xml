@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Cold Drink Fund</string>
+    <string name="offline_title">انٹرنیٹ کنکشن موجود نہیں ہے</string>
+    <string name="offline_desc">براہ کرم اپنا انٹرنیٹ یا وائی فائی چیک کریں اور دوبارہ کوشش کریں۔</string>
+    <string name="retry_button">دوبارہ کوشش کریں (Retry)</string>
+    <string name="exit_prompt">باہر نکلنے کے لیے دوبارہ بیک دبائیں</string>
+</resources>

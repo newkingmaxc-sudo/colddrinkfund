@@ -180,7 +180,7 @@
                             <div class="user-nav d-sm-flex d-none"><span
                                     class="user-name">{{admin()->user()->name ?? 'Wasif'}}</span><span
                                     class="user-status text-muted">Owner</span></div>
-                            <span><img class="round" src="{{ admin()->user()->photo ? asset(admin()->user()->photo) : '/admin/app-assets/images/portrait/small/avatar-s-11.jpg' }}" alt="avatar" height="40" width="40"></span>
+                            <span><img class="round" src="{{ (admin()->user() && admin()->user()->photo) ? asset(admin()->user()->photo) : '/admin/app-assets/images/portrait/small/avatar-s-11.jpg' }}" alt="avatar" height="40" width="40"></span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right pb-0">
                             <a class="dropdown-item" href="{{route('admin.profile')}}"><i class="bx bx-user mr-50"></i>
@@ -386,6 +386,9 @@
                     <li class="@if($route == 'admin.setting.index' || $route == 'admin.setting.create' || $route == 'admin.setting.insert') active @else @endif">
                         <a href="{{route('admin.setting.index')}}"><i class="bx bx-right-arrow-alt"></i><span
                                 class="menu-item" data-i18n="Section">Settings</span></a></li>
+                    <li class="@if(str_contains($route, 'admin.app_version')) active @else @endif">
+                        <a href="{{route('admin.app_version.index')}}"><i class="bx bx-mobile-alt"></i><span
+                                class="menu-item" data-i18n="Section">APK & App Updates</span></a></li>
                     <li class="@if($route == 'admin.developer.index') active @else @endif">
                         <a href="{{route('admin.developer.index')}}"><i class="bx bx-right-arrow-alt"></i><span
                                 class="menu-item" data-i18n="Section">Developer</span></a></li>

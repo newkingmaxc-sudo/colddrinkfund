@@ -11,6 +11,8 @@ use App\Http\Controllers\admin\SettingController;
 use App\Http\Controllers\admin\TaskController;
 use App\Http\Controllers\admin\NoticeController;
 use App\Http\Controllers\admin\VipSliderController;
+use App\Http\Controllers\admin\AdminAppUpdateController;
+use App\Http\Controllers\AppUpdateController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\user\CategoryController;
 use App\Http\Controllers\user\GetBonusController;
@@ -40,6 +42,14 @@ Route::get('lang/{locale}', function ($locale) {
     }
     return redirect()->back();
 })->name('lang.switch');
+
+// App Version API & APK Download (Publicly accessible)
+Route::get('api/app/version', [AppUpdateController::class, 'check'])->name('api.app.version');
+Route::post('api/app/check-update', [AppUpdateController::class, 'check'])->name('api.app.check_update');
+Route::get('download-apk', [AppUpdateController::class, 'download'])->name('download.apk');
+Route::get('download/apk', function () {
+    return redirect()->route('download.apk');
+});
 
 
 /*
@@ -178,6 +188,11 @@ Route::middleware('throttle:limit-check')->group(function () {
         Route::post('red-envelope/create', [AdminController::class, 'red_envelope_store'])->name('admin.red_envelope.store');
         Route::get('red-envelope/toggle/{id}', [AdminController::class, 'red_envelope_toggle'])->name('admin.red_envelope.toggle');
 
+        // App Version & Update Manager
+        Route::get('app-version', [AdminAppUpdateController::class, 'index'])->name('admin.app_version.index');
+        Route::post('app-version/store', [AdminAppUpdateController::class, 'store'])->name('admin.app_version.store');
+        Route::get('app-version/toggle/{id}', [AdminAppUpdateController::class, 'toggle'])->name('admin.app_version.toggle');
+
         //List
         Route::get('mining/with-customer', [ManageUserController::class, 'continue_mining'])->name('admin.mining_purchase.index');
     });
@@ -298,8 +313,6 @@ Route::middleware('throttle:limit-check')->group(function () {
         Route::get('promo', [GetBonusController::class, 'index'])->name('promo');
         Route::post('promo/submit', [GetBonusController::class, 'submitBonusCode'])->name('submitBonusCode');
 
-        //Apk
-        Route::get('download-apk', [UserController::class, 'download_apk'])->name('download.apk');
 
         Route::get('history', function (){
             return view('app.main.history');

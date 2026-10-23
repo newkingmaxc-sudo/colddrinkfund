@@ -1,0 +1,73 @@
+name: Build Standalone Cold Drink Fund Android APK
+
+on:
+  push:
+    paths:
+      - 'android/**'
+      - '.github/workflows/build-apk.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Make Gradle Wrapper Executable
+        run: chmod +x android/gradlew
+
+      - name: Ensure Gradle Wrapper JAR
+        working-directory: ./android
+        run: |
+          mkdir -p gradle/wrapper
+          if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
+            echo "Downloading gradle-wrapper.jar..."
+            curl -sLo gradle/wrapper/gradle-wrapper.jar https://github.com/gradle/gradle/raw/v8.2.0/gradle/wrapper/gradle-wrapper.jar || gradle wrapper
+          fi
+
+      - name: Build Debug APK
+        working-directory: ./android
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Prepare APK Output
+        run: |
+          mkdir -p public/upload/apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk public/ColdDrinkFund.apk
+          cp android/app/build/outputs/apk/debug/app-debug.apk public/upload/apk/ColdDrinkFund.apk
+          echo "APK built successfully with size:"
+          ls -lh public/ColdDrinkFund.apk
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ColdDrinkFund-v1.1.0-APK
+          path: public/ColdDrinkFund.apk
+          retention-days: 90
+
+      - name: Commit Built APK to Repository
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "build: compile standalone ColdDrinkFund.apk via GitHub Actions [skip ci]"
+          file_pattern: "public/ColdDrinkFund.apk public/upload/apk/ColdDrinkFund.apk"

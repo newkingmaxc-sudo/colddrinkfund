@@ -40,6 +40,25 @@ class SettingController extends Controller
         $model->daily_sign_amount = $request->daily_sign_amount;
         $model->withdraw_status = $request->withdraw_status;
 
+        if ($request->has('app_version_code')) {
+            $model->app_version_code = (int)$request->app_version_code;
+        }
+        if ($request->has('app_version_name')) {
+            $model->app_version_name = $request->app_version_name;
+        }
+        if ($request->has('app_apk_url')) {
+            $model->app_apk_url = $request->app_apk_url;
+        }
+        if ($request->has('app_force_update')) {
+            $model->app_force_update = $request->boolean('app_force_update');
+        }
+        if ($request->has('app_update_title')) {
+            $model->app_update_title = $request->app_update_title;
+        }
+        if ($request->has('app_update_changelog')) {
+            $model->app_update_changelog = $request->app_update_changelog;
+        }
+
         $model->update();
         \Illuminate\Support\Facades\Cache::forget('app_system_settings');
         return redirect()->route($this->route.'.index')->with('success', 'Settings Updated Successfully.');
