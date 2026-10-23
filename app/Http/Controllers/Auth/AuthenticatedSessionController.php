@@ -19,6 +19,9 @@ class AuthenticatedSessionController extends Controller
      */
     public function create()
     {
+        if ((bool)setting('maintenance_mode')) {
+            return response()->view('app.main.maintenance', [], 503);
+        }
         return view('app.auth.login');
     }
 

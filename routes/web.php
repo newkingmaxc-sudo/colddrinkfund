@@ -231,6 +231,9 @@ Route::middleware('throttle:limit-check')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/', function () {
+        if ((bool)setting('maintenance_mode')) {
+            return response()->view('app.main.maintenance', [], 503);
+        }
         if (\Illuminate\Support\Facades\Auth::check()) {
             return redirect()->route('dashboard');
         }

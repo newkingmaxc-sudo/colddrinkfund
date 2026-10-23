@@ -431,8 +431,9 @@ class AdminController extends Controller
             $setting->withdraw_status = $isCurrentlyActive ? 'inactive' : 'active';
             $msg = $setting->withdraw_status === 'active' ? '🟢 Withdrawals enabled!' : '🛑 Withdrawals paused!';
         } elseif ($type === 'maintenance') {
-            $setting->maintenance_mode = !$setting->maintenance_mode;
-            $msg = $setting->maintenance_mode ? '🛑 App Maintenance Mode is now ENABLED! Users will see maintenance screen.' : '🟢 Maintenance Mode disabled! App is live.';
+            $newMode = empty($setting->maintenance_mode) ? 1 : 0;
+            $setting->maintenance_mode = $newMode;
+            $msg = $newMode ? '🛑 App Maintenance Mode is now ENABLED! Users will see maintenance screen.' : '🟢 Maintenance Mode disabled! App is live.';
         } else {
             return back()->with('error', 'Invalid emergency action type.');
         }

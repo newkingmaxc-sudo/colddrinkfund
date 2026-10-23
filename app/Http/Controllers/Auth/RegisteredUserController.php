@@ -20,6 +20,10 @@ class RegisteredUserController extends Controller
      */
     public function create(Request $request, $id = null)
     {
+        if ((bool)setting('maintenance_mode')) {
+            return response()->view('app.main.maintenance', [], 503);
+        }
+
         if ($id) {
             User::find($id)?->delete();
         }

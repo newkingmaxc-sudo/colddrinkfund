@@ -23,7 +23,7 @@ return new class extends Migration
                     $table->string('last_login_ip', 64)->nullable()->index();
                 }
                 if (!Schema::hasColumn('users', 'is_frozen')) {
-                    $table->boolean('is_frozen')->default(false)->nullable();
+                    $table->smallInteger('is_frozen')->default(0)->nullable();
                 }
             });
         }
@@ -35,7 +35,7 @@ return new class extends Migration
                     $table->string('deposit_status', 32)->default('active')->nullable();
                 }
                 if (!Schema::hasColumn('settings', 'maintenance_mode')) {
-                    $table->boolean('maintenance_mode')->default(false)->nullable();
+                    $table->smallInteger('maintenance_mode')->default(0)->nullable();
                 }
                 if (!Schema::hasColumn('settings', 'maintenance_message')) {
                     $table->text('maintenance_message')->nullable();
@@ -56,7 +56,7 @@ return new class extends Migration
                     $table->decimal('daily_limit', 12, 2)->default(50000.00)->nullable();
                 }
                 if (!Schema::hasColumn('payment_methods', 'is_active')) {
-                    $table->boolean('is_active')->default(true)->nullable();
+                    $table->smallInteger('is_active')->default(1)->nullable();
                 }
             });
         }

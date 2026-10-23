@@ -178,22 +178,21 @@ if (!function_exists('getRelatedSlugs')) {
 
 
 if (!function_exists('setting')) {
-    function setting($column)
+    function setting($column, $default = null)
     {
-        static $cachedSettings = null;
-        if ($cachedSettings === null) {
-            try {
-                $cachedSettings = \Illuminate\Support\Facades\Cache::remember('app_system_settings', 600, function () {
-                    return \App\Models\Setting::first();
-                });
-            } catch (\Throwable $e) {
-                return "Data Is Empty";
-            }
+        try {
+            $cachedSettings = \Illuminate\Support\Facades\Cache::remember('app_system_settings', 60, function () {
+                return \App\Models\Setting::first();
+            });
+        } catch (\Throwable $e) {
+            return $default !== null ? $default : "Data Is Empty";
         }
+
         if ($cachedSettings && isset($cachedSettings->{$column})) {
             return $cachedSettings->{$column};
         }
-        return "Data Is Empty";
+
+        return $default !== null ? $default : "Data Is Empty";
     }
 }
 
