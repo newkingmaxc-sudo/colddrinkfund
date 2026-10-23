@@ -312,6 +312,13 @@
                 </ul>
             </li>
 
+            <li class="nav-item @if(request()->routeIs('admin.red_envelope.*')) active @endif">
+                <a href="{{ route('admin.red_envelope.index') }}">
+                    <i class="bx bx-gift"></i>
+                    <span class="menu-title" data-i18n="RedEnvelope">🧧 Red Envelope (Cash Drop)</span>
+                </a>
+            </li>
+
             <li class="nav-item @if($route == 'admin.payment.pending' || $route == 'admin.payment.rejected' || $route == 'admin.payment.approved') sidebar-group-active open active @else @endif">
                 <a href="#"> <i class="bx bx-right-arrow"></i> <span class="menu-title" data-i18n="Invoice">Payments</span></a>
                 <ul class="menu-content">

@@ -173,6 +173,11 @@ Route::middleware('throttle:limit-check')->group(function () {
         Route::get('setting', [SettingController::class, 'index'])->name('admin.setting.index');
         Route::post('setting/insert-update', [SettingController::class, 'insert_or_update'])->name('admin.setting.insert');
 
+        // Red Envelope (Cash Rain)
+        Route::get('red-envelope', [AdminController::class, 'red_envelope_index'])->name('admin.red_envelope.index');
+        Route::post('red-envelope/create', [AdminController::class, 'red_envelope_store'])->name('admin.red_envelope.store');
+        Route::get('red-envelope/toggle/{id}', [AdminController::class, 'red_envelope_toggle'])->name('admin.red_envelope.toggle');
+
         //List
         Route::get('mining/with-customer', [ManageUserController::class, 'continue_mining'])->name('admin.mining_purchase.index');
     });
@@ -246,6 +251,30 @@ Route::middleware('throttle:limit-check')->group(function () {
         Route::get('/checkin', [UserController::class, 'checkin'])->name('user.checkin');
         Route::get('/streak', [UserController::class, 'streak_calendar'])->name('user.streak');
         Route::post('/streak/claim', [UserController::class, 'streak_claim'])->name('user.streak.claim');
+
+        // 1. Bottling Line ("Tap to Collect")
+        Route::get('/bottling/status', [UserController::class, 'bottling_status'])->name('user.bottling.status');
+        Route::post('/bottling/collect', [UserController::class, 'bottling_collect'])->name('user.bottling.collect');
+
+        // 2. Lucky Bottle Cap
+        Route::get('/bottlecap', [UserController::class, 'bottlecap_view'])->name('user.bottlecap');
+        Route::post('/bottlecap/open', [UserController::class, 'bottlecap_open'])->name('user.bottlecap.open');
+
+        // 3. Lucky Spin Wheel
+        Route::get('/lucky-spin', [UserController::class, 'spin_view'])->name('user.lucky_spin');
+        Route::post('/lucky-spin/play', [UserController::class, 'spin_play'])->name('user.lucky_spin.play');
+
+        // 4. Mission & Achievement Board
+        Route::get('/missions', [UserController::class, 'missions_view'])->name('user.missions');
+        Route::post('/missions/claim', [UserController::class, 'mission_claim'])->name('user.missions.claim');
+
+        // 5. Daily Leader Salary System
+        Route::get('/leader-salary', [UserController::class, 'leader_salary_view'])->name('user.leader_salary');
+        Route::post('/leader-salary/claim', [UserController::class, 'leader_salary_claim'])->name('user.leader_salary.claim');
+
+        // 6. Red Envelope / Cash Rain
+        Route::get('/red-envelope/check', [UserController::class, 'red_envelope_check'])->name('user.red_envelope.check');
+        Route::post('/red-envelope/claim', [UserController::class, 'red_envelope_claim'])->name('user.red_envelope.claim');
 
         //Notice
         Route::get('/card', [UserController::class, 'card'])->name('user.card');

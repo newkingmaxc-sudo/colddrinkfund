@@ -501,6 +501,54 @@
         </a>
         <!--PosterStudio--E-->
 
+        <!--LuckyCap--S-->
+        <a href="/bottlecap" class="my_account_tab6_tab" style="background: linear-gradient(135deg, #7c2d12, #9a3412); color:#fff; border-radius:12px; padding:15px; text-decoration:none; display:block; margin-bottom:10px; box-shadow:0 3px 10px rgba(124,45,18,0.25);">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h1 style="color:#fed7aa; font-size:16px; font-weight:700; margin:0;">🍾 Lucky Bottle Cap</h1>
+              <p style="color:#ffedd5; font-size:12px; margin:4px 0 0;">ڈھکن کھولو اور روزانہ انعام جیتو</p>
+            </div>
+            <span style="background:#ffd700; color:#7c2d12; font-size:11px; font-weight:bold; padding:4px 10px; border-radius:20px;">Open Cap</span>
+          </div>
+        </a>
+        <!--LuckyCap--E-->
+
+        <!--LuckySpin--S-->
+        <a href="/lucky-spin" class="my_account_tab6_tab" style="background: linear-gradient(135deg, #1e1b4b, #3730a3); color:#fff; border-radius:12px; padding:15px; text-decoration:none; display:block; margin-bottom:10px; box-shadow:0 3px 10px rgba(30,27,75,0.25);">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h1 style="color:#c7d2fe; font-size:16px; font-weight:700; margin:0;">🎡 Lucky Spin Wheel</h1>
+              <p style="color:#e0e7ff; font-size:12px; margin:4px 0 0;">ویل گھمائیں اور Rs. 500 تک جیتیں</p>
+            </div>
+            <span style="background:#818cf8; color:#fff; font-size:11px; font-weight:bold; padding:4px 10px; border-radius:20px;">Spin Wheel</span>
+          </div>
+        </a>
+        <!--LuckySpin--E-->
+
+        <!--Missions--S-->
+        <a href="/missions" class="my_account_tab6_tab" style="background: linear-gradient(135deg, #064e3b, #065f46); color:#fff; border-radius:12px; padding:15px; text-decoration:none; display:block; margin-bottom:10px; box-shadow:0 3px 10px rgba(6,78,59,0.25);">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h1 style="color:#a7f3d0; font-size:16px; font-weight:700; margin:0;">🎯 Mission & Achievement Board</h1>
+              <p style="color:#d1fae5; font-size:12px; margin:4px 0 0;">ٹارگٹ مکمل کر کے ایکسٹرا کیش کمائیں</p>
+            </div>
+            <span style="background:#34d399; color:#064e3b; font-size:11px; font-weight:bold; padding:4px 10px; border-radius:20px;">Missions</span>
+          </div>
+        </a>
+        <!--Missions--E-->
+
+        <!--LeaderSalary--S-->
+        <a href="/leader-salary" class="my_account_tab6_tab" style="background: linear-gradient(135deg, #3f0413, #881337); color:#fff; border-radius:12px; padding:15px; text-decoration:none; display:block; margin-bottom:10px; box-shadow:0 3px 10px rgba(63,4,19,0.25);">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h1 style="color:#fecdd3; font-size:16px; font-weight:700; margin:0;">💼 Daily Leader Salary</h1>
+              <p style="color:#ffe4e6; font-size:12px; margin:4px 0 0;">اپنی ٹیم بنائیں اور روزانہ تنخواہ لیں</p>
+            </div>
+            <span style="background:#f43f5e; color:#fff; font-size:11px; font-weight:bold; padding:4px 10px; border-radius:20px;">Salary</span>
+          </div>
+        </a>
+        <!--LeaderSalary--E-->
+
         <!--DailyReward--S-->
         <a href="/checkin" class="my_account_tab6_tab my_daily_bonus">
           <h1>Daily Login Bonus.</h1>

@@ -328,4 +328,48 @@ class AdminController extends Controller
             ], 500);
         }
     }
+
+    /* =========================================================================
+     * ADMIN: RED ENVELOPE (CASH RAIN)
+     * ========================================================================= */
+    public function red_envelope_index()
+    {
+        $envelopes = \App\Models\RedEnvelope::withCount('claims')
+            ->orderBy('id', 'desc')
+            ->get();
+        return view('admin.pages.red_envelope.index', compact('envelopes'));
+    }
+
+    public function red_envelope_store(Request $request)
+    {
+        $request->validate([
+            'title'        => 'required|string|max:255',
+            'total_amount' => 'required|numeric|min:10',
+            'max_claimers' => 'required|integer|min:1',
+            'min_reward'   => 'required|numeric|min:1',
+            'max_reward'   => 'required|numeric|min:1',
+        ]);
+
+        \App\Models\RedEnvelope::create([
+            'title'            => $request->title,
+            'total_amount'     => $request->total_amount,
+            'remaining_amount' => $request->total_amount,
+            'max_claimers'     => $request->max_claimers,
+            'claimed_count'    => 0,
+            'min_reward'       => $request->min_reward,
+            'max_reward'       => $request->max_reward,
+            'status'           => 'active',
+        ]);
+
+        return redirect()->route('admin.red_envelope.index')->with('success', 'Red Envelope created and launched successfully!');
+    }
+
+    public function red_envelope_toggle($id)
+    {
+        $envelope = \App\Models\RedEnvelope::findOrFail($id);
+        $envelope->status = ($envelope->status === 'active') ? 'expired' : 'active';
+        $envelope->save();
+
+        return redirect()->back()->with('success', 'Red Envelope status updated.');
+    }
 }

@@ -321,6 +321,14 @@
                 <div><i class="fa-solid fa-receipt"></i> TRX: <span style="font-family: monospace; color: #475569;">{{ $trx }}</span></div>
                 <div><i class="fa-regular fa-clock"></i> {{ $timeAgo }}</div>
               </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 6px; padding-top: 6px; border-top: 1px dotted #e2e8f0;">
+                <span style="font-size: 10px; color: #15803d; font-weight: 700;">
+                  <i class="fa-solid fa-shield-check"></i> Bank Confirmed & Disbursed
+                </span>
+                <button type="button" onclick="likeProof(this)" style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 2px 8px; font-size: 10px; font-weight: 700; color: #16a34a; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                  👍 <span>Mujhe Bhi Mila ({{ rand(12, 48) }})</span>
+                </button>
+              </div>
             </div>
           @endforeach
         @endif
@@ -355,6 +363,17 @@
       </div>
 
       <script>
+        function likeProof(btn) {
+          if (btn.classList.contains('liked')) return;
+          btn.classList.add('liked');
+          btn.style.background = '#22c55e';
+          btn.style.color = '#fff';
+          const span = btn.querySelector('span');
+          const count = (parseInt(span.innerText.match(/\d+/)[0]) || 20) + 1;
+          span.innerText = `Verified (${count})`;
+          if (window.AppSound) AppSound.playCoin();
+        }
+
         function filterProofs(type) {
           // Tab button styles
           document.querySelectorAll('.proof-tab-btn').forEach(btn => {

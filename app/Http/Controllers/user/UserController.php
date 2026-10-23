@@ -11,6 +11,10 @@ use App\Models\Package;
 use App\Models\PaymentMethod;
 use App\Models\Purchase;
 use App\Models\Recharge;
+use App\Models\Spin;
+use App\Models\MissionClaim;
+use App\Models\RedEnvelope;
+use App\Models\RedEnvelopeClaim;
 use App\Models\Task;
 use App\Models\TaskRequest;
 use App\Models\User;
@@ -63,7 +67,34 @@ public function dashboard()
             ->get();
     });
 
-    return view('app.main.index', array_merge($userStats, compact('liveWithdrawals')));
+    // 1. Bottling Line Status
+    $activePurchases = Purchase::where('user_id', $userId)->where('status', 'active')->get();
+    $bottlingDailyIncome = (float)($activePurchases->sum('daily_income') ?: ($activePurchases->sum('daily_limit') ?: 15.00));
+    $lastCollect = $user->last_bottling_collect_at ? Carbon::parse($user->last_bottling_collect_at) : Carbon::today();
+    $elapsedSecs = min(86400, max(0, Carbon::now()->diffInSeconds($lastCollect)));
+    $bottlingAccumulated = round(($bottlingDailyIncome / 86400) * $elapsedSecs, 2);
+    $bottlingPercent = min(100, round(($elapsedSecs / 86400) * 100));
+
+    // 2. Active Red Envelope (if user has not claimed)
+    $activeRedEnvelope = RedEnvelope::where('status', 'active')
+        ->where('remaining_amount', '>', 0)
+        ->whereRaw('claimed_count < max_claimers')
+        ->whereDoesntHave('claims', function($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })
+        ->latest()
+        ->first();
+
+    return view('app.main.index', array_merge(
+        $userStats,
+        compact(
+            'liveWithdrawals',
+            'bottlingDailyIncome',
+            'bottlingAccumulated',
+            'bottlingPercent',
+            'activeRedEnvelope'
+        )
+    ));
 }
 
 
@@ -695,4 +726,586 @@ public function claimAll()
         return view('app.main.info', compact('realWithdrawals', 'mockProofs'));
     }
 
+    /* =========================================================================
+     * 1. ANIMATED COLD DRINK BOTTLING LINE ("TAP TO COLLECT")
+     * ========================================================================= */
+    public function bottling_status()
+    {
+        $user = Auth::user();
+        $activePurchases = Purchase::where('user_id', $user->id)
+            ->where('status', 'active')
+            ->get();
+
+        $dailyIncome = (float)($activePurchases->sum('daily_income') ?: ($activePurchases->sum('daily_limit') ?: 15.00));
+        $lastCollect = $user->last_bottling_collect_at ? Carbon::parse($user->last_bottling_collect_at) : Carbon::today();
+        $elapsedSecs = min(86400, max(0, Carbon::now()->diffInSeconds($lastCollect)));
+        $accumulated = round(($dailyIncome / 86400) * $elapsedSecs, 2);
+        $percent = min(100, round(($elapsedSecs / 86400) * 100));
+
+        return response()->json([
+            'status'       => true,
+            'daily_income' => $dailyIncome,
+            'accumulated'  => $accumulated,
+            'percent'      => $percent,
+            'is_running'   => true,
+            'packages_count' => $activePurchases->count()
+        ]);
+    }
+
+    public function bottling_collect(Request $request)
+    {
+        $user = Auth::user();
+        $activePurchases = Purchase::where('user_id', $user->id)
+            ->where('status', 'active')
+            ->get();
+
+        $dailyIncome = (float)($activePurchases->sum('daily_income') ?: ($activePurchases->sum('daily_limit') ?: 15.00));
+        $lastCollect = $user->last_bottling_collect_at ? Carbon::parse($user->last_bottling_collect_at) : Carbon::today();
+        $elapsedSecs = min(86400, max(0, Carbon::now()->diffInSeconds($lastCollect)));
+        $accumulated = round(($dailyIncome / 86400) * $elapsedSecs, 2);
+
+        if ($accumulated < 0.50) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Bottles still filling! Please wait a few minutes before collecting.'
+            ]);
+        }
+
+        $user->increment('balance', $accumulated);
+        $user->last_bottling_collect_at = now();
+        $user->save();
+
+        $ledger = new UserLedger();
+        $ledger->user_id = $user->id;
+        $ledger->reason = 'bottling_income';
+        $ledger->perticulation = 'Cold Drink Bottling Line Output';
+        $ledger->amount = $accumulated;
+        $ledger->debit = $accumulated;
+        $ledger->status = 'approved';
+        $ledger->date = date('d-m-Y H:i');
+        $ledger->save();
+
+        return response()->json([
+            'status'      => true,
+            'amount'      => $accumulated,
+            'new_balance' => number_format($user->balance, 2),
+            'percent'     => 0,
+            'message'     => "🎉 Successfully collected Rs. {$accumulated} from Bottling Line!"
+        ]);
+    }
+
+    /* =========================================================================
+     * 2. LUCKY BOTTLE CAP (ڈھکن کھولو — انعام جیتو)
+     * ========================================================================= */
+    public function bottlecap_view()
+    {
+        $user = Auth::user();
+        $alreadyOpenedToday = $user->last_bottlecap_opened_at && Carbon::parse($user->last_bottlecap_opened_at)->isToday();
+
+        $recentWinners = [
+            ['phone' => '0308****492', 'prize' => 'Rs. 35', 'time' => '1m ago'],
+            ['phone' => '0345****118', 'prize' => 'Rs. 20', 'time' => '3m ago'],
+            ['phone' => '0321****784', 'prize' => 'Rs. 50', 'time' => '7m ago'],
+            ['phone' => '0300****639', 'prize' => 'Rs. 15', 'time' => '12m ago'],
+            ['phone' => '0333****902', 'prize' => 'Rs. 40', 'time' => '18m ago'],
+        ];
+
+        return view('app.main.bottlecap', compact('alreadyOpenedToday', 'recentWinners'));
+    }
+
+    public function bottlecap_open(Request $request)
+    {
+        $user = Auth::user();
+        if ($user->last_bottlecap_opened_at && Carbon::parse($user->last_bottlecap_opened_at)->isToday()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'You already opened today\'s bottle cap! Come back tomorrow for a new bottle.'
+            ]);
+        }
+
+        // Weighted random prize: Rs. 5 to Rs. 45
+        $prizes = [5, 10, 15, 20, 25, 30, 40, 50];
+        $weights = [25, 25, 20, 15, 8, 4, 2, 1];
+        $reward = 15;
+        $rand = rand(1, 100);
+        $cumulative = 0;
+        foreach ($prizes as $idx => $val) {
+            $cumulative += $weights[$idx];
+            if ($rand <= $cumulative) {
+                $reward = $val;
+                break;
+            }
+        }
+
+        $user->increment('balance', $reward);
+        $user->last_bottlecap_opened_at = now();
+        $user->save();
+
+        $ledger = new UserLedger();
+        $ledger->user_id = $user->id;
+        $ledger->reason = 'lucky_bottlecap';
+        $ledger->perticulation = 'Lucky Bottle Cap Prize';
+        $ledger->amount = $reward;
+        $ledger->debit = $reward;
+        $ledger->status = 'approved';
+        $ledger->date = date('d-m-Y H:i');
+        $ledger->save();
+
+        return response()->json([
+            'status'      => true,
+            'amount'      => $reward,
+            'new_balance' => number_format($user->balance, 2),
+            'message'     => "🍾 POP! Congratulations! You won Rs. {$reward} under the bottle cap!"
+        ]);
+    }
+
+    /* =========================================================================
+     * 3. LIVE LUCKY SPIN WHEEL WITH SOUND & TICKER
+     * ========================================================================= */
+    public function spin_view()
+    {
+        $user = Auth::user();
+        $hasFreeDaily = (!$user->last_free_spin_at || !Carbon::parse($user->last_free_spin_at)->isToday());
+        $referralSpinsCount = Spin::where('referrer_id', $user->id)->where('status', 'pending')->count();
+        $totalSpins = ($hasFreeDaily ? 1 : 0) + $referralSpinsCount;
+
+        $recentSpinWinners = [
+            ['phone' => '0301****458', 'amount' => 'Rs. 100', 'time' => '1m ago'],
+            ['phone' => '0345****889', 'amount' => 'Rs. 50', 'time' => '3m ago'],
+            ['phone' => '0323****558', 'amount' => 'Rs. 500', 'time' => '6m ago', 'is_jackpot' => true],
+            ['phone' => '0312****781', 'amount' => 'Rs. 20', 'time' => '10m ago'],
+            ['phone' => '0306****332', 'amount' => 'Rs. 30', 'time' => '15m ago'],
+        ];
+
+        return view('app.main.lucky_spin', compact('hasFreeDaily', 'referralSpinsCount', 'totalSpins', 'recentSpinWinners'));
+    }
+
+    public function spin_play(Request $request)
+    {
+        $user = Auth::user();
+        $hasFreeDaily = (!$user->last_free_spin_at || !Carbon::parse($user->last_free_spin_at)->isToday());
+        $pendingSpin = Spin::where('referrer_id', $user->id)->where('status', 'pending')->first();
+
+        if (!$hasFreeDaily && !$pendingSpin) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'No spins remaining! Invite friends to earn more spins.'
+            ]);
+        }
+
+        if ($hasFreeDaily) {
+            $user->last_free_spin_at = now();
+            $user->save();
+        } elseif ($pendingSpin) {
+            $pendingSpin->status = 'claimed';
+            $pendingSpin->save();
+        }
+
+        // 8 slices on the wheel
+        $slices = [
+            ['label' => 'Rs. 10', 'amount' => 10, 'weight' => 30],
+            ['label' => 'Rs. 20', 'amount' => 20, 'weight' => 25],
+            ['label' => 'Rs. 30', 'amount' => 30, 'weight' => 15],
+            ['label' => 'Rs. 50', 'amount' => 50, 'weight' => 12],
+            ['label' => 'Rs. 15', 'amount' => 15, 'weight' => 10],
+            ['label' => 'Rs. 100', 'amount' => 100, 'weight' => 5],
+            ['label' => 'Rs. 25', 'amount' => 25, 'weight' => 2],
+            ['label' => 'Rs. 500', 'amount' => 500, 'weight' => 1], // Jackpot
+        ];
+
+        $rand = rand(1, 100);
+        $cumulative = 0;
+        $sliceIndex = 0;
+        foreach ($slices as $i => $s) {
+            $cumulative += $s['weight'];
+            if ($rand <= $cumulative) {
+                $sliceIndex = $i;
+                break;
+            }
+        }
+
+        $wonPrize = $slices[$sliceIndex];
+        $rewardAmount = $wonPrize['amount'];
+
+        $user->increment('balance', $rewardAmount);
+
+        $ledger = new UserLedger();
+        $ledger->user_id = $user->id;
+        $ledger->reason = 'lucky_spin';
+        $ledger->perticulation = "Lucky Spin Wheel: {$wonPrize['label']}";
+        $ledger->amount = $rewardAmount;
+        $ledger->debit = $rewardAmount;
+        $ledger->status = 'approved';
+        $ledger->date = date('d-m-Y H:i');
+        $ledger->save();
+
+        $newRemaining = ($hasFreeDaily ? 0 : 0) + Spin::where('referrer_id', $user->id)->where('status', 'pending')->count();
+
+        return response()->json([
+            'status'         => true,
+            'slice_index'    => $sliceIndex,
+            'amount'         => $rewardAmount,
+            'label'          => $wonPrize['label'],
+            'new_balance'    => number_format($user->balance, 2),
+            'remaining_spins'=> $newRemaining,
+            'message'        => "🎉 BINGO! You won {$wonPrize['label']} on the Lucky Wheel!"
+        ]);
+    }
+
+    /* =========================================================================
+     * 4. MISSIONS & ACHIEVEMENT BOARD (مشنز اور انعامات)
+     * ========================================================================= */
+    public function missions_view()
+    {
+        $user = Auth::user();
+        $claimedKeys = MissionClaim::where('user_id', $user->id)->pluck('mission_key')->toArray();
+
+        // 1. First Plan Active
+        $hasActivePlan = Purchase::where('user_id', $user->id)->exists();
+
+        // 2. Invite 3 Direct Friends
+        $directRefCount = User::where('ref_by', $user->ref_id)->count();
+
+        // 3. 7-Day Login Streak Complete
+        $streakCount = Checkin::where('user_id', $user->id)->count();
+
+        // 4. Factory Supervisor: Collect Bottling Line >= 5 times
+        $bottlingCollectCount = UserLedger::where('user_id', $user->id)
+            ->where('reason', 'bottling_income')
+            ->count();
+
+        // 5. Spin Wheel >= 2 times
+        $spinCount = UserLedger::where('user_id', $user->id)
+            ->where('reason', 'lucky_spin')
+            ->count();
+
+        // 6. Reach Silver VIP (Level 2+)
+        $vipBadge = user_vip_badge($user);
+        $isSilverVIP = ($vipBadge['level'] >= 2);
+
+        $missionsList = [
+            [
+                'key'         => 'first_plan',
+                'title'       => 'Activate 1st Plant Plan (پہلا آرڈر)',
+                'description' => 'Invest in any cold drink bottling plan to start daily income.',
+                'reward'      => 30,
+                'icon'        => '🥤',
+                'current'     => $hasActivePlan ? 1 : 0,
+                'target'      => 1,
+                'completed'   => $hasActivePlan,
+                'claimed'     => in_array('first_plan', $claimedKeys),
+            ],
+            [
+                'key'         => 'invite_3',
+                'title'       => 'Form Bottling Team (3 دوست مدعو کریں)',
+                'description' => 'Invite 3 friends using your referral link/code.',
+                'reward'      => 100,
+                'icon'        => '👥',
+                'current'     => min(3, $directRefCount),
+                'target'      => 3,
+                'completed'   => ($directRefCount >= 3),
+                'claimed'     => in_array('invite_3', $claimedKeys),
+            ],
+            [
+                'key'         => 'streak_7',
+                'title'       => '7-Day Devotion (7 روزہ لاگ ان)',
+                'description' => 'Complete full 7-day login streak check-in.',
+                'reward'      => 150,
+                'icon'        => '🔥',
+                'current'     => min(7, $streakCount),
+                'target'      => 7,
+                'completed'   => ($streakCount >= 7),
+                'claimed'     => in_array('streak_7', $claimedKeys),
+            ],
+            [
+                'key'         => 'bottling_5',
+                'title'       => 'Plant Supervisor (5 بار منافع وصول کریں)',
+                'description' => 'Tap to collect bottling line income at least 5 times.',
+                'reward'      => 25,
+                'icon'        => '🏭',
+                'current'     => min(5, $bottlingCollectCount),
+                'target'      => 5,
+                'completed'   => ($bottlingCollectCount >= 5),
+                'claimed'     => in_array('bottling_5', $claimedKeys),
+            ],
+            [
+                'key'         => 'spin_2',
+                'title'       => 'Lucky Spinner (2 بار لکی ویل گھمائیں)',
+                'description' => 'Play the lucky spin wheel at least 2 times.',
+                'reward'      => 20,
+                'icon'        => '🎡',
+                'current'     => min(2, $spinCount),
+                'target'      => 2,
+                'completed'   => ($spinCount >= 2),
+                'claimed'     => in_array('spin_2', $claimedKeys),
+            ],
+            [
+                'key'         => 'vip_silver',
+                'title'       => 'VIP Ascension (سلور وی آئی پی بنیں)',
+                'description' => 'Upgrade your account to Silver VIP or above.',
+                'reward'      => 200,
+                'icon'        => '👑',
+                'current'     => $isSilverVIP ? 1 : 0,
+                'target'      => 1,
+                'completed'   => $isSilverVIP,
+                'claimed'     => in_array('vip_silver', $claimedKeys),
+            ]
+        ];
+
+        return view('app.main.missions', compact('missionsList'));
+    }
+
+    public function mission_claim(Request $request)
+    {
+        $user = Auth::user();
+        $key = $request->input('mission_key');
+
+        if (MissionClaim::where('user_id', $user->id)->where('mission_key', $key)->exists()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Mission reward already claimed!'
+            ]);
+        }
+
+        $rewards = [
+            'first_plan' => ['amount' => 30, 'check' => Purchase::where('user_id', $user->id)->exists()],
+            'invite_3'   => ['amount' => 100, 'check' => (User::where('ref_by', $user->ref_id)->count() >= 3)],
+            'streak_7'   => ['amount' => 150, 'check' => (Checkin::where('user_id', $user->id)->count() >= 7)],
+            'bottling_5' => ['amount' => 25, 'check' => (UserLedger::where(['user_id' => $user->id, 'reason' => 'bottling_income'])->count() >= 5)],
+            'spin_2'     => ['amount' => 20, 'check' => (UserLedger::where(['user_id' => $user->id, 'reason' => 'lucky_spin'])->count() >= 2)],
+            'vip_silver' => ['amount' => 200, 'check' => (user_vip_badge($user)['level'] >= 2)],
+        ];
+
+        if (!isset($rewards[$key]) || !$rewards[$key]['check']) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Mission requirements not completed yet!'
+            ]);
+        }
+
+        $amount = $rewards[$key]['amount'];
+
+        MissionClaim::create([
+            'user_id'       => $user->id,
+            'mission_key'   => $key,
+            'reward_amount' => $amount
+        ]);
+
+        $user->increment('balance', $amount);
+
+        $ledger = new UserLedger();
+        $ledger->user_id = $user->id;
+        $ledger->reason = 'mission_reward';
+        $ledger->perticulation = "Completed Mission: {$key}";
+        $ledger->amount = $amount;
+        $ledger->debit = $amount;
+        $ledger->status = 'approved';
+        $ledger->date = date('d-m-Y H:i');
+        $ledger->save();
+
+        return response()->json([
+            'status'      => true,
+            'amount'      => $amount,
+            'new_balance' => number_format($user->balance, 2),
+            'message'     => "🎉 Mission Accomplished! Rs. {$amount} reward added to your wallet!"
+        ]);
+    }
+
+    /* =========================================================================
+     * 5. DAILY LEADER SALARY SYSTEM (لیڈر ڈیلی تنخواہ)
+     * ========================================================================= */
+    public function leader_salary_view()
+    {
+        $user = Auth::user();
+
+        // Count direct referrals with active purchases
+        $activeReferralsCount = User::where('ref_by', $user->ref_id)
+            ->whereHas('purchases', function($q) {
+                $q->where('status', 'active');
+            })
+            ->count();
+
+        $claimedToday = $user->last_leader_salary_claimed_at && Carbon::parse($user->last_leader_salary_claimed_at)->isToday();
+
+        // Salary tiers
+        $salaryTiers = [
+            ['level' => 1, 'min_active' => 10, 'salary' => 300, 'badge' => 'Bronze Leader'],
+            ['level' => 2, 'min_active' => 25, 'salary' => 800, 'badge' => 'Gold Leader'],
+            ['level' => 3, 'min_active' => 50, 'salary' => 2000, 'badge' => 'Diamond Director'],
+        ];
+
+        $currentSalary = 0;
+        $currentTier = null;
+        $nextTier = $salaryTiers[0];
+
+        foreach ($salaryTiers as $tier) {
+            if ($activeReferralsCount >= $tier['min_active']) {
+                $currentSalary = $tier['salary'];
+                $currentTier = $tier;
+            }
+        }
+
+        foreach ($salaryTiers as $tier) {
+            if ($activeReferralsCount < $tier['min_active']) {
+                $nextTier = $tier;
+                break;
+            }
+        }
+
+        return view('app.main.leader_salary', compact(
+            'activeReferralsCount',
+            'currentSalary',
+            'currentTier',
+            'nextTier',
+            'claimedToday',
+            'salaryTiers'
+        ));
+    }
+
+    public function leader_salary_claim(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->last_leader_salary_claimed_at && Carbon::parse($user->last_leader_salary_claimed_at)->isToday()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Today\'s leader salary already claimed! Come back tomorrow.'
+            ]);
+        }
+
+        $activeReferralsCount = User::where('ref_by', $user->ref_id)
+            ->whereHas('purchases', function($q) {
+                $q->where('status', 'active');
+            })
+            ->count();
+
+        $salary = 0;
+        if ($activeReferralsCount >= 50) {
+            $salary = 2000;
+        } elseif ($activeReferralsCount >= 25) {
+            $salary = 800;
+        } elseif ($activeReferralsCount >= 10) {
+            $salary = 300;
+        } else {
+            return response()->json([
+                'status'  => false,
+                'message' => "You need at least 10 active referrals to unlock daily leader salary. Current: {$activeReferralsCount}/10"
+            ]);
+        }
+
+        $user->increment('balance', $salary);
+        $user->last_leader_salary_claimed_at = now();
+        $user->save();
+
+        $ledger = new UserLedger();
+        $ledger->user_id = $user->id;
+        $ledger->reason = 'leader_salary';
+        $ledger->perticulation = "Daily Team Leader Salary ({$activeReferralsCount} Active Team)";
+        $ledger->amount = $salary;
+        $ledger->debit = $salary;
+        $ledger->status = 'approved';
+        $ledger->date = date('d-m-Y H:i');
+        $ledger->save();
+
+        return response()->json([
+            'status'      => true,
+            'amount'      => $salary,
+            'new_balance' => number_format($user->balance, 2),
+            'message'     => "🎉 Leader Salary Received! Rs. {$salary} credited to your account!"
+        ]);
+    }
+
+    /* =========================================================================
+     * 6. RED ENVELOPE / CASH RAIN (سرخ لفافہ)
+     * ========================================================================= */
+    public function red_envelope_check()
+    {
+        $user = Auth::user();
+        $activeEnvelope = RedEnvelope::where('status', 'active')
+            ->where('remaining_amount', '>', 0)
+            ->whereRaw('claimed_count < max_claimers')
+            ->whereDoesntHave('claims', function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })
+            ->latest()
+            ->first();
+
+        if (!$activeEnvelope) {
+            return response()->json(['active' => false]);
+        }
+
+        return response()->json([
+            'active'      => true,
+            'id'          => $activeEnvelope->id,
+            'title'       => $activeEnvelope->title,
+            'remaining'   => $activeEnvelope->max_claimers - $activeEnvelope->claimed_count,
+            'max'         => $activeEnvelope->max_claimers
+        ]);
+    }
+
+    public function red_envelope_claim(Request $request)
+    {
+        $user = Auth::user();
+        $envelopeId = $request->input('envelope_id');
+
+        $envelope = RedEnvelope::where('id', $envelopeId)
+            ->where('status', 'active')
+            ->where('remaining_amount', '>', 0)
+            ->whereRaw('claimed_count < max_claimers')
+            ->first();
+
+        if (!$envelope) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'This Red Envelope is no longer available!'
+            ]);
+        }
+
+        if (RedEnvelopeClaim::where('red_envelope_id', $envelope->id)->where('user_id', $user->id)->exists()) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'You have already opened this Red Envelope!'
+            ]);
+        }
+
+        // Random portion
+        $min = (float)$envelope->min_reward;
+        $max = min((float)$envelope->max_reward, (float)$envelope->remaining_amount);
+        $reward = round(rand((int)($min * 10), (int)($max * 10)) / 10, 2);
+        if ($reward > $envelope->remaining_amount) {
+            $reward = (float)$envelope->remaining_amount;
+        }
+
+        $envelope->remaining_amount -= $reward;
+        $envelope->claimed_count += 1;
+        if ($envelope->remaining_amount <= 0 || $envelope->claimed_count >= $envelope->max_claimers) {
+            $envelope->status = 'expired';
+        }
+        $envelope->save();
+
+        RedEnvelopeClaim::create([
+            'red_envelope_id' => $envelope->id,
+            'user_id'         => $user->id,
+            'amount'          => $reward
+        ]);
+
+        $user->increment('balance', $reward);
+
+        $ledger = new UserLedger();
+        $ledger->user_id = $user->id;
+        $ledger->reason = 'red_envelope';
+        $ledger->perticulation = "Red Envelope Cash Drop: {$envelope->title}";
+        $ledger->amount = $reward;
+        $ledger->debit = $reward;
+        $ledger->status = 'approved';
+        $ledger->date = date('d-m-Y H:i');
+        $ledger->save();
+
+        return response()->json([
+            'status'      => true,
+            'amount'      => $reward,
+            'new_balance' => number_format($user->balance, 2),
+            'message'     => "🧧 WOW! You grabbed Rs. {$reward} from the Red Packet!"
+        ]);
+    }
 }

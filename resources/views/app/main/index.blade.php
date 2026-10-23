@@ -37,6 +37,7 @@
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script type="text/javascript" src="/js/out.js"></script>
+  <script src="/js/app-sound.js"></script>
   <link type="text/css" rel="stylesheet" href="/css/resize.css" />
   <title>You earn profit by funding in the cold drink project - ColdDrinkFund</title>
 </head>
@@ -267,6 +268,9 @@
       </section>
 
       <section class="my_thead_b3">
+        <button onclick="AppSound.toggle()" class="sound-toggle-btn" style="background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4); border-radius:50%; width:32px; height:32px; color:#fff; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; margin-right:6px;">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
         <a href="#" class="my_thead_icon tload1">
           <dl>
             <span>
@@ -869,7 +873,158 @@
           </div>
         </div>
       </div>
-      <!--Profile--E-->
+      <!--Profile--E-->
+
+      <!-- Feature 1: Cold Drink Bottling Plant Line (Tap to Collect) -->
+      <style>
+        .bottling-factory-card {
+          margin: 12px 10px;
+          background: linear-gradient(135deg, #1b053a 0%, #2a084e 100%);
+          border: 1.5px solid rgba(255, 215, 0, 0.35);
+          border-radius: 16px;
+          padding: 15px;
+          color: #fff;
+          box-shadow: 0 8px 25px rgba(27, 5, 58, 0.4);
+          position: relative;
+          overflow: hidden;
+        }
+        .conveyor-belt {
+          background: #111827;
+          border-radius: 12px;
+          padding: 12px 10px;
+          position: relative;
+          overflow: hidden;
+          margin: 12px 0;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          background-image: repeating-linear-gradient(90deg, #1f2937, #1f2937 12px, #374151 12px, #374151 24px);
+          animation: conveyorBelt 4s linear infinite;
+        }
+        @keyframes conveyorBelt {
+          0% { background-position: 0 0; }
+          100% { background-position: 48px 0; }
+        }
+        .bottles-line {
+          display: flex;
+          justify-content: space-around;
+          align-items: flex-end;
+          height: 65px;
+        }
+        .soda-bottle {
+          width: 28px;
+          height: 58px;
+          border-radius: 6px 6px 4px 4px;
+          position: relative;
+          box-shadow: inset 0 2px 5px rgba(255,255,255,0.4), 0 4px 10px rgba(0,0,0,0.5);
+          border: 1.5px solid rgba(255,255,255,0.3);
+          overflow: hidden;
+        }
+        .soda-bottle::before {
+          content: '';
+          position: absolute;
+          top: -6px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 10px;
+          height: 6px;
+          background: #ffd700;
+          border-radius: 2px 2px 0 0;
+        }
+        .soda-liquid {
+          position: absolute;
+          bottom: 0;
+          width: 100%;
+          height: {{ max(20, $bottlingPercent) }}%;
+          transition: height 1s ease;
+        }
+        .liquid-coke { background: linear-gradient(180deg, #ef4444 0%, #7f1d1d 100%); }
+        .liquid-sprite { background: linear-gradient(180deg, #22c55e 0%, #14532d 100%); }
+        .liquid-fanta { background: linear-gradient(180deg, #f97316 0%, #9a3412 100%); }
+        .liquid-gold { background: linear-gradient(180deg, #facc15 0%, #854d0e 100%); }
+
+        .btn-collect-bottles {
+          width: 100%;
+          background: linear-gradient(135deg, #ffd700 0%, #f59e0b 100%);
+          color: #1e084d;
+          border: none;
+          padding: 12px;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 800;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+          animation: pulseCollect 2s infinite;
+        }
+        @keyframes pulseCollect {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.02); }
+        }
+      </style>
+
+      <div class="bottling-factory-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div style="width:34px; height:34px; border-radius:10px; background:rgba(255,215,0,0.18); color:#ffd700; display:flex; align-items:center; justify-content:center; font-size:18px;">
+              🏭
+            </div>
+            <div>
+              <div style="font-weight:800; font-size:13.5px; color:#ffd700;">Cold Drink Bottling Line</div>
+              <div style="font-size:10.5px; color:#cbd5e1;">Hourly Production (کولڈ ڈرنک بوتلنگ پلانٹ)</div>
+            </div>
+          </div>
+          <span style="background:rgba(34,197,94,0.18); color:#4ade80; border:1px solid #22c55e; font-size:9.5px; font-weight:800; padding:2px 7px; border-radius:20px; display:inline-flex; align-items:center; gap:4px;">
+            <span style="width:6px; height:6px; border-radius:50%; background:#22c55e; display:inline-block; animation: pulseCollect 1s infinite;"></span> PRODUCING
+          </span>
+        </div>
+
+        <!-- Conveyor Belt Animation -->
+        <div class="conveyor-belt">
+          <div class="bottles-line">
+            <div class="soda-bottle"><div class="soda-liquid liquid-coke"></div></div>
+            <div class="soda-bottle"><div class="soda-liquid liquid-sprite"></div></div>
+            <div class="soda-bottle"><div class="soda-liquid liquid-fanta"></div></div>
+            <div class="soda-bottle"><div class="soda-liquid liquid-gold"></div></div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px; font-size:11.5px;">
+          <span style="color:#cbd5e1;">Plant Accumulation:</span>
+          <span style="font-weight:800; color:#ffd700;">
+            Rs. <span id="accumulatedDisplay">{{ number_format($bottlingAccumulated, 2) }}</span> / Rs. {{ number_format($bottlingDailyIncome, 2) }}
+          </span>
+        </div>
+
+        <!-- Progress bar -->
+        <div style="width:100%; height:7px; background:rgba(255,255,255,0.1); border-radius:10px; overflow:hidden; margin-bottom:12px;">
+          <div id="bottlingProgressFill" style="height:100%; width:{{ $bottlingPercent }}%; background:linear-gradient(90deg, #ffd700, #22c55e); border-radius:10px; transition:width 0.5s;"></div>
+        </div>
+
+        <button type="button" class="btn-collect-bottles" onclick="collectBottlingIncome()" id="btnCollectBottling">
+          <i class="fa-solid fa-bottle-droplet"></i> TAP TO COLLECT (منافع وصول کریں)
+        </button>
+      </div>
+
+      <!-- Feature 10: PWA / Add to Home Screen Banner -->
+      <div id="pwaInstallBanner" style="display:none; margin: 0 10px 10px; background: linear-gradient(135deg, #1e1b4b, #2e1065); border: 1px solid rgba(255,215,0,0.3); border-radius: 12px; padding: 10px 14px; align-items: center; justify-content: space-between;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <img src="/img/icon.png" style="width:32px; height:32px; border-radius:8px;" alt="App">
+          <div>
+            <div style="font-size:12px; font-weight:700; color:#fff;">Install Cold Drink App</div>
+            <div style="font-size:10px; color:#cbd5e1;">Add to home screen for 2x faster access!</div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <button onclick="installPWA()" style="background:#ffd700; color:#1e084d; border:none; padding:5px 10px; border-radius:15px; font-size:11px; font-weight:800; cursor:pointer;">
+            INSTALL
+          </button>
+          <button onclick="dismissPWABanner()" style="background:none; border:none; color:#94a3b8; font-size:14px; cursor:pointer; padding:2px;">
+            &times;
+          </button>
+        </div>
+      </div>
 
       <!--Tab-Btn--S-->
       <div class="my_account_tab4">
@@ -954,6 +1109,49 @@
           </div>
           <div style="font-weight: 700; font-size: 13px; color: #fff;">WhatsApp Poster</div>
           <div style="font-size: 10px; color: #a7f3d0; margin-top: 2px;">Generate Card with QR</div>
+        </a>
+      </div>
+
+      <!-- Gamification & Rewards 4-Grid -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin: 0 10px 14px;">
+        <a href="/bottlecap" class="BtnPlay load2" style="background: linear-gradient(135deg, #7c2d12, #9a3412); border: 1.5px solid #f97316; color:#fff; padding: 12px; border-radius: 12px; text-decoration:none; display:flex; align-items:center; gap:10px; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
+          <div style="width:38px; height:38px; border-radius:10px; background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; font-size:20px;">
+            🍾
+          </div>
+          <div>
+            <div style="font-weight:700; font-size:12.5px; color:#fed7aa;">Lucky Cap</div>
+            <div style="font-size:10px; color:#ffedd5;">Pop & Win Daily</div>
+          </div>
+        </a>
+
+        <a href="/lucky-spin" class="BtnPlay load2" style="background: linear-gradient(135deg, #1e1b4b, #3730a3); border: 1.5px solid #818cf8; color:#fff; padding: 12px; border-radius: 12px; text-decoration:none; display:flex; align-items:center; gap:10px; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
+          <div style="width:38px; height:38px; border-radius:10px; background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; font-size:20px;">
+            🎡
+          </div>
+          <div>
+            <div style="font-weight:700; font-size:12.5px; color:#c7d2fe;">Lucky Spin</div>
+            <div style="font-size:10px; color:#e0e7ff;">Win Up to Rs. 500</div>
+          </div>
+        </a>
+
+        <a href="/missions" class="BtnPlay load2" style="background: linear-gradient(135deg, #064e3b, #065f46); border: 1.5px solid #34d399; color:#fff; padding: 12px; border-radius: 12px; text-decoration:none; display:flex; align-items:center; gap:10px; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
+          <div style="width:38px; height:38px; border-radius:10px; background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; font-size:20px;">
+            🎯
+          </div>
+          <div>
+            <div style="font-weight:700; font-size:12.5px; color:#a7f3d0;">Missions</div>
+            <div style="font-size:10px; color:#d1fae5;">Earn Target Cash</div>
+          </div>
+        </a>
+
+        <a href="/leader-salary" class="BtnPlay load2" style="background: linear-gradient(135deg, #3f0413, #881337); border: 1.5px solid #f43f5e; color:#fff; padding: 12px; border-radius: 12px; text-decoration:none; display:flex; align-items:center; gap:10px; box-shadow: 0 3px 10px rgba(0,0,0,0.15);">
+          <div style="width:38px; height:38px; border-radius:10px; background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; font-size:20px;">
+            💼
+          </div>
+          <div>
+            <div style="font-weight:700; font-size:12.5px; color:#fecdd3;">Leader Salary</div>
+            <div style="font-size:10px; color:#ffe4e6;">Daily Auto Salary</div>
+          </div>
         </a>
       </div>
 
@@ -1325,6 +1523,208 @@
     });
   </script>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"3488a88409724353a65cd0f4b9d0d950","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+  <!-- Feature 8: Floating Live Support & Online Counter Capsule -->
+  <div id="floatingSupportCapsule" style="position:fixed; bottom:75px; right:15px; z-index:999; display:flex; align-items:center; gap:8px; background:linear-gradient(135deg, #1e084d, #0f172a); border:1.5px solid rgba(255,215,0,0.5); padding:6px 14px; border-radius:30px; box-shadow:0 8px 25px rgba(0,0,0,0.5); cursor:pointer;" onclick="toggleSupportModal()">
+    <span style="width:8px; height:8px; border-radius:50%; background:#22c55e; display:inline-block; box-shadow:0 0 10px #22c55e;"></span>
+    <span style="font-size:11px; font-weight:700; color:#ffd700;">⚡ <span id="onlineCounterDisplay">482</span> Online</span>
+    <span style="font-size:10px; color:#cbd5e1;">Support</span>
+  </div>
+
+  <!-- Support Modal -->
+  <div id="supportCommunityModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+    <div style="background:#1e084d; border:2px solid #ffd700; border-radius:18px; width:90%; max-width:360px; padding:20px; text-align:center; color:#fff; position:relative;">
+      <div onclick="toggleSupportModal()" style="position:absolute; top:12px; right:15px; font-size:20px; cursor:pointer; color:#94a3b8;">&times;</div>
+      <div style="font-size:32px; margin-bottom:6px;">💬</div>
+      <h3 style="color:#ffd700; font-size:17px; font-weight:800; margin-bottom:4px;">Official Community & Support</h3>
+      <p style="font-size:11.5px; color:#cbd5e1; margin-bottom:18px;">Join thousands of Pakistani investors in our official channels:</p>
+
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <a href="https://t.me/wasifalitech" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:8px; background:#0088cc; color:#fff; padding:12px; border-radius:12px; text-decoration:none; font-weight:700; font-size:13px;">
+          <i class="fa-brands fa-telegram" style="font-size:18px;"></i> Join Official Telegram Channel
+        </a>
+        <a href="/service" style="display:flex; align-items:center; justify-content:center; gap:8px; background:#22c55e; color:#fff; padding:12px; border-radius:12px; text-decoration:none; font-weight:700; font-size:13px;">
+          <i class="fa-solid fa-headset" style="font-size:16px;"></i> 24/7 Live Customer Care
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feature 6: Floating Red Envelope Widget (When active & unclaimed) -->
+  @if(isset($activeRedEnvelope) && $activeRedEnvelope)
+    <div id="floatingRedEnvelope" style="position:fixed; bottom:75px; left:15px; z-index:999; cursor:pointer; text-align:center;" onclick="openRedEnvelopeModal({{ $activeRedEnvelope->id }}, '{{ $activeRedEnvelope->title }}')">
+      <div style="width:52px; height:52px; border-radius:14px; background:linear-gradient(135deg, #ef4444, #991b1b); border:2px solid #ffd700; display:flex; align-items:center; justify-content:center; font-size:26px; box-shadow:0 0 20px rgba(239,68,68,0.7); animation: bounceEnv 1.8s infinite;">
+        🧧
+      </div>
+      <span style="background:#ffd700; color:#1e084d; font-size:9px; font-weight:900; padding:1px 6px; border-radius:10px; display:inline-block; margin-top:2px;">
+        CASH DROP
+      </span>
+    </div>
+
+    <!-- Red Envelope Modal -->
+    <div id="redEnvelopeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); z-index:99999; backdrop-filter:blur(5px); align-items:center; justify-content:center;">
+      <div style="background:linear-gradient(135deg, #b91c1c 0%, #450a0a 100%); border:3px solid #ffd700; border-radius:24px; width:88%; max-width:340px; padding:25px 20px; text-align:center; color:#fff; position:relative; box-shadow:0 15px 50px rgba(185,28,28,0.6);">
+        <div onclick="closeRedEnvelopeModal()" style="position:absolute; top:12px; right:15px; font-size:22px; cursor:pointer; color:#ffd700;">&times;</div>
+        
+        <div style="font-size:55px; margin-bottom:8px; animation: pulseCollect 1.5s infinite;">🧧</div>
+        <div style="font-size:12px; font-weight:700; color:#fde047; text-transform:uppercase; letter-spacing:1px;">Admin Cash Drop</div>
+        <h3 id="envTitleDisplay" style="color:#ffffff; font-size:18px; font-weight:800; margin:6px 0 15px;">{{ $activeRedEnvelope->title }}</h3>
+
+        <div id="envClaimBox">
+          <p style="font-size:12px; color:#fecaca; margin-bottom:18px;">Tap open to claim your free cash prize from the pool!</p>
+          <button type="button" onclick="claimRedEnvelope({{ $activeRedEnvelope->id }})" id="btnOpenEnv" style="background:radial-gradient(circle, #fde047 0%, #ca8a04 100%); color:#450a0a; border:none; width:85px; height:85px; border-radius:50%; font-size:20px; font-weight:900; cursor:pointer; box-shadow:0 6px 20px rgba(0,0,0,0.4); border:3px solid #fff;">
+            OPEN<br><span style="font-size:11px;">کھولیں</span>
+          </button>
+        </div>
+
+        <div id="envResultBox" style="display:none;">
+          <div style="font-size:32px; font-weight:900; color:#fde047; margin-bottom:6px;" id="envWonAmount">Rs. 0</div>
+          <p style="font-size:13px; color:#fff;" id="envWonMsg">Added to your wallet!</p>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      @keyframes bounceEnv {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+      }
+    </style>
+  @endif
+
+  <script>
+    // 1. Bottling Income Collection
+    function collectBottlingIncome() {
+      if (window.AppSound) AppSound.playFizz();
+
+      const btn = document.getElementById('btnCollectBottling');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Collecting...';
+
+      fetch('/bottling/collect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status) {
+          if (window.AppSound) AppSound.playCoin();
+          alert(data.message);
+          document.getElementById('accumulatedDisplay').innerText = '0.00';
+          document.getElementById('bottlingProgressFill').style.width = '0%';
+          btn.innerHTML = '<i class="fa-solid fa-check"></i> Collected! Filling new batch...';
+        } else {
+          alert(data.message);
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-bottle-droplet"></i> TAP TO COLLECT (منافع وصول کریں)';
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-bottle-droplet"></i> TAP TO COLLECT (منافع وصول کریں)';
+      });
+    }
+
+    // 2. Online Counter Simulation
+    setInterval(() => {
+      const counter = document.getElementById('onlineCounterDisplay');
+      if (counter) {
+        let current = parseInt(counter.innerText) || 482;
+        const change = Math.floor(Math.random() * 5) - 2;
+        current = Math.max(390, Math.min(650, current + change));
+        counter.innerText = current;
+      }
+    }, 4000);
+
+    function toggleSupportModal() {
+      const modal = document.getElementById('supportCommunityModal');
+      modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
+    }
+
+    // 3. Red Envelope Modal
+    function openRedEnvelopeModal(id, title) {
+      document.getElementById('envTitleDisplay').innerText = title;
+      document.getElementById('redEnvelopeModal').style.display = 'flex';
+    }
+    function closeRedEnvelopeModal() {
+      document.getElementById('redEnvelopeModal').style.display = 'none';
+    }
+    function claimRedEnvelope(id) {
+      if (window.AppSound) AppSound.playCash();
+
+      const btn = document.getElementById('btnOpenEnv');
+      btn.disabled = true;
+
+      fetch('/red-envelope/claim', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ envelope_id: id })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status) {
+          document.getElementById('envClaimBox').style.display = 'none';
+          document.getElementById('envWonAmount').innerText = 'Rs. ' + data.amount;
+          document.getElementById('envWonMsg').innerText = data.message;
+          document.getElementById('envResultBox').style.display = 'block';
+
+          setTimeout(() => {
+            const widget = document.getElementById('floatingRedEnvelope');
+            if (widget) widget.remove();
+          }, 3000);
+        } else {
+          alert(data.message);
+          closeRedEnvelopeModal();
+        }
+      })
+      .catch(err => console.error(err));
+    }
+
+    // 4. PWA Install Logic
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const banner = document.getElementById('pwaInstallBanner');
+      if (banner && !localStorage.getItem('pwa_banner_dismissed')) {
+        banner.style.display = 'flex';
+      }
+    });
+
+    function installPWA() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => {
+          deferredPrompt = null;
+          dismissPWABanner();
+        });
+      } else {
+        // Fallback to downloading APK or guidance
+        window.location.href = '/download/apk';
+      }
+    }
+
+    function dismissPWABanner() {
+      const banner = document.getElementById('pwaInstallBanner');
+      if (banner) banner.style.display = 'none';
+      localStorage.setItem('pwa_banner_dismissed', 'true');
+    }
+
+    // If on mobile browser and not dismissed, show banner
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('pwa_banner_dismissed')) {
+        const banner = document.getElementById('pwaInstallBanner');
+        if (banner) banner.style.display = 'flex';
+      }
+    });
+  </script>
+
   @include('components.broadcast-notification')
 </body>
 
