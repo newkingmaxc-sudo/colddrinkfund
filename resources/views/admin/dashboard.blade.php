@@ -149,9 +149,10 @@
 
         <!-- ⚡ 1-CLICK FLASH RECHARGE EVENT BOOSTER -->
         @php
-            $flashActive = (bool)setting('flash_event_active') && (empty(setting('flash_event_ends_at')) || now()->lt(\Carbon\Carbon::parse(setting('flash_event_ends_at'))));
-            $flashEndsAt = setting('flash_event_ends_at') ? \Carbon\Carbon::parse(setting('flash_event_ends_at')) : null;
-            $flashBonus = setting('flash_event_bonus_pct', 15.0);
+            $rawEndsAt = setting('flash_event_ends_at', null);
+            $flashEndsAt = function_exists('safe_carbon_parse') ? safe_carbon_parse($rawEndsAt) : null;
+            $flashActive = (bool)setting('flash_event_active') && ($flashEndsAt === null || now()->lt($flashEndsAt));
+            $flashBonus = (float)setting('flash_event_bonus_pct', 15.0);
         @endphp
         <div class="row mb-2">
             <div class="col-12">

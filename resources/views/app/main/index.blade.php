@@ -742,9 +742,11 @@
 
 
         @php
-            $isFlashActive = (bool)setting('flash_event_active') && (empty(setting('flash_event_ends_at')) || now()->lt(\Carbon\Carbon::parse(setting('flash_event_ends_at'))));
-            $flashEndsTimestamp = setting('flash_event_ends_at') ? \Carbon\Carbon::parse(setting('flash_event_ends_at'))->timestamp : null;
-            $flashPct = setting('flash_event_bonus_pct', 15.0);
+            $rawEndsAt = setting('flash_event_ends_at', null);
+            $parsedEndsAt = function_exists('safe_carbon_parse') ? safe_carbon_parse($rawEndsAt) : null;
+            $isFlashActive = (bool)setting('flash_event_active') && ($parsedEndsAt === null || now()->lt($parsedEndsAt));
+            $flashEndsTimestamp = $parsedEndsAt ? $parsedEndsAt->timestamp : null;
+            $flashPct = (float)setting('flash_event_bonus_pct', 15.0);
         @endphp
         @if($isFlashActive)
         <div id="flashEventRibbon" style="margin: 10px 12px; background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); border: 2px solid #ffd700; border-radius: 12px; padding: 10px 14px; color: #fff; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">

@@ -177,6 +177,20 @@ if (!function_exists('getRelatedSlugs')) {
 }
 
 
+if (!function_exists('safe_carbon_parse')) {
+    function safe_carbon_parse($value)
+    {
+        if (empty($value) || $value === 'Data Is Empty' || (!is_string($value) && !($value instanceof \DateTimeInterface))) {
+            return null;
+        }
+        try {
+            return \Carbon\Carbon::parse($value);
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+}
+
 if (!function_exists('setting')) {
     function setting($column, $default = null)
     {
@@ -185,11 +199,18 @@ if (!function_exists('setting')) {
                 return \App\Models\Setting::first();
             });
         } catch (\Throwable $e) {
-            return $default !== null ? $default : "Data Is Empty";
+            return $default;
         }
 
-        if ($cachedSettings && isset($cachedSettings->{$column})) {
-            return $cachedSettings->{$column};
+        if ($cachedSettings) {
+            $attrs = $cachedSettings->getAttributes();
+            if (array_key_exists($column, $attrs)) {
+                $val = $cachedSettings->{$column};
+                if ($val !== null && $val !== '') {
+                    return $val;
+                }
+                return $default;
+            }
         }
 
         return $default !== null ? $default : "Data Is Empty";

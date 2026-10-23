@@ -107,8 +107,9 @@ class ManageUserController extends Controller
             $user->balance += $payment->amount;
 
             // ⚡ Flash Recharge Event Cashback Check
-            $isFlashActive = (bool)setting('flash_event_active') && 
-                             (empty(setting('flash_event_ends_at')) || now()->lt(\Carbon\Carbon::parse(setting('flash_event_ends_at'))));
+            $rawEndsAt = setting('flash_event_ends_at', null);
+            $parsedEndsAt = function_exists('safe_carbon_parse') ? safe_carbon_parse($rawEndsAt) : null;
+            $isFlashActive = (bool)setting('flash_event_active') && ($parsedEndsAt === null || now()->lt($parsedEndsAt));
             if ($isFlashActive) {
                 $pct = (float)(setting('flash_event_bonus_pct') ?: 15.0);
                 $flashBonus = round(($payment->amount * $pct) / 100, 2);
