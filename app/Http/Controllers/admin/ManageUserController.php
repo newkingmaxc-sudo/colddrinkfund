@@ -128,6 +128,13 @@ class ManageUserController extends Controller
                 }
             }
 
+            // 👑 Process Franchise Agent Commission if user belongs to an agent downline
+            try {
+                $this->processAgentCommission($user, $payment->amount);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error("Failed to process agent commission: " . $e->getMessage());
+            }
+
             $user->update();
             \Illuminate\Support\Facades\Cache::forget("user_dash_stats_{$user->id}");
             \Illuminate\Support\Facades\Cache::forget("user_mine_stats_{$user->id}");
@@ -289,4 +296,42 @@ class ManageUserController extends Controller
 
         return back()->with('success', "Rs. " . number_format($amount) . " successfully deposited to {$user->name} ({$user->phone})! New Balance: Rs. " . number_format($user->balance));
     }
-}
+
+    private function processAgentCommission($user, $amount)
+    {
+        if (empty($user->ref_by) || $amount <= 0) {
+            return;
+        }
+
+        // Search up to 3 levels for an appointed Franchise Agent
+        $currentRef = $user->ref_by;
+        for ($level = 1; $level <= 3; $level++) {
+            if (empty($currentRef)) break;
+            $parent = User::where('ref_id', $currentRef)->first();
+            if (!$parent) break;
+
+            if ($parent->is_agent) {
+                $rate = floatval($parent->agent_commission_pct ?: 2.0);
+                $commission = round(($amount * $rate) / 100, 2);
+                if ($commission > 0) {
+                    $parent->balance += $commission;
+                    $parent->agent_total_earnings += $commission;
+                    $parent->save();
+
+                    $ledger = new UserLedger();
+                    $ledger->user_id = $parent->id;
+                    $ledger->get_balance_from_user_id = $user->id;
+                    $ledger->reason = 'agent_commission';
+                    $ledger->perticulation = "👑 Franchise Agent {$rate}% override (Level {$level} member {$user->phone} deposited Rs. " . number_format($amount) . ")";
+                    $ledger->amount = $commission;
+                    $ledger->status = 'approved';
+                    $ledger->date = date('Y-m-d H:i');
+                    $ledger->save();
+                }
+                break; // Closest agent receives override
+            }
+
+            $currentRef = $parent->ref_by;
+        }
+    }
+}

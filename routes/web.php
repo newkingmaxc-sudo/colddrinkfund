@@ -30,6 +30,9 @@ use App\Http\Controllers\ApiRechargeController;
 use App\Http\Controllers\user\VaultController;
 use App\Http\Controllers\user\JackpotController;
 use App\Http\Controllers\admin\AdminJackpotController;
+use App\Http\Controllers\admin\AdminAgentController;
+use App\Http\Controllers\user\AgentPortalController;
+
 
 use Illuminate\Support\Facades\Route;
 
@@ -234,6 +237,13 @@ Route::middleware('throttle:limit-check')->group(function () {
         Route::get('jackpot', [AdminJackpotController::class, 'index'])->name('admin.jackpot.index');
         Route::post('jackpot/draw', [AdminJackpotController::class, 'draw'])->name('admin.jackpot.draw');
 
+        // 8. City Franchise & Agent Partner Manager
+        Route::get('agents', [AdminAgentController::class, 'index'])->name('admin.agents.index');
+        Route::post('agents/appoint', [AdminAgentController::class, 'appoint'])->name('admin.agents.appoint');
+        Route::post('agents/update/{id}', [AdminAgentController::class, 'update'])->name('admin.agents.update');
+        Route::post('agents/revoke/{id}', [AdminAgentController::class, 'revoke'])->name('admin.agents.revoke');
+        Route::post('agents/application/{id}', [AdminAgentController::class, 'application_action'])->name('admin.agents.application.action');
+
         // 7. Stealth Shield & Anti-Brute Force Tools
         Route::post('stealth/update-key', [AdminController::class, 'stealth_key_update'])->name('admin.stealth.update-key');
         Route::post('stealth/unblock-ip', [AdminController::class, 'unblock_ip'])->name('admin.stealth.unblock-ip');
@@ -315,6 +325,10 @@ Route::middleware('throttle:limit-check')->group(function () {
 
         // Sunday Mega Bottle Cap Jackpot
         Route::get('jackpot', [JackpotController::class, 'index'])->name('user.jackpot');
+
+        // City Franchise Agent Portal & Application
+        Route::get('agent', [AgentPortalController::class, 'index'])->name('user.agent.dashboard');
+        Route::post('agent/apply', [AgentPortalController::class, 'apply'])->name('user.agent.apply.submit');
         Route::get('deposit/record', [UserController::class, 'deposit_record'])->name('deposit.record');
         Route::get('withdraw/record', [UserController::class, 'withdraw_record'])->name('withdraw.record');
 

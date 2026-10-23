@@ -31,6 +31,12 @@ class User extends Authenticatable
         'balance',
         'phone',
         'sign_every_day',
+        'is_agent',
+        'agent_city',
+        'agent_title',
+        'agent_commission_pct',
+        'agent_total_earnings',
+        'agent_appointed_at',
     ];
 
     /**
@@ -72,4 +78,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(User::class, 'ref_by', 'ref_id');
     }
-}
+
+    public function isAgent()
+    {
+        return (bool)$this->is_agent;
+    }
+
+    public function agentApplications()
+    {
+        return $this->hasMany(AgentApplication::class);
+    }
+}

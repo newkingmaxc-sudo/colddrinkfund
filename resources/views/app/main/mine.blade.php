@@ -299,7 +299,13 @@
             <h2 style="color: #6d28d9; font-weight: 700;">🎟️ اتوار میگا بوتل کیپ ڈرا</h2>
 
             <dl><em class="fa-solid fa-angle-right"></em></dl>
-</a><a href="/withdraw" class=" load3 minmr2"><span style="color:;"><i class="fa-solid fa-credit-card"></i></span>
+</a><a href="/agent" class=" load3 minmr2" style="background: linear-gradient(90deg, #fdf4ff, #fff); border-left: 3px solid #d946ef;"><span style="color:#c026d3;"><i class="fa-solid fa-crown"></i></span>
+
+            <h2 style="color: #a21caf; font-weight: 700;">👑 سٹی فرنچائز پورٹل</h2>
+
+            <dl><em class="fa-solid fa-angle-right"></em></dl>
+
+          </a><a href="/withdraw" class=" load3 minmr2"><span style="color:;"><i class="fa-solid fa-credit-card"></i></span>
 
             <h2>My Withdrawal</h2>
 
