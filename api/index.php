@@ -26,4 +26,11 @@ putenv('APP_PACKAGES_CACHE=/tmp/storage/framework/cache/packages.php');
 putenv('APP_CONFIG_CACHE=/tmp/storage/framework/cache/config.php');
 putenv('APP_ROUTES_CACHE=/tmp/storage/framework/cache/routes.php');
 
-require __DIR__ . '/../public/index.php';
+try {
+    require __DIR__ . '/../public/index.php';
+} catch (\Throwable $e) {
+    http_response_code(500);
+    header('Content-Type: text/plain');
+    echo "SERVERLESS ERROR: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine() . "\n\n";
+    echo $e->getTraceAsString();
+}
