@@ -21,10 +21,9 @@
     },
     {
       "src": "/(download-apk|download/apk)",
-      "dest": "/public/ColdDrinkFund.apk",
+      "status": 302,
       "headers": {
-        "Content-Disposition": "attachment; filename=\"ColdDrinkFund.apk\"",
-        "Content-Type": "application/vnd.android.package-archive"
+        "Location": "/ColdDrinkFund.apk"
       }
     },
     {

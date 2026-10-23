@@ -461,7 +461,7 @@
             if (btnText) btnText.innerText = 'دوبارہ ڈاؤنلوڈ کریں (Download Again)';
 
             // Trigger direct APK file download
-            const targetUrl = updateData.apk_url || '/download-apk';
+            const targetUrl = updateData.apk_url || '/ColdDrinkFund.apk';
             window.location.href = targetUrl;
 
             // Remember installed version code

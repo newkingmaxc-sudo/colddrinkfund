@@ -20,8 +20,11 @@ class AppUpdateController extends Controller
 
         $versionCode = $latest ? $latest->version_code : ($setting->app_version_code ?? 101);
         $versionName = $latest ? $latest->version_name : ($setting->app_version_name ?? '1.1.0');
-        $apkUrl = $latest ? $latest->apk_url : ($setting->app_apk_url ?? '/download-apk');
-        $apkSize = $latest ? $latest->apk_size : '9.2 MB';
+        $apkUrl = $latest ? $latest->apk_url : ($setting->app_apk_url ?? '/ColdDrinkFund.apk');
+        if ($apkUrl === '/download-apk' || $apkUrl === '/download/apk') {
+            $apkUrl = '/ColdDrinkFund.apk';
+        }
+        $apkSize = $latest ? $latest->apk_size : '5.8 MB';
         $isForced = $latest ? (bool)$latest->is_forced : (bool)($setting->app_force_update ?? false);
         $title = $latest ? $latest->title : ($setting->app_update_title ?? '🚀 New Update Available! / نیا ورژن دستیاب ہے');
         $rawChangelog = $latest ? $latest->changelog : ($setting->app_update_changelog ?? '');
