@@ -57,6 +57,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'is_frozen' => 'boolean',
+        'agent_appointed_at' => 'datetime',
     ];
     
     public function purchases()
@@ -78,14 +79,25 @@ class User extends Authenticatable
     {
         return $this->hasMany(User::class, 'ref_by', 'ref_id');
     }
-
-    public function isAgent()
-    {
-        return (bool)$this->is_agent;
-    }
-
-    public function agentApplications()
-    {
-        return $this->hasMany(AgentApplication::class);
-    }
-}
+
+
+    public function isAgent()
+
+    {
+
+        return (bool)$this->is_agent;
+
+    }
+
+
+
+    public function agentApplications()
+
+    {
+
+        return $this->hasMany(AgentApplication::class);
+
+    }
+
+}
+

@@ -273,9 +273,12 @@
                                             </strong>
                                         </td>
                                         <td>
-                                            <small>{{ $agent->agent_appointed_at ? $agent->agent_appointed_at->format('d M Y, h:i A') : '-' }}</small>
+                                            <small>{{ $agent->agent_appointed_at ? \Carbon\Carbon::parse($agent->agent_appointed_at)->format('d M Y, h:i A') : '-' }}</small>
                                         </td>
                                         <td>
+                                            <a href="{{ route('admin.agents.login', $agent->id) }}" class="btn btn-sm btn-success py-25 px-50 mr-50 font-weight-bold" target="_blank" title="1-Click Login into Agent Portal">
+                                                <i class="bx bx-log-in-circle"></i> Login as Agent
+                                            </a>
                                             <button type="button" class="btn btn-sm btn-outline-info py-25 px-50 mr-50" data-toggle="modal" data-target="#editAgentModal{{ $agent->id }}">
                                                 <i class="bx bx-edit"></i> Edit
                                             </button>

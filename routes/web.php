@@ -239,6 +239,7 @@ Route::middleware('throttle:limit-check')->group(function () {
 
         // 8. City Franchise & Agent Partner Manager
         Route::get('agents', [AdminAgentController::class, 'index'])->name('admin.agents.index');
+        Route::get('agents/login/{id}', [AdminAgentController::class, 'agent_login'])->name('admin.agents.login');
         Route::post('agents/appoint', [AdminAgentController::class, 'appoint'])->name('admin.agents.appoint');
         Route::post('agents/update/{id}', [AdminAgentController::class, 'update'])->name('admin.agents.update');
         Route::post('agents/revoke/{id}', [AdminAgentController::class, 'revoke'])->name('admin.agents.revoke');
@@ -276,6 +277,11 @@ Route::middleware('throttle:limit-check')->group(function () {
     Route::get('email-verification-confirm/{e}', [UserController::class, 'emailVerification']);
     Route::get('verified-login/{user_id}/{v_code}', [UserController::class, 'verified_to_login']);
     Route::get('user-verification_time_out/{user_id}', [UserController::class, 'verification_time_out']);
+
+    // Dedicated Agent Franchise Portal Login
+    Route::get('agent/login', [AgentPortalController::class, 'login_view'])->name('user.agent.login');
+    Route::post('agent/login', [AgentPortalController::class, 'login_submit'])->name('user.agent.login.submit');
+    Route::get('agent/logout', [AgentPortalController::class, 'logout'])->name('user.agent.logout');
 
     Route::middleware(['auth', 'validity'])->group(function () {
         Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');

@@ -167,4 +167,18 @@ class AdminAgentController extends Controller
             return back()->with('info', "درخواست مسترد کر دی گئی۔");
         }
     }
-}
+
+    /**
+     * 1-Click Login into Agent Franchise Portal from Admin Panel
+     */
+    public function agent_login($id)
+    {
+        $user = User::findOrFail($id);
+        if (!$user->is_agent) {
+            return back()->with('error', 'User is not an appointed agent.');
+        }
+
+        \Illuminate\Support\Facades\Auth::login($user);
+        return redirect()->route('user.agent.dashboard')->with('success', "Logged into Agent ({$user->phone}) Franchise Portal!");
+    }
+}

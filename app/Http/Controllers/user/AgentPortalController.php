@@ -15,13 +15,83 @@ use Illuminate\Support\Facades\Auth;
 class AgentPortalController extends Controller
 {
     /**
+     * Show Agent Portal Login Screen
+     */
+    public function login_view()
+    {
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->is_agent) {
+                return redirect()->route('user.agent.dashboard');
+            }
+        }
+        return view('app.main.agent.login');
+    }
+
+    /**
+     * Submit Agent Portal Login
+     */
+    public function login_submit(Request $request)
+    {
+        $request->validate([
+            'phone'    => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        $phone = preg_replace('/[^0-9]/', '', $request->phone);
+
+        // Attempt login with phone and password
+        $credentials = ['phone' => $phone, 'password' => $request->password];
+
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            if ($user->is_agent) {
+                session()->put('agent_authenticated', true);
+                return redirect()->route('user.agent.dashboard')->with('success', "خوش آمدید! {$user->agent_city} ایجنٹ پورٹل میں لاگ ان کامیاب۔");
+            } else {
+                Auth::logout();
+                return back()->with('error', '⛔ رسائی ممنوع: یہ پورٹل صرف ایڈمن سے منظور شدہ آفیشل سٹی ایجنٹس کے لیے ہے۔ (Access Denied: Only Appointed City Agents Allowed)');
+            }
+        }
+
+        // Try raw phone if leading zero was stripped
+        $credentialsAlt = ['phone' => $request->phone, 'password' => $request->password];
+        if (Auth::attempt($credentialsAlt)) {
+            $user = Auth::user();
+            if ($user->is_agent) {
+                session()->put('agent_authenticated', true);
+                return redirect()->route('user.agent.dashboard')->with('success', "خوش آمدید! {$user->agent_city} ایجنٹ پورٹل میں لاگ ان کامیاب۔");
+            } else {
+                Auth::logout();
+                return back()->with('error', '⛔ رسائی ممنوع: یہ پورٹل صرف ایڈمن سے منظور شدہ آفیشل سٹی ایجنٹس کے لیے ہے۔ (Access Denied: Only Appointed City Agents Allowed)');
+            }
+        }
+
+        return back()->with('error', 'غلط فون نمبر یا پاس ورڈ! (Invalid credentials)');
+    }
+
+    /**
+     * Logout from Agent Portal
+     */
+    public function logout()
+    {
+        Auth::logout();
+        session()->forget('agent_authenticated');
+        return redirect()->route('user.agent.login')->with('success', 'ایجنٹ پورٹل سے لاگ آؤٹ ہو گیا۔');
+    }
+
+    /**
      * Agent Portal Dashboard / Application Page
      */
     public function index()
     {
+        if (!Auth::check()) {
+            return redirect()->route('user.agent.login');
+        }
+
         $user = Auth::user();
 
-        // 1. If not an approved agent, show application or pending status
+        // If not an approved agent, show application or pending status
         if (!$user->is_agent) {
             $existingApp = AgentApplication::where('user_id', $user->id)
                 ->orderByDesc('id')
@@ -30,7 +100,14 @@ class AgentPortalController extends Controller
             return view('app.main.agent.apply', compact('user', 'existingApp'));
         }
 
-        // 2. User IS an approved Agent -> Load Franchise Analytics
+        return $this->renderAgentDashboard($user);
+    }
+
+    /**
+     * Render the Agent Franchise Dashboard for any appointed agent
+     */
+    public function renderAgentDashboard($user)
+    {
         $today = Carbon::today();
 
         // Level 1 members
