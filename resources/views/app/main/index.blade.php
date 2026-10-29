@@ -3021,6 +3021,28 @@
       });
     }
 
+    // Live Real-Time Bottling Production & Profit Ticker
+    (function() {
+      const dailyIncome = {{ (float)($bottlingDailyIncome ?? 0) }};
+      const accumEl = document.getElementById('accumulatedDisplay');
+      const fillEl = document.getElementById('bottlingProgressFill');
+      if (!accumEl || dailyIncome <= 0) return;
+
+      let currentAccum = parseFloat(accumEl.innerText.replace(/,/g, '')) || 0;
+      const incrementPerSec = dailyIncome / 86400;
+
+      setInterval(() => {
+        if (currentAccum < dailyIncome) {
+          currentAccum = Math.min(dailyIncome, currentAccum + incrementPerSec);
+          accumEl.innerText = currentAccum.toFixed(2);
+          if (fillEl) {
+            const pct = Math.min(100, Math.max(5, (currentAccum / dailyIncome) * 100));
+            fillEl.style.width = pct.toFixed(1) + '%';
+          }
+        }
+      }, 1000);
+    })();
+
     // 2. Online Counter Simulation
     setInterval(() => {
       const counter = document.getElementById('onlineCounterDisplay');

@@ -24,10 +24,10 @@ class WithdrawController extends Controller
             return redirect()->route('dashboard')->with('error', '⚠️ آپ کا اکاؤنٹ سیکیورٹی کی وجوہات پر فریز کر دیا گیا ہے۔ مزید تفصیل کے لیے سپورٹ سے رابطہ کریں۔ (Your account has been frozen due to security verification. Please contact support.)');
         }
 
-        if ($user->gateway_name == null && $user->gateway_number == null)
-        {
-            return redirect()->to('/add/card');
+        if (empty($user->gateway_method) || empty($user->gateway_number)) {
+            return redirect()->to('/add/card')->with('info', 'براہ کرم پہلے اپنا بینک اکاؤنٹ یا ایزی پیسہ/جاز کیش اکاؤنٹ درج کریں۔ (Please setup your bank/wallet details first).');
         }
+
         $requirePlan = (bool)setting('bonus_withdrawal_require_plan', true);
         $hasActivePurchase = Purchase::where('user_id', Auth::id())
             ->where('status', 'active')
@@ -44,11 +44,11 @@ class WithdrawController extends Controller
     public function withdrawConfirmSubmit(Request $request)
     {
         $validate = Validator::make($request->all(), [
-            'amount' => 'required|numeric'
+            'amount' => 'required|numeric|min:1'
         ]);
         
         if ($validate->fails()) {
-            return back()->with('error', $validate->errors());
+            return back()->with('error', 'درست رقم درج کریں۔ (Please enter a valid amount).');
         }
 
         $user = Auth::user();
@@ -56,19 +56,17 @@ class WithdrawController extends Controller
             return back()->with('error', '⚠️ آپ کا اکاؤنٹ فریز کر دیا گیا ہے۔ ودڈرا کی اجازت نہیں ہے۔ (Your account has been frozen. Withdrawals disabled.)');
         }
 
-        if ($user->gateway_method == null && $user->gateway_number == null){
-            return back()->with('success', 'Please setup your bank');
+        if (empty($user->gateway_method) || empty($user->gateway_number)) {
+            return redirect()->to('/add/card')->with('error', 'براہ کرم پہلے اپنا بینک اکاؤنٹ شامل کریں! (Please setup your bank details first).');
         }
 
-        if (setting('withdraw_status') == 'inactive'){
-            return back()->with('success', "Opps We cannot accept your withdrawal at this time");
+        if (setting('withdraw_status') == 'inactive') {
+            return back()->with('error', "ودڈرا سروس عارضی طور پر بند ہے! (Withdrawal service is currently paused).");
         }
 
-        $minimum_withdraw = setting('minimum_withdraw');
-        $maximum_withdraw = setting('maximum_withdraw');
-        $withdraw_charge = setting('withdraw_charge');
-
-        $user = Auth::user();
+        $minimum_withdraw = (float)(setting('minimum_withdraw') ?: 150);
+        $maximum_withdraw = (float)(setting('maximum_withdraw') ?: 25000);
+        $withdraw_charge = (float)(setting('withdraw_charge') ?: 0);
 
         // Package purchase check - Active plan required before withdrawal
         $requirePlan = (bool)setting('bonus_withdrawal_require_plan', true);
@@ -78,57 +76,64 @@ class WithdrawController extends Controller
                 ->exists();
                 
             if (!$hasActivePurchase) {
-                return back()->with('error', '⚠️ رقم یا بونس نکالنے کے لیے پہلے کوئی بھی انویسٹمنٹ پلان خریدنا لازمی ہے! (Active investment package required before withdrawing balance or bonus).');
+                return back()->with('error', '⚠️ رقم نکالنے کے لیے پہلے کوئی بھی انویسٹمنٹ پلان خریدنا لازمی ہے! (Active investment package required before withdrawing balance).');
             }
         }
 
-        if ($request->amount <= $user->balance) {
-            if ($request->amount >= $minimum_withdraw) {
-                if ($request->amount <= $maximum_withdraw) {
-                    $charge = 0;
-                    if ($withdraw_charge > 0) {
-                        $charge = ($request->amount * $withdraw_charge) / 100;
-                    }
+        $amount = (float)$request->amount;
 
-                    //Update User Balance
-                    $balance = $user->balance - $request->amount;
-                    User::where('id', $user->id)->update([
-                        'balance'=> $balance
-                    ]);
-
-                    //Withdraw
-                    $withdrawal = new Withdrawal(); // ✅ ভুল ক্লাসের নাম ঠিক করা হয়েছে
-                    $withdrawal->payment_method = Auth::user()->gateway_method;
-                    $withdrawal->user_id = $user->id;
-                    $withdrawal->number = Auth::user()->gateway_number;
-                    $withdrawal->amount = $request->amount;
-                    $withdrawal->currency = 'PKR';
-                    $withdrawal->charge = $charge;
-                    $withdrawal->final_amount = $request->amount - $charge;
-                    $withdrawal->status = 'pending';
-
-                    //User Ledger
-                    if ($withdrawal->save()){
-                        $ledger = new UserLedger();
-                        $ledger->user_id = $user->id;
-                        $ledger->reason = 'withdraw_request';
-                        $ledger->perticulation = 'Your withdraw request status is pending please wait for admin approval or communication with us.';
-                        $ledger->amount = $request->amount;
-                        $ledger->debit = $request->amount - $charge;
-                        $ledger->status = 'pending';
-                        $ledger->date = date('d-m-Y H:i');
-                        $ledger->save();
-                    }
-                   return back()->with('success', 'Withdrawal successful.');
-                } else {
-                    return back()->with('error', 'Maximum Withdraw ' . price($maximum_withdraw));
-                }
-            } else {
-                return back()->with('error', 'Minimum Withdraw ' . price($minimum_withdraw));
-            }
-        } else {
-           return back()->with('error', 'You do not have enough balance.');
+        if ($user->balance < $amount) {
+            return back()->with('error', "آپ کے پاس ناکافی بیلنس ہے! آپ کا بیلنس Rs. " . number_format($user->balance, 2) . " ہے۔ (Insufficient balance).");
         }
+
+        if ($amount < $minimum_withdraw) {
+            return back()->with('error', 'کم از کم ودڈرا رقم Rs. ' . number_format($minimum_withdraw) . ' ہے۔ (Minimum withdraw is Rs. ' . number_format($minimum_withdraw) . ')');
+        }
+
+        if ($amount > $maximum_withdraw) {
+            return back()->with('error', 'زیادہ سے زیادہ ودڈرا رقم Rs. ' . number_format($maximum_withdraw) . ' ہے۔ (Maximum withdraw is Rs. ' . number_format($maximum_withdraw) . ')');
+        }
+
+        $charge = 0;
+        if ($withdraw_charge > 0) {
+            $charge = round(($amount * $withdraw_charge) / 100, 2);
+        }
+        $finalAmount = $amount - $charge;
+
+        // Deduct User Balance
+        $user->balance -= $amount;
+        $user->save();
+
+        // Create Withdrawal Record
+        $withdrawal = new Withdrawal();
+        $withdrawal->payment_method = $user->gateway_method ?: 'Bank Transfer';
+        $withdrawal->user_id = $user->id;
+        $withdrawal->number = $user->gateway_number;
+        $withdrawal->amount = $amount;
+        $withdrawal->currency = 'PKR';
+        $withdrawal->charge = $charge;
+        $withdrawal->final_amount = $finalAmount;
+        $withdrawal->after_charge = $finalAmount;
+        $withdrawal->status = 'pending';
+        $withdrawal->withdraw_information = $user->holder_name ? "Title: {$user->holder_name} | Method: {$user->gateway_method} | Num: {$user->gateway_number}" : null;
+        $withdrawal->save();
+
+        // User Ledger Record
+        $ledger = new UserLedger();
+        $ledger->user_id = $user->id;
+        $ledger->reason = 'withdraw_request';
+        $ledger->perticulation = "Withdrawal request via {$user->gateway_method} ({$user->gateway_number})";
+        $ledger->amount = $amount;
+        $ledger->debit = $amount;
+        $ledger->status = 'pending';
+        $ledger->date = date('Y-m-d H:i');
+        $ledger->save();
+
+        // Flush user cache
+        \Illuminate\Support\Facades\Cache::forget("user_dash_stats_{$user->id}");
+        \Illuminate\Support\Facades\Cache::forget("user_mine_stats_{$user->id}");
+
+        return redirect()->route('withdraw.record')->with('success', "ودڈرا کی درخواست جمع ہو گئی ہے! Rs. " . number_format($amount) . " ایڈمن کی منظوری کے بعد ٹرانسفر ہو جائے گی۔ (Withdrawal request submitted successfully!)");
     }
 
     public function withdrawPreview()

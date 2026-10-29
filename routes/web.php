@@ -192,6 +192,7 @@ Route::middleware('throttle:limit-check')->group(function () {
         Route::get('customer/approved/payment', [ManageUserController::class, 'approvedPayment'])->name('admin.payment.approved');
         Route::get('customer/rejected/payment', [ManageUserController::class, 'rejectedPayment'])->name('admin.payment.rejected');
         Route::post('customer/payment/status/{id}', [ManageUserController::class, 'paymentStatus'])->name('payment.status.change');
+        Route::post('customer/payment/manual-add', [ManageUserController::class, 'manualPaymentAdd'])->name('admin.payment.manual-add');
 
         //Handle Customer Withdraw
         Route::get('customer/pending/withdraw', [ManageWithdrawController::class, 'pendingWithdraw'])->name('admin.withdraw.pending');

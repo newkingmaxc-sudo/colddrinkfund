@@ -33,36 +33,37 @@ class MiningController extends Controller
             $package = Package::find($vip_id);
             
             if($package != null){
-                
-                $amount = $package->daily_limit;
+                $amount = (float)($package->daily_limit ?: ($package->commission_with_avg_amount / max(1, $package->validity)));
                 $reason = 'daily_claim_'.$vip_id;
             
+                // Check if already claimed today
                 if(UserLedger::where(['user_id' => $user->id, 'reason' => $reason])->whereDate('created_at', today())->exists()){
-                    return redirect()->to('my/vip')->with('success', 'Claim Already Has been completed today.');
+                    return redirect()->to('my/vip')->with('error', '⚠️ آپ آج کا منافع پہلے ہی وصول کر چکے ہیں! اگلا منافع 24 گھنٹے بعد دستیاب ہوگا۔ (Already claimed today).');
                 }
                 
                 $ledger = new UserLedger();
                 $ledger->user_id = $user->id;
                 $ledger->get_balance_from_user_id = $user->id;
                 $ledger->reason = $reason;
-                $ledger->perticulation = 'দৈনিক ক্লিয়াম';
+                $ledger->perticulation = 'Daily Plan Revenue: ' . $package->name;
                 $ledger->amount = $amount;
                 $ledger->debit = $amount;
                 $ledger->status = 'approved';
-                $ledger->date = date('d-m-Y H:i');
+                $ledger->date = date('Y-m-d H:i');
                 $ledger->save();
                 
                 $user->balance += $amount;
                 $user->save();
+
+                \Illuminate\Support\Facades\Cache::forget("user_dash_stats_{$user->id}");
+                \Illuminate\Support\Facades\Cache::forget("user_mine_stats_{$user->id}");
                 
-                return redirect()->to('my/vip')->with('success', 'দৈনিক  ক্লিয়াম সফলভাবে '. $amount);
-                
+                return redirect()->to('my/vip')->with('success', "🎉 روزانہ کا منافع Rs. " . number_format($amount, 2) . " کامیابی سے آپ کے بیلنس میں شامل ہو گیا ہے! (Daily revenue of Rs. " . number_format($amount, 2) . " claimed successfully!)");
             }
-           
         }
         
-        
-        return view('app.main.myvip');
+        $dailyPurchases = Purchase::with('package')->where('user_id', $user->id)->where('status', 'active')->orderByDesc('id')->get();
+        return view('app.main.myvip', compact('dailyPurchases'));
     }
 
     public function vip_level()

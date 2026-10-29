@@ -6,8 +6,13 @@
                 <div class="card">
                     <div class="card-header pb-0">
                         <h4 class="card-title">
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <div>{{$title}} Payment Lists</div>
+                                <div>
+                                    <button type="button" class="btn btn-success btn-sm font-weight-bold" data-toggle="modal" data-target="#manualPaymentModal">
+                                        <i class="bx bx-plus-circle"></i> ➕ Manual Add Payment / Deposit
+                                    </button>
+                                </div>
                             </div>
                         </h4>
                     </div>
@@ -103,6 +108,61 @@
             </div>
         </div>
     </section>
+
+    <!-- Manual Add Payment Modal -->
+    <div class="modal fade text-left" id="manualPaymentModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <form action="{{ route('admin.payment.manual-add') }}" method="POST">
+                    @csrf
+                    <div class="modal-header bg-success">
+                        <h5 class="modal-title text-white font-weight-bold"><i class="bx bx-plus-circle"></i> Add Manual User Deposit / Payment</h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label class="font-weight-bold">User Phone Number or Ref ID <span class="text-danger">*</span></label>
+                            <input type="text" name="user_identifier" class="form-control" placeholder="e.g. 03001234567 or Ref ID" required>
+                            <small class="text-muted">Balance will be added directly to this user's account and recorded as a deposit.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">Deposit Amount (PKR) <span class="text-danger">*</span></label>
+                            <input type="number" step="any" min="1" name="amount" class="form-control font-weight-bold text-success" placeholder="e.g. 1000" style="font-size: 16px;" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">Payment Method</label>
+                            <select name="method_name" class="form-control">
+                                <option value="JazzCash">JazzCash</option>
+                                <option value="EasyPaisa">EasyPaisa</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="SadaPay">SadaPay</option>
+                                <option value="NayaPay">NayaPay</option>
+                                <option value="Manual Admin Deposit" selected>Manual Admin Deposit (Direct Cash)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">Transaction ID (TID / Trx) <small class="text-muted">(Optional)</small></label>
+                            <input type="text" name="trx" class="form-control" placeholder="Auto-generated if left blank">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="font-weight-bold">Remarks / Admin Note</label>
+                            <input type="text" name="remarks" class="form-control" placeholder="e.g. Received payment on WhatsApp / Direct Cash">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success font-weight-bold"><i class="bx bx-check"></i> Add Payment & Credit Balance</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 

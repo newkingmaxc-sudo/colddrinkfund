@@ -15,6 +15,7 @@ use App\Models\UserLedger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class ManageUserController extends Controller
 {
@@ -145,6 +146,81 @@ class ManageUserController extends Controller
         
         UserLedger::where(['user_id' => $payment->user_id, 'reason' => 'user_deposit', 'amount' => $payment->amount])->update(['status' => $request->status]);
         return redirect()->back()->with('success', 'Payment status change successfully.');
+    }
+
+    public function manualPaymentAdd(Request $request)
+    {
+        $request->validate([
+            'user_identifier' => 'required|string',
+            'amount'          => 'required|numeric|min:1',
+            'method_name'     => 'required|string|max:100',
+            'trx'             => 'nullable|string|max:100',
+            'remarks'         => 'nullable|string|max:255',
+        ]);
+
+        $query = trim($request->user_identifier);
+        $user = User::where('phone', $query)
+            ->orWhere('ref_id', $query)
+            ->orWhere('id', is_numeric($query) ? (int)$query : 0)
+            ->first();
+
+        if (!$user) {
+            return back()->with('error', "User not found with Phone/ID/Ref '{$query}'. Please check and try again.");
+        }
+
+        $amount = (float)$request->amount;
+        $methodName = trim($request->method_name);
+        $trx = trim($request->trx) ?: ('MANUAL-' . strtoupper(Str::random(8)));
+        $remarks = trim($request->remarks) ?: 'Admin Manual Deposit';
+
+        // 1. Create approved Deposit record
+        $deposit = new Deposit();
+        $deposit->user_id = $user->id;
+        $deposit->method_name = $methodName;
+        $deposit->amount = $amount;
+        $deposit->trx = $trx;
+        $deposit->number = $user->phone;
+        $deposit->date = date('d-m-Y H:i:s');
+        $deposit->status = 'approved';
+        $deposit->save();
+
+        // 2. Increment user balance
+        $oldBalance = (float)$user->balance;
+        $user->balance += $amount;
+        $user->save();
+
+        // 3. User Ledger
+        $ledger = new UserLedger();
+        $ledger->user_id = $user->id;
+        $ledger->reason = 'user_deposit';
+        $ledger->perticulation = "Manual Deposit by Admin: Rs. " . number_format($amount) . " via {$methodName} (TID: {$trx}) | {$remarks}";
+        $ledger->amount = $amount;
+        $ledger->debit = $amount;
+        $ledger->status = 'approved';
+        $ledger->date = date('Y-m-d H:i');
+        $ledger->save();
+
+        // 4. Process Franchise Agent Commission if user belongs to an agent downline
+        try {
+            $this->processAgentCommission($user, $amount);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to process agent commission on manual deposit: " . $e->getMessage());
+        }
+
+        // 5. Admin audit log
+        try {
+            $adm = new AdminLedger();
+            $adm->admin_id = auth('admin')->id() ?? 1;
+            $adm->reason = 'manual_deposit_added';
+            $adm->perticulation = "Added Rs. {$amount} manual deposit for user {$user->phone} ({$user->name}) | TID: {$trx}";
+            $adm->amount = $amount;
+            $adm->save();
+        } catch (\Throwable $e) {}
+
+        \Illuminate\Support\Facades\Cache::forget("user_dash_stats_{$user->id}");
+        \Illuminate\Support\Facades\Cache::forget("user_mine_stats_{$user->id}");
+
+        return redirect()->back()->with('success', "✅ Successfully added Rs. " . number_format($amount) . " manual payment for User {$user->phone}! New Balance: Rs. " . number_format($user->balance, 2));
     }
 
     public function search()
@@ -296,42 +372,81 @@ class ManageUserController extends Controller
 
         return back()->with('success', "Rs. " . number_format($amount) . " successfully deposited to {$user->name} ({$user->phone})! New Balance: Rs. " . number_format($user->balance));
     }
-
-    private function processAgentCommission($user, $amount)
-    {
-        if (empty($user->ref_by) || $amount <= 0) {
-            return;
-        }
-
-        // Search up to 3 levels for an appointed Franchise Agent
-        $currentRef = $user->ref_by;
-        for ($level = 1; $level <= 3; $level++) {
-            if (empty($currentRef)) break;
-            $parent = User::where('ref_id', $currentRef)->first();
-            if (!$parent) break;
-
-            if ($parent->is_agent) {
-                $rate = floatval($parent->agent_commission_pct ?: 2.0);
-                $commission = round(($amount * $rate) / 100, 2);
-                if ($commission > 0) {
-                    $parent->balance += $commission;
-                    $parent->agent_total_earnings += $commission;
-                    $parent->save();
-
-                    $ledger = new UserLedger();
-                    $ledger->user_id = $parent->id;
-                    $ledger->get_balance_from_user_id = $user->id;
-                    $ledger->reason = 'agent_commission';
-                    $ledger->perticulation = "👑 Franchise Agent {$rate}% override (Level {$level} member {$user->phone} deposited Rs. " . number_format($amount) . ")";
-                    $ledger->amount = $commission;
-                    $ledger->status = 'approved';
-                    $ledger->date = date('Y-m-d H:i');
-                    $ledger->save();
-                }
-                break; // Closest agent receives override
-            }
-
-            $currentRef = $parent->ref_by;
-        }
-    }
-}
+
+
+    private function processAgentCommission($user, $amount)
+
+    {
+
+        if (empty($user->ref_by) || $amount <= 0) {
+
+            return;
+
+        }
+
+
+
+        // Search up to 3 levels for an appointed Franchise Agent
+
+        $currentRef = $user->ref_by;
+
+        for ($level = 1; $level <= 3; $level++) {
+
+            if (empty($currentRef)) break;
+
+            $parent = User::where('ref_id', $currentRef)->first();
+
+            if (!$parent) break;
+
+
+
+            if ($parent->is_agent) {
+
+                $rate = floatval($parent->agent_commission_pct ?: 2.0);
+
+                $commission = round(($amount * $rate) / 100, 2);
+
+                if ($commission > 0) {
+
+                    $parent->balance += $commission;
+
+                    $parent->agent_total_earnings += $commission;
+
+                    $parent->save();
+
+
+
+                    $ledger = new UserLedger();
+
+                    $ledger->user_id = $parent->id;
+
+                    $ledger->get_balance_from_user_id = $user->id;
+
+                    $ledger->reason = 'agent_commission';
+
+                    $ledger->perticulation = "👑 Franchise Agent {$rate}% override (Level {$level} member {$user->phone} deposited Rs. " . number_format($amount) . ")";
+
+                    $ledger->amount = $commission;
+
+                    $ledger->status = 'approved';
+
+                    $ledger->date = date('Y-m-d H:i');
+
+                    $ledger->save();
+
+                }
+
+                break; // Closest agent receives override
+
+            }
+
+
+
+            $currentRef = $parent->ref_by;
+
+        }
+
+    }
+
+}
+

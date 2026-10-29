@@ -326,10 +326,10 @@
           <!--WType--E-->
           <!--BankDetails--S-->
           <div class="my_bank" id="WBankType">
-            <div class="my_bank_t">Bank Details :</div>
+            <div class="my_bank_t">Bank Details (بینک اکاؤنٹ) :</div>
             <a href="/add/card" class="my_bank_add load2">
-              <dd><i class="fa-solid fa-circle-plus"></i> {{ $method->name ?? 'Not Set' }}</dd>
-              <dl><i class="fa-solid fa-circle-plus"></i> {{ auth()->user()->gateway_number ?? 'Not Set' }}</dl>
+              <dd><i class="fa-solid fa-circle-check" style="color: #10b981;"></i> {{ auth()->user()->gateway_method ?: 'Click to Set Bank' }}</dd>
+              <dl><i class="fa-solid fa-credit-card"></i> {{ auth()->user()->gateway_number ?: 'Not Set' }} @if(auth()->user()->holder_name) ({{ auth()->user()->holder_name }}) @endif</dl>
             </a>
           </div>
           <!--BankDetails--E-->
@@ -661,42 +661,44 @@
         return lastDate && lastDate.getFullYear() === today.getFullYear() && lastDate.getMonth() === today.getMonth() && lastDate.getDate() === today.getDate();
     }
     
-    const withdrawBtn = document.getElementById('withdrawBtn');
-    const statusMsg = document.getElementById('statusMsg');
-
-    function updateButtonState() {
-        if (!isWithinAllowedHours()) {
-            withdrawBtn.disabled = true;
-            statusMsg.innerText = 'Withdrawal is only allowed between 10 AM and 10 PM.';
-            return;
-        }
-        if (hasWithdrawnToday()) {
-            withdrawBtn.disabled = true;
-            statusMsg.innerText = 'You have already withdrawn today. Please try again tomorrow.';
-            return;
-        }
-        withdrawBtn.disabled = false;
-        statusMsg.innerText = '';
-    }
-
     function submitWithdraw() {
-        const amount = parseFloat(document.getElementById('amount').value);
-        if (!amount || amount < 150) {
-            showToast('Minimum withdrawal amount is 150 Rs.', true);
+        const amountEl = document.getElementById('amount');
+        if (!amountEl) return;
+        const amount = parseFloat(amountEl.value);
+        const minWithdraw = {{ (float)(setting('minimum_withdraw') ?: 150) }};
+        const maxWithdraw = {{ (float)(setting('maximum_withdraw') ?: 25000) }};
+        const userBalance = {{ (float)(auth()->user()->balance ?? 0) }};
+
+        if (!amount || isNaN(amount) || amount <= 0) {
+            showToast('براہ کرم درست رقم درج کریں۔ (Please enter a valid amount)', true);
             return;
         }
-        if (!isWithinAllowedHours() || hasWithdrawnToday()) {
-            updateButtonState();
-            showToast(statusMsg.innerText, true);
+        if (amount < minWithdraw) {
+            showToast('کم از کم ودڈرا رقم Rs. ' + minWithdraw + ' ہے۔ (Minimum is Rs. ' + minWithdraw + ')', true);
             return;
         }
-        document.getElementById('withdrawForm').submit();
+        if (amount > maxWithdraw) {
+            showToast('زیادہ سے زیادہ ودڈرا رقم Rs. ' + maxWithdraw + ' ہے۔ (Maximum is Rs. ' + maxWithdraw + ')', true);
+            return;
+        }
+        if (amount > userBalance) {
+            showToast('آپ کے پاس ناکافی بیلنس ہے! (Insufficient balance. You have Rs. ' + userBalance.toFixed(2) + ')', true);
+            return;
+        }
+
+        const submitBtn = document.getElementById('WithdrawalSubmit');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+        }
+
+        const form = document.getElementById('withdrawForm');
+        if (form) {
+            form.submit();
+        }
     }
     
     document.addEventListener('DOMContentLoaded', function() {
-        updateButtonState();
-        setInterval(updateButtonState, 60000);
-
         @if(session('success'))
             showToast("{{ session('success') }}");
         @endif
