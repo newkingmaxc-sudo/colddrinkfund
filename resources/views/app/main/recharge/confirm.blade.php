@@ -184,12 +184,13 @@
     </div>
 
     @php
-      $isJazz = str_contains(strtolower($methods->name ?? ''), 'jazz');
-      $isEasy = str_contains(strtolower($methods->name ?? ''), 'easy');
+      $methodName = $methods ? $methods->name : 'JazzCash';
+      $isJazz = str_contains(strtolower($methodName), 'jazz');
+      $isEasy = str_contains(strtolower($methodName), 'easy');
       $defaultQr = $isEasy ? '/img/easypaisa_qr.svg' : '/img/jazzcash_qr.svg';
-      $qrImg = !empty($methods->qr_code) ? $methods->qr_code : $defaultQr;
-      $accNumber = $methods->address ?? '';
-      $accTitle = $methods->account_title ?? $methods->account_name ?? 'Official Merchant';
+      $qrImg = (!empty($methods) && !empty($methods->qr_code)) ? $methods->qr_code : $defaultQr;
+      $accNumber = (!empty($methods) && !empty($methods->address)) ? $methods->address : '03291174824';
+      $accTitle = (!empty($methods) && !empty($methods->account_title)) ? $methods->account_title : ((!empty($methods) && !empty($methods->account_name)) ? $methods->account_name : 'Official Merchant');
     @endphp
 
     <!-- QR Code Scan -->
@@ -197,11 +198,11 @@
       <div class="qr-badge"><i class="ri-qr-code-line"></i> Instant Scan & Pay (کیو آر اسکین کریں)</div>
       
       <div class="qr-img-wrapper">
-        <img src="{{ asset($qrImg) }}" alt="{{ $methods->name }} QR Code">
+        <img src="{{ asset($qrImg) }}" alt="{{ $methodName }} QR Code">
       </div>
 
       <div class="qr-instructions">
-        <strong>طریقہ کار:</strong> اپنے <b>{{ $methods->name }}</b> ایپ میں اسکین کیو آر (Scan QR) کا انتخاب کریں اور <b>Rs. {{ number_format($amount) }}</b> ادا کریں۔
+        <strong>طریقہ کار:</strong> اپنے <b>{{ $methodName }}</b> ایپ میں اسکین کیو آر (Scan QR) کا انتخاب کریں اور <b>Rs. {{ number_format($amount) }}</b> ادا کریں۔
       </div>
     </div>
 
@@ -227,7 +228,7 @@
 
       <div class="info-row">
         <span class="info-label">Gateway Method:</span>
-        <span class="info-val">{{ $methods->name }}</span>
+        <span class="info-val">{{ $methodName }}</span>
       </div>
     </div>
 
@@ -241,7 +242,7 @@
       <form action="{{ url('external-deposit') }}" method="POST">
         @csrf
         <input type="hidden" name="amount" value="{{ $amount }}">
-        <input type="hidden" name="methods" value="{{ $methods->name }}">
+        <input type="hidden" name="methods" value="{{ $methodName }}">
 
         <div class="form-group">
           <label>Transaction ID (TID / Trx ID) *</label>

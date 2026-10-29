@@ -641,46 +641,42 @@
 
         
 
-        <input type="hidden" id="selectedMethodId" value="48">
+        @php
+          $payMethods = (isset($methods) && $methods->isNotEmpty()) ? $methods : \App\Models\PaymentMethod::where('status', 'active')->orderBy('id', 'asc')->get();
+          if ($payMethods->isEmpty()) {
+              $payMethods = \App\Models\PaymentMethod::orderBy('id', 'asc')->get();
+          }
+          $firstMethodId = $payMethods->isNotEmpty() ? $payMethods->first()->id : 69;
+        @endphp
 
-
+        <input type="hidden" id="selectedMethodId" value="{{ $firstMethodId }}">
 
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-
-          <div class="pak-pay-card active-pay" onclick="chooseMethod(48, this)" style="flex: 1; min-width: 95px; background: #fffdf2; border: 2px solid #e53935; border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.2s;">
-
-            <div style="font-size: 20px; color: #e53935;"><i class="ri-qr-code-line"></i></div>
-
-            <div style="font-weight: bold; font-size: 14px; color: #e53935; margin-top: 3px;">JazzCash</div>
-
-            <small style="color: #666; font-size: 10px; display: block;">QR & Mobile</small>
-
-          </div>
-
-
-
-          <div class="pak-pay-card" onclick="chooseMethod(47, this)" style="flex: 1; min-width: 95px; background: #fff; border: 2px solid #e0e0e0; border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.2s;">
-
-            <div style="font-size: 20px; color: #009639;"><i class="ri-wallet-3-line"></i></div>
-
-            <div style="font-weight: bold; font-size: 14px; color: #009639; margin-top: 3px;">EasyPaisa</div>
-
-            <small style="color: #666; font-size: 10px; display: block;">Instant Wallet</small>
-
-          </div>
-
-
-
-          <div class="pak-pay-card" onclick="chooseMethod(53, this)" style="flex: 1; min-width: 95px; background: #fff; border: 2px solid #e0e0e0; border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.2s;">
-
-            <div style="font-size: 20px; color: #0d47a1;"><i class="ri-bank-line"></i></div>
-
-            <div style="font-weight: bold; font-size: 14px; color: #0d47a1; margin-top: 3px;">Bank Transfer</div>
-
-            <small style="color: #666; font-size: 10px; display: block;">Meezan / HBL</small>
-
-          </div>
-
+          @forelse($payMethods as $index => $pm)
+            @php
+              $isJazz = str_contains(strtolower($pm->name), 'jazz');
+              $isEasy = str_contains(strtolower($pm->name), 'easy');
+              $themeColor = $isJazz ? '#e53935' : ($isEasy ? '#009639' : '#0d47a1');
+              $bgColor = $index === 0 ? ($isJazz ? '#fffdf2' : ($isEasy ? '#f0fbf4' : '#f0f5ff')) : '#fff';
+              $borderColor = $index === 0 ? $themeColor : '#e0e0e0';
+              $iconClass = $isJazz ? 'ri-qr-code-line' : ($isEasy ? 'ri-wallet-3-line' : 'ri-bank-line');
+            @endphp
+            <div class="pak-pay-card {{ $index === 0 ? 'active-pay' : '' }}" 
+                 onclick="chooseMethod({{ $pm->id }}, this, '{{ $themeColor }}', '{{ $isJazz ? '#fffdf2' : ($isEasy ? '#f0fbf4' : '#f0f5ff') }}')" 
+                 style="flex: 1; min-width: 95px; background: {{ $bgColor }}; border: 2px solid {{ $borderColor }}; border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.2s;">
+              <div style="font-size: 20px; color: {{ $themeColor }};">
+                <i class="{{ $iconClass }}"></i>
+              </div>
+              <div style="font-weight: bold; font-size: 14px; color: {{ $themeColor }}; margin-top: 3px;">{{ $pm->name }}</div>
+              <small style="color: #666; font-size: 10px; display: block;">{{ $pm->account_title ?? ($isJazz ? 'QR & Mobile' : ($isEasy ? 'Instant Wallet' : 'Bank Transfer')) }}</small>
+            </div>
+          @empty
+            <div class="pak-pay-card active-pay" onclick="chooseMethod(69, this, '#e53935', '#fffdf2')" style="flex: 1; min-width: 95px; background: #fffdf2; border: 2px solid #e53935; border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer;">
+              <div style="font-size: 20px; color: #e53935;"><i class="ri-qr-code-line"></i></div>
+              <div style="font-weight: bold; font-size: 14px; color: #e53935; margin-top: 3px;">JazzCash</div>
+              <small style="color: #666; font-size: 10px; display: block;">QR & Mobile</small>
+            </div>
+          @endforelse
         </div>
 
       </div>
@@ -1117,48 +1113,29 @@
 
 
 
-    function chooseMethod(id, el){
-
+    function chooseMethod(id, el, color, bg){
       document.getElementById('selectedMethodId').value = id;
-
       document.querySelectorAll('.pak-pay-card').forEach(c => {
-
         c.style.borderColor = '#e0e0e0';
-
         c.style.background = '#fff';
-
       });
-
-      el.style.borderColor = (id == 48 ? '#e53935' : (id == 47 ? '#009639' : '#0d47a1'));
-
-      el.style.background = (id == 48 ? '#fffdf2' : (id == 47 ? '#f0fbf4' : '#f0f5ff'));
-
+      if (el) {
+        el.style.borderColor = color || '#1f7c03';
+        el.style.background = bg || '#f0fbf4';
+      }
     }
 
-
-
     function goPayment(){
-
       const amountEl = document.getElementById('AddAmount');
-
       const amount = amountEl ? parseInt(amountEl.value.trim(), 10) : 0;
 
-
-
       if(!amount || isNaN(amount) || amount < 300){
-
         alert("کم از کم ریچارج رقم 300 روپے ہے۔ (Minimum recharge amount is Rs. 300 PKR)");
-
         return;
-
       }
-
       
-
-      const methodId = document.getElementById('selectedMethodId').value || '48';
-
+      const methodId = document.getElementById('selectedMethodId').value || '69';
       window.location.href = `/user/payment/${amount}/${methodId}`;
-
     }
 
 

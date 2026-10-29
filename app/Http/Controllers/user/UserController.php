@@ -324,7 +324,11 @@ public function dashboard()
         if (setting('deposit_status') === 'paused') {
             return redirect()->route('dashboard')->with('error', '⚠️ ڈپازٹ سروس عارضی طور پر بند ہے۔ (Deposit service is temporarily paused for scheduled maintenance.)');
         }
-        return view('app.main.recharge.index');
+        $methods = PaymentMethod::where('status', 'active')->orderBy('id', 'asc')->get();
+        if ($methods->isEmpty()) {
+            $methods = PaymentMethod::orderBy('id', 'asc')->get();
+        }
+        return view('app.main.recharge.index', compact('methods'));
     }
     public function apiPayment(Request $request)
     {
@@ -385,7 +389,42 @@ public function dashboard()
         if (setting('deposit_status') === 'paused') {
             return redirect()->route('dashboard')->with('error', '⚠️ ڈپازٹ سروس عارضی طور پر بند ہے۔ (Deposit service is temporarily paused.)');
         }
-        $methods = PaymentMethod::where('id', $methods)->first();
+
+        $amount = (float)$amount;
+        if ($amount < 1) {
+            $amount = 300;
+        }
+
+        $method = null;
+        if (is_numeric($methods)) {
+            $method = PaymentMethod::where('id', (int)$methods)->first();
+        }
+
+        if (!$method && is_string($methods) && !empty($methods)) {
+            $method = PaymentMethod::where('name', 'ilike', '%' . trim($methods) . '%')->first();
+        }
+
+        if (!$method) {
+            $method = PaymentMethod::where('status', 'active')->orderBy('id', 'asc')->first();
+        }
+
+        if (!$method) {
+            $method = PaymentMethod::orderBy('id', 'asc')->first();
+        }
+
+        if (!$method) {
+            $method = new PaymentMethod();
+            $method->name = 'JazzCash';
+            $method->address = '03291174824';
+            $method->account_title = 'Official Merchant';
+            $method->account_type = 'mobile_wallet';
+            $method->status = 'active';
+            $method->photo = '/upload/setting/1751864214Xvu.jpeg';
+            $method->save();
+        }
+
+        $methods = $method;
+
         return view('app.main.recharge.confirm', compact('methods', 'amount'));
     }
 
