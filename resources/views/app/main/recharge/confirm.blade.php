@@ -68,19 +68,78 @@
       border-radius: 20px;
       margin-bottom: 12px;
     }
+    .qr-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px 16px;
+      text-align: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+      margin-bottom: 16px;
+      border: 1px solid #e8f5e9;
+    }
+    .qr-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e8f5e9;
+      color: #1f7c03;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+    }
     .qr-img-wrapper {
-      width: 190px;
-      height: 190px;
+      max-width: 320px;
+      width: 100%;
       margin: 0 auto 12px;
-      padding: 10px;
-      border: 2px dashed #1f7c03;
-      border-radius: 12px;
-      background: #fafafa;
+      padding: 12px;
+      border: 2px solid #1f7c03;
+      border-radius: 14px;
+      background: #ffffff;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 4px 15px rgba(31,124,3,0.08);
+      cursor: pointer;
+      transition: transform 0.2s;
     }
-    .qr-img-wrapper img { width: 100%; height: 100%; object-fit: contain; }
+    .qr-img-wrapper:hover { transform: scale(1.02); }
+    .qr-img-wrapper img {
+      width: 100%;
+      height: auto;
+      max-height: 400px;
+      object-fit: contain;
+      border-radius: 8px;
+      display: block;
+    }
+    .qr-actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .qr-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f1f8f3;
+      color: #1f7c03;
+      border: 1.5px solid #1f7c03;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .qr-btn:hover, .qr-btn:active {
+      background: #1f7c03;
+      color: #fff;
+    }
     .qr-instructions { font-size: 12px; color: #555; line-height: 1.5; }
 
     .account-card {
@@ -188,7 +247,8 @@
       $isJazz = str_contains(strtolower($methodName), 'jazz');
       $isEasy = str_contains(strtolower($methodName), 'easy');
       $defaultQr = $isEasy ? '/img/easypaisa_qr.svg' : '/img/jazzcash_qr.svg';
-      $qrImg = (!empty($methods) && !empty($methods->qr_code)) ? $methods->qr_code : $defaultQr;
+      $rawQr = (!empty($methods) && !empty($methods->qr_code)) ? $methods->qr_code : $defaultQr;
+      $qrImgSrc = (str_starts_with($rawQr, 'data:') || str_starts_with($rawQr, 'http')) ? $rawQr : asset($rawQr);
       $accNumber = (!empty($methods) && !empty($methods->address)) ? $methods->address : '03291174824';
       $accTitle = (!empty($methods) && !empty($methods->account_title)) ? $methods->account_title : ((!empty($methods) && !empty($methods->account_name)) ? $methods->account_name : 'Official Merchant');
     @endphp
@@ -197,12 +257,21 @@
     <div class="qr-card">
       <div class="qr-badge"><i class="ri-qr-code-line"></i> Instant Scan & Pay (کیو آر اسکین کریں)</div>
       
-      <div class="qr-img-wrapper">
-        <img src="{{ asset($qrImg) }}" alt="{{ $methodName }} QR Code">
+      <div class="qr-img-wrapper" onclick="openQrModal()" title="Click to view full screen">
+        <img id="mainQrImg" src="{{ $qrImgSrc }}" alt="{{ $methodName }} QR Code">
       </div>
 
-      <div class="qr-instructions">
-        <strong>طریقہ کار:</strong> اپنے <b>{{ $methodName }}</b> ایپ میں اسکین کیو آر (Scan QR) کا انتخاب کریں اور <b>Rs. {{ number_format($amount) }}</b> ادا کریں۔
+      <div class="qr-actions">
+        <button type="button" class="qr-btn" onclick="openQrModal()">
+          <i class="ri-zoom-in-line"></i> فل سائز دیکھیں (Full View)
+        </button>
+        <a href="{{ $qrImgSrc }}" download="{{ $methodName }}_QR.jpg" class="qr-btn" style="background:#1f7c03; color:#fff;">
+          <i class="ri-download-2-line"></i> کیو آر محفوظ کریں (Save QR)
+        </a>
+      </div>
+
+      <div class="qr-instructions" style="margin-top: 12px;">
+        <strong>طریقہ کار:</strong> اپنے <b>{{ $methodName }}</b> ایپ میں <b>Scan QR</b> یا <b>Upload from Gallery</b> منتخب کریں اور <b>Rs. {{ number_format($amount) }}</b> ادا کریں۔
       </div>
     </div>
 
@@ -281,5 +350,29 @@
     }
   </script>
 
+  <!-- Fullscreen QR Modal -->
+  <div id="qrModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center; padding:20px; box-sizing:border-box;" onclick="closeQrModal()">
+    <div style="position:relative; max-width:92%; max-height:90%; background:#fff; padding:18px; border-radius:16px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.5);" onclick="event.stopPropagation()">
+      <button type="button" onclick="closeQrModal()" style="position:absolute; top:-12px; right:-12px; background:#e53935; color:#fff; border:none; width:34px; height:34px; border-radius:50%; font-size:18px; font-weight:bold; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.3);">&times;</button>
+      <img src="{{ $qrImgSrc }}" alt="{{ $methodName }} Full QR" style="max-width:100%; max-height:70vh; width:auto; height:auto; object-fit:contain; border-radius:8px; display:block; margin:0 auto;">
+      <div style="margin-top:14px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <a href="{{ $qrImgSrc }}" download="{{ $methodName }}_QR.jpg" class="qr-btn" style="background:#1f7c03; color:#fff; font-size:13px; padding:8px 18px;">
+          <i class="ri-download-2-line"></i> Download QR Image
+        </a>
+        <button type="button" class="qr-btn" onclick="closeQrModal()" style="font-size:13px; padding:8px 18px;">
+          Close (بند کریں)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openQrModal() {
+      document.getElementById('qrModal').style.display = 'flex';
+    }
+    function closeQrModal() {
+      document.getElementById('qrModal').style.display = 'none';
+    }
+  </script>
 </body>
 </html>

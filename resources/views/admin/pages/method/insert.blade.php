@@ -66,7 +66,7 @@
                                             <div class="col-12 col-sm-6">
                                                 <div class="image_preview">
                                                     <img
-                                                        src="{{$data ? asset(view_image($data->photo)) : asset(not_found_img())}}"
+                                                        src="{{$data ? (str_starts_with($data->photo ?? '', 'data:') ? $data->photo : asset(view_image($data->photo))) : asset(not_found_img())}}"
                                                         id="file-ip-1-preview" class="rounded border p-1"
                                                         alt="Preview Image"
                                                         style="width: 80px;height: 80px;object-fit:contain;background:#fafafa;">
@@ -90,7 +90,7 @@
                                             <div class="col-12 col-sm-6 mt-2">
                                                 <div class="image_preview">
                                                     <img
-                                                        src="{{($data && $data->qr_code) ? asset($data->qr_code) : asset(not_found_img())}}"
+                                                        src="{{($data && $data->qr_code) ? (str_starts_with($data->qr_code, 'data:') ? $data->qr_code : asset($data->qr_code)) : asset(not_found_img())}}"
                                                         id="file-ip-qr-preview" class="rounded border p-1"
                                                         alt="QR Preview"
                                                         style="width: 80px;height: 80px;object-fit:contain;background:#fafafa;">
