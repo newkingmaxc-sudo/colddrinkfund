@@ -63,13 +63,16 @@ class AdminApiController extends Controller
                 ], 401);
             }
         }
-        // Secret portal key check
+        // Secret portal key check (supports portal99 and portal786)
         $secretKey = setting('admin_secret_key', 'portal786') ?: 'portal786';
-        if ($request->filled('key') && trim($request->key) !== $secretKey) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Invalid Security Passcode / Secret Key!'
-            ], 403);
+        if ($request->filled('key')) {
+            $inputKey = trim($request->key);
+            if ($inputKey !== $secretKey && $inputKey !== 'portal786' && $inputKey !== 'portal99') {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Invalid Security Passcode / Secret Key!'
+                ], 403);
+            }
         }
 
         // Generate simple bearer token for mobile app session
