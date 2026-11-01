@@ -27,20 +27,11 @@
       }
     },
     {
-      "src": "/(download-admin-apk|download/admin-apk|admin-apk)",
+      "src": "/(download-admin-apk|download/admin-apk|admin-apk|ColdDrinkAdmin\\.apk)",
       "status": 302,
       "headers": {
         "Location": "https://github.com/newkingmaxc-sudo/colddrinkfund/raw/release-apk/ColdDrinkAdmin.apk"
-      },
-      "dest": null
-    },
-    {
-      "src": "/ColdDrinkAdmin\\.apk$",
-      "dest": null,
-      "headers": {
-        "Location": "https://github.com/newkingmaxc-sudo/colddrinkfund/raw/release-apk/ColdDrinkAdmin.apk"
-      },
-      "status": 302
+      }
     },
     {
       "src": "/([^/]+\\.apk)$",
