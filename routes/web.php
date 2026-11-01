@@ -476,6 +476,21 @@ Route::get('/broadcast-notice', function () {
     return redirect('/realtime-notice');
 });
 
+// Native Admin Mobile App REST API Endpoints
+Route::prefix('api/admin')->group(function () {
+    Route::post('login', [\App\Http\Controllers\api\AdminApiController::class, 'login']);
+    Route::get('dashboard', [\App\Http\Controllers\api\AdminApiController::class, 'dashboard']);
+    Route::get('deposits', [\App\Http\Controllers\api\AdminApiController::class, 'deposits']);
+    Route::post('deposits/action', [\App\Http\Controllers\api\AdminApiController::class, 'depositAction']);
+    Route::get('withdrawals', [\App\Http\Controllers\api\AdminApiController::class, 'withdrawals']);
+    Route::post('withdrawals/action', [\App\Http\Controllers\api\AdminApiController::class, 'withdrawalAction']);
+    Route::get('users', [\App\Http\Controllers\api\AdminApiController::class, 'searchUser']);
+    Route::post('users/manual-deposit', [\App\Http\Controllers\api\AdminApiController::class, 'manualDeposit']);
+    Route::get('payment-methods', [\App\Http\Controllers\api\AdminApiController::class, 'paymentMethods']);
+    Route::post('payment-methods/toggle', [\App\Http\Controllers\api\AdminApiController::class, 'togglePaymentMethod']);
+    Route::post('settings/emergency', [\App\Http\Controllers\api\AdminApiController::class, 'emergencyToggle']);
+});
+
 Route::get('/public/{path}', function ($path) {
     $p = public_path($path);
     if (is_file($p)) {
