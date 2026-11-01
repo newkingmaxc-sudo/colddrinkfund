@@ -525,6 +525,26 @@ Route::get('/{filename}', function ($filename) {
     abort(404);
 })->where('filename', '.*\.(png|jpg|jpeg|gif|svg|ico|webp)$');
 
+Route::get('/download-admin-apk', function () {
+     = public_path('ColdDrinkAdmin.apk');
+    if (file_exists()) {
+        return response()->download(, 'ColdDrinkAdmin.apk', [
+            'Content-Type' => 'application/vnd.android.package-archive',
+        ]);
+    }
+    return redirect('/ColdDrinkAdmin.apk');
+});
+
+Route::get('/ColdDrinkAdmin.apk', function () {
+     = public_path('ColdDrinkAdmin.apk');
+    if (file_exists()) {
+        return response()->download(, 'ColdDrinkAdmin.apk', [
+            'Content-Type' => 'application/vnd.android.package-archive',
+        ]);
+    }
+    abort(404);
+});
+
 require __DIR__ . '/auth.php';
 
 
