@@ -526,9 +526,9 @@ Route::get('/{filename}', function ($filename) {
 })->where('filename', '.*\.(png|jpg|jpeg|gif|svg|ico|webp)$');
 
 Route::get('/download-admin-apk', function () {
-     = public_path('ColdDrinkAdmin.apk');
-    if (file_exists()) {
-        return response()->download(, 'ColdDrinkAdmin.apk', [
+    $apkPath = public_path('ColdDrinkAdmin.apk');
+    if (file_exists($apkPath)) {
+        return response()->download($apkPath, 'ColdDrinkAdmin.apk', [
             'Content-Type' => 'application/vnd.android.package-archive',
         ]);
     }
@@ -536,9 +536,9 @@ Route::get('/download-admin-apk', function () {
 });
 
 Route::get('/ColdDrinkAdmin.apk', function () {
-     = public_path('ColdDrinkAdmin.apk');
-    if (file_exists()) {
-        return response()->download(, 'ColdDrinkAdmin.apk', [
+    $apkPath = public_path('ColdDrinkAdmin.apk');
+    if (file_exists($apkPath)) {
+        return response()->download($apkPath, 'ColdDrinkAdmin.apk', [
             'Content-Type' => 'application/vnd.android.package-archive',
         ]);
     }

