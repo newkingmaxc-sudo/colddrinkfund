@@ -308,11 +308,17 @@
                 $element = $purchase->package;
                 if(!$element) continue;
 
-                $last_claim = UserLedger::where(['user_id' => auth()->id(), 'reason' => 'daily_claim_'.$element->id])->latest()->first();
-                $lastInteractionDate = $last_claim ? $last_claim->created_at : $purchase->created_at;
-                $diffInHours = now()->diffInHours($lastInteractionDate);
-                $claimedToday = UserLedger::where(['user_id' => auth()->id(), 'reason' => 'daily_claim_'.$element->id])->whereDate('created_at', today())->exists();
-                $canClaim = !$claimedToday && ($diffInHours >= 24 || !$last_claim);
+                $last_claim = UserLedger::where('user_id', auth()->id())
+                    ->where(function($q) use ($purchase, $element) {
+                        $q->where('reason', 'daily_claim_purchase_'.$purchase->id)
+                          ->orWhere('reason', 'daily_claim_'.$element->id);
+                    })
+                    ->latest('id')
+                    ->first();
+
+                $baseTime = $last_claim ? \Carbon\Carbon::parse($last_claim->created_at) : \Carbon\Carbon::parse($purchase->created_at);
+                $nextClaimTime = $baseTime->copy()->addHours(24);
+                $canClaim = now()->greaterThanOrEqualTo($nextClaimTime);
                 $dailyRevenue = (float)($element->daily_limit ?: ($element->commission_with_avg_amount / max(1, $element->validity)));
             @endphp
           <div class="my_trade_chart_body ">
@@ -320,7 +326,7 @@
               <div class="my_trade_product_tab1" style="flex: 0 0 110px; width: 110px; min-width: 110px; min-height: 140px; background-color: #f8fafc; background-image: url('{{ view_image($element->photo) }}?v=4'); background-size: contain; background-repeat: no-repeat; background-position: center; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 6px;"><img src="{{ view_image($element->photo) }}?v=4" style="width: 100%; height: 100%; max-height: 125px; object-fit: contain; display: block;" alt="{{ $element->name }}" onerror="this.style.opacity='0'" /></div>
               <div class="my_trade_product_tab2">
                 <div class="my_trade_b1" data-id="0">
-                  <div class="my_trade_b1_free">FREE</div>
+                  <div class="my_trade_b1_free">ACTIVE</div>
                   <section>
                     <h2>{{ $element->name }}</h2>
                     <nav class="my_trade_b1_t1">
@@ -346,12 +352,8 @@
                 <div class="my_trade_b2">
                   <section><small>Each Price:</small><span class="my_trade_price"><span style="font-weight:bold;font-size:14px;">Rs. </span> {{ number_format($element->price, 2) }}</span></section>
                   <aside>
-                      @if($claimedToday)
-                          <button class="claim-btn disabled" disabled style="background:#334155; color:#94a3b8; border-radius:10px; padding:7px 12px; font-weight:700; cursor:not-allowed; border:none;">
-                            <i class="fa-solid fa-check"></i> Claimed Today
-                          </button>
-                      @elseif($canClaim)
-                          <button class="claim-btn" onclick='window.location.href="/my/vip?vip_id={{$element->id}}"' style="background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#fff; font-weight:800; cursor:pointer; border-radius:10px; padding:8px 16px; border:none; box-shadow:0 4px 15px rgba(16,185,129,0.4);">
+                      @if($canClaim)
+                          <button class="claim-btn" onclick='window.location.href="/my/vip?purchase_id={{$purchase->id}}&vip_id={{$element->id}}"' style="background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#fff; font-weight:800; cursor:pointer; border-radius:10px; padding:8px 16px; border:none; box-shadow:0 4px 15px rgba(16,185,129,0.4);">
                             <i class="fa-solid fa-gift"></i> Claim Rs. {{ number_format($dailyRevenue, 2) }}
                           </button>
                       @else
@@ -365,25 +367,25 @@
             </div>
           </div>
           
-          @if(!$canClaim && !$claimedToday)
+          @if(!$canClaim)
             <script>
                 (function() {
                     const countdownElement = document.getElementById("countdown-{{ $purchase->id }}");
                     if (!countdownElement) return;
 
-                    const interactionDate = new Date("{{ $lastInteractionDate ? $lastInteractionDate->toIso8601String() : now()->toIso8601String() }}");
-                    const endTime = new Date(interactionDate.getTime() + 24 * 60 * 60 * 1000);
+                    const endTime = new Date("{{ $nextClaimTime->toIso8601String() }}").getTime();
 
                     function updateClock() {
                         const now = new Date().getTime();
                         const distance = endTime - now;
 
                         if (distance <= 0) {
-                            countdownElement.innerHTML = '<i class="fa-solid fa-gift"></i> Claim Now';
+                            countdownElement.innerHTML = '<i class="fa-solid fa-gift"></i> Claim Rs. {{ number_format($dailyRevenue, 2) }}';
                             countdownElement.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
                             countdownElement.style.color = '#fff';
+                            countdownElement.style.border = 'none';
                             countdownElement.style.cursor = 'pointer';
-                            countdownElement.onclick = () => window.location.href = "/my/vip?vip_id={{$element->id}}";
+                            countdownElement.onclick = () => window.location.href = "/my/vip?purchase_id={{$purchase->id}}&vip_id={{$element->id}}";
                             return;
                         }
 
@@ -403,7 +405,6 @@
           @empty
             <p style="text-align: center; color: var(--muted); padding: 20px;">You have no active daily plans.</p>
           @endforelse
-          
         </div>
         <!--tb1--E-->
         <!--tb2--S-->

@@ -71,14 +71,6 @@ public function dashboard()
             ->get();
     });
 
-    // 1. Bottling Line Status
-    $activePurchases = Purchase::where('user_id', $userId)->where('status', 'active')->get();
-    $bottlingDailyIncome = (float)($activePurchases->sum('daily_income') ?: ($activePurchases->sum('daily_limit') ?: 15.00));
-    $lastCollect = $user->last_bottling_collect_at ? Carbon::parse($user->last_bottling_collect_at) : Carbon::today();
-    $elapsedSecs = min(86400, max(0, Carbon::now()->diffInSeconds($lastCollect)));
-    $bottlingAccumulated = round(($bottlingDailyIncome / 86400) * $elapsedSecs, 2);
-    $bottlingPercent = min(100, round(($elapsedSecs / 86400) * 100));
-
     // 2. Active Red Envelope (if user has not claimed)
     $activeRedEnvelope = RedEnvelope::where('status', 'active')
         ->where('remaining_amount', '>', 0)
@@ -101,9 +93,6 @@ public function dashboard()
         $userStats,
         compact(
             'liveWithdrawals',
-            'bottlingDailyIncome',
-            'bottlingAccumulated',
-            'bottlingPercent',
             'activeRedEnvelope',
             'activeNotice'
         )

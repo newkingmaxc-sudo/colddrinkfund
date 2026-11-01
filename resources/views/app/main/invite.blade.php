@@ -960,7 +960,7 @@
 
         // 7. Value Proposition Cards (Bullet Highlights)
         const perks = [
-          '⚡ Daily Bottling Income Credited Every 24 Hours',
+          '⚡ Daily Plan Income Claimable Every 24 Hours',
           '💳 Instant Withdrawals via JazzCash & Easypaisa',
           '🎁 27% Direct Referral Commission On Deposits',
           '🛡️ 100% Transparent, Verified & Risk-Free Project'
@@ -1083,7 +1083,7 @@
 
       function sharePosterToWhatsApp() {
         const canvas = document.getElementById('invitePosterCanvas');
-        const shareMsg = `🥤 *Cold Drink Fund - Daily Bottling Profits!* 🥤\n\n` +
+        const shareMsg = `🥤 *Cold Drink Fund - Daily Profits!* 🥤\n\n` +
           `Maine Cold Drink Fund join karke daily income shuru ki hai!\n` +
           `✅ Rozana munafa seedha account me\n` +
           `✅ Instant Easypaisa & JazzCash Withdrawals\n` +

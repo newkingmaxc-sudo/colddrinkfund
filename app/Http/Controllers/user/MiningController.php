@@ -26,42 +26,100 @@ class MiningController extends Controller
 
     public function myvip(Request $request)
     {
-        $vip_id = $request->input('vip_id');
         $user = auth()->user();
-        
-        if($request->has('vip_id') && $vip_id != null){
-            $package = Package::find($vip_id);
-            
-            if($package != null){
-                $amount = (float)($package->daily_limit ?: ($package->commission_with_avg_amount / max(1, $package->validity)));
-                $reason = 'daily_claim_'.$vip_id;
-            
-                // Check if already claimed today
-                if(UserLedger::where(['user_id' => $user->id, 'reason' => $reason])->whereDate('created_at', today())->exists()){
-                    return redirect()->to('my/vip')->with('error', '⚠️ آپ آج کا منافع پہلے ہی وصول کر چکے ہیں! اگلا منافع 24 گھنٹے بعد دستیاب ہوگا۔ (Already claimed today).');
-                }
-                
-                $ledger = new UserLedger();
-                $ledger->user_id = $user->id;
-                $ledger->get_balance_from_user_id = $user->id;
-                $ledger->reason = $reason;
-                $ledger->perticulation = 'Daily Plan Revenue: ' . $package->name;
-                $ledger->amount = $amount;
-                $ledger->debit = $amount;
-                $ledger->status = 'approved';
-                $ledger->date = date('Y-m-d H:i');
-                $ledger->save();
-                
-                $user->balance += $amount;
-                $user->save();
 
-                \Illuminate\Support\Facades\Cache::forget("user_dash_stats_{$user->id}");
-                \Illuminate\Support\Facades\Cache::forget("user_mine_stats_{$user->id}");
-                
-                return redirect()->to('my/vip')->with('success', "🎉 روزانہ کا منافع Rs. " . number_format($amount, 2) . " کامیابی سے آپ کے بیلنس میں شامل ہو گیا ہے! (Daily revenue of Rs. " . number_format($amount, 2) . " claimed successfully!)");
+        // Handle Manual Daily Claim Action
+        if ($request->has('purchase_id') || $request->has('vip_id')) {
+            $purchase = null;
+
+            if ($request->filled('purchase_id')) {
+                $purchase = Purchase::where('id', $request->input('purchase_id'))
+                    ->where('user_id', $user->id)
+                    ->where('status', 'active')
+                    ->first();
             }
+
+            if (!$purchase && $request->filled('vip_id')) {
+                $purchase = Purchase::where('package_id', $request->input('vip_id'))
+                    ->where('user_id', $user->id)
+                    ->where('status', 'active')
+                    ->latest('id')
+                    ->first();
+            }
+
+            if (!$purchase) {
+                return redirect()->to('my/vip')->with('error', '⚠️ یہ پلان فعال نہیں ہے یا اس کی مدت ختم ہو چکی ہے۔ (Plan is not active).');
+            }
+
+            $package = $purchase->package ?: Package::find($purchase->package_id);
+            if (!$package) {
+                return redirect()->to('my/vip')->with('error', '⚠️ پیکج کی معلومات نہیں مل سکیں۔ (Package not found).');
+            }
+
+            $dailyRevenue = (float)($package->daily_limit ?: ($package->commission_with_avg_amount / max(1, $package->validity)));
+
+            // Find last manual claim for this purchase or package
+            $last_claim = UserLedger::where('user_id', $user->id)
+                ->where(function($q) use ($purchase, $package) {
+                    $q->where('reason', 'daily_claim_purchase_' . $purchase->id)
+                      ->orWhere('reason', 'daily_claim_' . $package->id);
+                })
+                ->latest('id')
+                ->first();
+
+            $baseTime = $last_claim ? Carbon::parse($last_claim->created_at) : Carbon::parse($purchase->created_at);
+            $nextClaimTime = $baseTime->copy()->addHours(24);
+
+            // Strict 24-hour verification from the exact moment of the last claim
+            if (now()->lessThan($nextClaimTime)) {
+                $diff = now()->diff($nextClaimTime);
+                $hoursLeft = ($diff->days * 24) + $diff->h;
+                return redirect()->to('my/vip')->with('error', "⏳ اگلا منافع ابھی دستیاب نہیں ہے! ٹائمر مکمل ہونے میں {$hoursLeft}h {$diff->i}m باقی ہیں۔ (Next claim available in {$hoursLeft}h {$diff->i}m).");
+            }
+
+            $claimTimestamp = now();
+
+            // 1. Credit profit to user balance (Manual claim only)
+            $user->balance += $dailyRevenue;
+            $user->save();
+
+            // 2. Record in User Ledger with exact claim timestamp
+            $ledger = new UserLedger();
+            $ledger->user_id = $user->id;
+            $ledger->get_balance_from_user_id = $user->id;
+            $ledger->reason = 'daily_claim_purchase_' . $purchase->id;
+            $ledger->perticulation = 'Daily Plan Revenue: ' . $package->name . ' (Manually claimed)';
+            $ledger->amount = $dailyRevenue;
+            $ledger->debit = $dailyRevenue;
+            $ledger->status = 'approved';
+            $ledger->date = $claimTimestamp->format('Y-m-d H:i');
+            $ledger->created_at = $claimTimestamp;
+            $ledger->updated_at = $claimTimestamp;
+            $ledger->save();
+
+            // 3. Update purchase date to next claim time (now + 24 hours)
+            $purchase->date = $claimTimestamp->copy()->addHours(24);
+            $purchase->save();
+
+            // 4. Check if plan validity completed
+            $totalClaims = UserLedger::where('user_id', $user->id)
+                ->where(function($q) use ($purchase, $package) {
+                    $q->where('reason', 'daily_claim_purchase_' . $purchase->id)
+                      ->orWhere('reason', 'daily_claim_' . $package->id);
+                })
+                ->count();
+
+            if ($totalClaims >= (int)$package->validity) {
+                $purchase->status = 'expired';
+                $purchase->save();
+            }
+
+            \Illuminate\Support\Facades\Cache::forget("user_dash_stats_{$user->id}");
+            \Illuminate\Support\Facades\Cache::forget("user_mine_stats_{$user->id}");
+
+            return redirect()->to('my/vip')->with('success', "🎉 روزانہ کا منافع Rs. " . number_format($dailyRevenue, 2) . " کامیابی سے کلیم ہو گیا ہے! اب اگلا 24 گھنٹے کا ٹائمر شروع ہو چکا ہے۔ (Daily profit of Rs. " . number_format($dailyRevenue, 2) . " claimed! Next 24-hour timer has started.)");
         }
-        
+
         $dailyPurchases = Purchase::with('package')->where('user_id', $user->id)->where('status', 'active')->orderByDesc('id')->get();
         return view('app.main.myvip', compact('dailyPurchases'));
     }

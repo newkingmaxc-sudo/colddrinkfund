@@ -21,39 +21,11 @@ class AdminController extends Controller
 {
     public function commission()
     {
-        $purchases = Purchase::where('status', 'active')->get();
-        foreach ($purchases as $purchase) {
-            $user = User::where('id', $purchase->user_id)->first();
-            if ($user) {
-                $package = Package::where('id', $purchase->package_id)->first();
-                if ($package) {
-                    if (now()->greaterThanOrEqualTo($purchase->date)) {
-                        $user->balance = $user->balance + $purchase->daily_income;
-                        $user->save();
-                        
-                        $ppp = Purchase::where('id', $purchase->id)->first();
-                        $ppp->date = now()->addHours(24);
-                        $ppp->save();
-
-                        $ledger = new UserLedger();
-                        $ledger->user_id = $user->id;
-                        $ledger->reason = 'my_commission';
-                        $ledger->perticulation = 'My Income added.';
-                        $ledger->amount = $purchase->daily_income;
-                        $ledger->debit = $purchase->daily_income;
-                        $ledger->status = 'approved';
-                        $ledger->date = date('d-m-Y H:i');
-                        $ledger->save();
-                        
-                        $checkExpire = new Carbon($purchase->validity);
-                        if ($checkExpire->isPast()) {
-                            $ppp->status = 'inactive';
-                            $ppp->save();
-                        }
-                    }
-                }
-            }
-        }
+        // Auto-profit is strictly disabled. Users must manually claim their daily income from the VIP Plans section.
+        return response()->json([
+            'status' => false,
+            'message' => 'Automatic profit distribution is disabled. Users claim their daily earnings manually every 24 hours.'
+        ]);
     }
 
     public function developer()
