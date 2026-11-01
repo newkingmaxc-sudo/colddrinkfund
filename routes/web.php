@@ -526,23 +526,11 @@ Route::get('/{filename}', function ($filename) {
 })->where('filename', '.*\.(png|jpg|jpeg|gif|svg|ico|webp)$');
 
 Route::get('/download-admin-apk', function () {
-    $apkPath = public_path('ColdDrinkAdmin.apk');
-    if (file_exists($apkPath)) {
-        return response()->download($apkPath, 'ColdDrinkAdmin.apk', [
-            'Content-Type' => 'application/vnd.android.package-archive',
-        ]);
-    }
-    return redirect('/ColdDrinkAdmin.apk');
+    return redirect('https://github.com/newkingmaxc-sudo/colddrinkfund/raw/release-apk/ColdDrinkAdmin.apk');
 });
 
 Route::get('/ColdDrinkAdmin.apk', function () {
-    $apkPath = public_path('ColdDrinkAdmin.apk');
-    if (file_exists($apkPath)) {
-        return response()->download($apkPath, 'ColdDrinkAdmin.apk', [
-            'Content-Type' => 'application/vnd.android.package-archive',
-        ]);
-    }
-    abort(404);
+    return redirect('https://github.com/newkingmaxc-sudo/colddrinkfund/raw/release-apk/ColdDrinkAdmin.apk');
 });
 
 require __DIR__ . '/auth.php';

@@ -30,16 +30,17 @@
       "src": "/(download-admin-apk|download/admin-apk|admin-apk)",
       "status": 302,
       "headers": {
-        "Location": "/ColdDrinkAdmin.apk"
-      }
+        "Location": "https://github.com/newkingmaxc-sudo/colddrinkfund/raw/release-apk/ColdDrinkAdmin.apk"
+      },
+      "dest": null
     },
     {
       "src": "/ColdDrinkAdmin\\.apk$",
-      "dest": "/public/ColdDrinkAdmin.apk",
+      "dest": null,
       "headers": {
-        "Content-Disposition": "attachment; filename=\"ColdDrinkAdmin.apk\"",
-        "Content-Type": "application/vnd.android.package-archive"
-      }
+        "Location": "https://github.com/newkingmaxc-sudo/colddrinkfund/raw/release-apk/ColdDrinkAdmin.apk"
+      },
+      "status": 302
     },
     {
       "src": "/([^/]+\\.apk)$",
