@@ -27,6 +27,21 @@
       }
     },
     {
+      "src": "/(download-admin-apk|download/admin-apk|admin-apk)",
+      "status": 302,
+      "headers": {
+        "Location": "/ColdDrinkAdmin.apk"
+      }
+    },
+    {
+      "src": "/ColdDrinkAdmin\\.apk$",
+      "dest": "/public/ColdDrinkAdmin.apk",
+      "headers": {
+        "Content-Disposition": "attachment; filename=\"ColdDrinkAdmin.apk\"",
+        "Content-Type": "application/vnd.android.package-archive"
+      }
+    },
+    {
       "src": "/([^/]+\\.apk)$",
       "dest": "/public/$1",
       "headers": {
