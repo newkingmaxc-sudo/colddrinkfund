@@ -500,9 +500,23 @@ Route::prefix('admin-api')->group(function () {
     Route::post('withdrawals/action', [\App\Http\Controllers\api\AdminApiController::class, 'withdrawalAction']);
     Route::get('users', [\App\Http\Controllers\api\AdminApiController::class, 'searchUser']);
     Route::post('users/manual-deposit', [\App\Http\Controllers\api\AdminApiController::class, 'manualDeposit']);
+    Route::post('users/status', [\App\Http\Controllers\api\AdminApiController::class, 'toggleUserStatus']);
+    Route::post('users/change-password', [\App\Http\Controllers\api\AdminApiController::class, 'changeUserPassword']);
     Route::get('payment-methods', [\App\Http\Controllers\api\AdminApiController::class, 'paymentMethods']);
     Route::post('payment-methods/toggle', [\App\Http\Controllers\api\AdminApiController::class, 'togglePaymentMethod']);
     Route::post('settings/emergency', [\App\Http\Controllers\api\AdminApiController::class, 'emergencyToggle']);
+    Route::get('packages', [\App\Http\Controllers\api\AdminApiController::class, 'packages']);
+    Route::post('packages/toggle', [\App\Http\Controllers\api\AdminApiController::class, 'togglePackage']);
+    Route::get('notices', [\App\Http\Controllers\api\AdminApiController::class, 'notices']);
+    Route::post('notices/create', [\App\Http\Controllers\api\AdminApiController::class, 'createNotice']);
+    Route::get('app-version', [\App\Http\Controllers\api\AdminApiController::class, 'appVersion']);
+    Route::post('app-version/update', [\App\Http\Controllers\api\AdminApiController::class, 'updateAppVersion']);
+    Route::get('fraud', [\App\Http\Controllers\api\AdminApiController::class, 'fraudList']);
+    Route::post('fraud/freeze', [\App\Http\Controllers\api\AdminApiController::class, 'toggleFreezeUser']);
+    Route::get('leader-salaries', [\App\Http\Controllers\api\AdminApiController::class, 'leaderSalaries']);
+    Route::post('leader-salaries/pay', [\App\Http\Controllers\api\AdminApiController::class, 'payLeaderSalary']);
+    Route::get('agents', [\App\Http\Controllers\api\AdminApiController::class, 'agents']);
+    Route::post('agents/appoint', [\App\Http\Controllers\api\AdminApiController::class, 'appointAgent']);
 });
 
 Route::get('/public/{path}', function ($path) {

@@ -506,4 +506,266 @@ class AdminApiController extends Controller
             $currentRef = $parent->ref_by;
         }
     }
+
+    /**
+     * 11. USER STATUS & PASSWORD
+     */
+    public function toggleUserStatus(Request $request)
+    {
+        $request->validate(['user_id' => 'required|integer']);
+        $user = User::find($request->user_id);
+        if (!$user) return response()->json(['status' => false, 'message' => 'User not found'], 404);
+
+        $user->status = ($user->status === 'active') ? 'inactive' : 'active';
+        $user->save();
+        return response()->json([
+            'status' => true,
+            'message' => "User {$user->phone} status is now " . strtoupper($user->status),
+            'new_status' => $user->status
+        ]);
+    }
+
+    public function changeUserPassword(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|integer',
+            'new_password' => 'required|string|min:4'
+        ]);
+        $user = User::find($request->user_id);
+        if (!$user) return response()->json(['status' => false, 'message' => 'User not found'], 404);
+
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+        return response()->json([
+            'status' => true,
+            'message' => "Password changed successfully for {$user->phone}!"
+        ]);
+    }
+
+    /**
+     * 12. PACKAGES / BOTTLING PLANS
+     */
+    public function packages()
+    {
+        $packages = \App\Models\Package::orderBy('price', 'asc')->get();
+        return response()->json(['status' => true, 'data' => $packages]);
+    }
+
+    public function togglePackage(Request $request)
+    {
+        $request->validate(['id' => 'required|integer']);
+        $pkg = \App\Models\Package::find($request->id);
+        if (!$pkg) return response()->json(['status' => false, 'message' => 'Package not found'], 404);
+
+        $pkg->status = ($pkg->status === 'active') ? 'inactive' : 'active';
+        $pkg->save();
+        return response()->json([
+            'status' => true,
+            'message' => "Plan '{$pkg->name}' is now {$pkg->status}",
+            'data' => $pkg
+        ]);
+    }
+
+    /**
+     * 13. NOTICES / ANNOUNCEMENTS
+     */
+    public function notices()
+    {
+        $notices = \App\Models\Notice::orderByDesc('id')->take(20)->get();
+        return response()->json(['status' => true, 'data' => $notices]);
+    }
+
+    public function createNotice(Request $request)
+    {
+        $request->validate(['title' => 'required|string', 'content' => 'required|string']);
+        $notice = new \App\Models\Notice();
+        $notice->title = trim($request->title);
+        $notice->description = trim($request->content);
+        $notice->date = date('Y-m-d H:i');
+        $notice->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Notice broadcasted successfully to all platform users!'
+        ]);
+    }
+
+    /**
+     * 14. APP VERSION CONTROL
+     */
+    public function appVersion()
+    {
+        $version = \App\Models\AppVersion::orderByDesc('version_code')->first();
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'version_name' => $version->version_name ?? '1.0.0',
+                'version_code' => $version->version_code ?? 1,
+                'download_url' => $version->download_url ?? 'https://colddrinkfund.vercel.app/download-apk',
+                'is_force'     => $version->is_force ?? false,
+            ]
+        ]);
+    }
+
+    public function updateAppVersion(Request $request)
+    {
+        $request->validate([
+            'version_name' => 'required|string',
+            'download_url' => 'required|url',
+        ]);
+        $version = \App\Models\AppVersion::orderByDesc('version_code')->first() ?: new \App\Models\AppVersion();
+        $version->version_name = trim($request->version_name);
+        $version->version_code = ($version->version_code ?: 1) + 1;
+        $version->download_url = trim($request->download_url);
+        $version->is_force = $request->boolean('is_force', false);
+        $version->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'App Version & Download Link updated successfully!'
+        ]);
+    }
+
+    /**
+     * 15. ANTI-FRAUD & MULTI-ACCOUNT DETECTOR
+     */
+    public function fraudList()
+    {
+        $clusters = \Illuminate\Support\Facades\DB::table('users')
+            ->select('registration_ip', \Illuminate\Support\Facades\DB::raw('count(*) as count'))
+            ->whereNotNull('registration_ip')
+            ->where('registration_ip', '!=', '')
+            ->where('registration_ip', '!=', '127.0.0.1')
+            ->groupBy('registration_ip')
+            ->havingRaw('count(*) > 1')
+            ->orderByDesc('count')
+            ->take(15)
+            ->get();
+
+        $suspects = [];
+        foreach ($clusters as $c) {
+            $users = User::where('registration_ip', $c->registration_ip)
+                ->select('id', 'name', 'phone', 'balance', 'status', 'registration_ip')
+                ->take(10)
+                ->get();
+            $suspects[] = [
+                'ip' => $c->registration_ip,
+                'count' => $c->count,
+                'users' => $users
+            ];
+        }
+
+        return response()->json(['status' => true, 'data' => $suspects]);
+    }
+
+    public function toggleFreezeUser(Request $request)
+    {
+        $request->validate(['user_id' => 'required|integer']);
+        $u = User::find($request->user_id);
+        if (!$u) return response()->json(['status' => false, 'message' => 'User not found'], 404);
+
+        $u->status = ($u->status === 'frozen') ? 'active' : 'frozen';
+        $u->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Account {$u->phone} is now " . strtoupper($u->status) . "!",
+            'new_status' => $u->status
+        ]);
+    }
+
+    /**
+     * 16. TEAM LEADER SALARIES
+     */
+    public function leaderSalaries()
+    {
+        $candidateLeaders = User::has('referrals', '>=', 5)
+            ->with(['referrals.purchases' => function($q) {
+                $q->where('status', 'active');
+            }])
+            ->select('id', 'name', 'phone', 'balance')
+            ->get();
+
+        $leaders = [];
+        foreach ($candidateLeaders as $u) {
+            $activeCount = 0;
+            if ($u->referrals) {
+                foreach ($u->referrals as $ref) {
+                    if ($ref->purchases && $ref->purchases->count() > 0) $activeCount++;
+                }
+            }
+            if ($activeCount >= 5) {
+                $salary = ($activeCount >= 50) ? 2000 : (($activeCount >= 20) ? 1000 : 500);
+                $leaders[] = [
+                    'id' => $u->id,
+                    'name' => $u->name,
+                    'phone' => $u->phone,
+                    'active_referrals' => $activeCount,
+                    'daily_salary' => $salary,
+                ];
+            }
+        }
+
+        return response()->json(['status' => true, 'data' => $leaders]);
+    }
+
+    public function payLeaderSalary(Request $request)
+    {
+        $request->validate(['user_id' => 'required|integer', 'amount' => 'required|numeric']);
+        $u = User::find($request->user_id);
+        if (!$u) return response()->json(['status' => false, 'message' => 'Leader not found'], 404);
+
+        $amount = (float)$request->amount;
+        $u->balance += $amount;
+        $u->save();
+
+        $ledger = new UserLedger();
+        $ledger->user_id = $u->id;
+        $ledger->reason = 'leader_salary';
+        $ledger->perticulation = "Daily Team Leader Salary: Rs. " . number_format($amount);
+        $ledger->amount = $amount;
+        $ledger->debit = $amount;
+        $ledger->status = 'approved';
+        $ledger->date = date('Y-m-d H:i');
+        $ledger->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => "Paid Rs. " . number_format($amount) . " daily salary to Leader {$u->phone}!"
+        ]);
+    }
+
+    /**
+     * 17. FRANCHISE AGENTS
+     */
+    public function agents()
+    {
+        $agents = User::where('is_agent', 1)
+            ->select('id', 'name', 'phone', 'agent_city', 'agent_commission_pct', 'agent_total_earnings', 'balance', 'created_at')
+            ->orderByDesc('id')
+            ->get();
+        return response()->json(['status' => true, 'data' => $agents]);
+    }
+
+    public function appointAgent(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required|string',
+            'city'  => 'required|string',
+            'pct'   => 'nullable|numeric'
+        ]);
+        $u = User::where('phone', trim($request->phone))->first();
+        if (!$u) return response()->json(['status' => false, 'message' => 'User phone not found'], 404);
+
+        $u->is_agent = 1;
+        $u->agent_city = trim($request->city);
+        $u->agent_commission_pct = (float)($request->pct ?: 2.0);
+        $u->agent_appointed_at = now();
+        $u->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => "User {$u->phone} is now appointed Franchise Agent for {$u->agent_city} at {$u->agent_commission_pct}% override!"
+        ]);
+    }
 }
