@@ -90,28 +90,27 @@
       margin-bottom: 14px;
     }
     .qr-img-wrapper {
-      max-width: 320px;
+      max-width: 360px;
       width: 100%;
-      margin: 0 auto 12px;
-      padding: 12px;
-      border: 2px solid #1f7c03;
-      border-radius: 14px;
+      margin: 0 auto 14px;
+      padding: 10px;
+      border: 2.5px solid #1f7c03;
+      border-radius: 16px;
       background: #ffffff;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 15px rgba(31,124,3,0.08);
+      box-shadow: 0 4px 18px rgba(31,124,3,0.12);
       cursor: pointer;
       transition: transform 0.2s;
     }
-    .qr-img-wrapper:hover { transform: scale(1.02); }
+    .qr-img-wrapper:hover { transform: scale(1.01); }
     .qr-img-wrapper img {
       width: 100%;
       height: auto;
-      max-height: 400px;
       object-fit: contain;
-      border-radius: 8px;
+      border-radius: 10px;
       display: block;
     }
     .qr-actions {

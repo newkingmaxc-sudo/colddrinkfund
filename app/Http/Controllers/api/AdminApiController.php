@@ -179,10 +179,12 @@ class AdminApiController extends Controller
      */
     public function depositAction(Request $request)
     {
-        $request->validate([
-            'id'     => 'required|integer',
-            'action' => 'required|in:approved,rejected',
-        ]);
+        $rawAction = strtolower(trim($request->action ?? ''));
+        $action = in_array($rawAction, ['approve', 'approved']) ? 'approved' : (in_array($rawAction, ['reject', 'rejected']) ? 'rejected' : null);
+
+        if (!$action) {
+            return response()->json(['status' => false, 'message' => 'Invalid action! Must be approve or reject.'], 422);
+        }
 
         $payment = Deposit::find($request->id);
         if (!$payment) {
@@ -194,7 +196,7 @@ class AdminApiController extends Controller
             return response()->json(['status' => false, 'message' => 'User not found!'], 404);
         }
 
-        if ($request->action === 'approved' && $payment->status !== 'approved') {
+        if ($action === 'approved' && $payment->status !== 'approved') {
             $user->balance += $payment->amount;
 
             // Agent override commission if in agent downline
@@ -207,22 +209,22 @@ class AdminApiController extends Controller
             Cache::forget("user_mine_stats_{$user->id}");
         }
 
-        if ($request->action === 'rejected') {
+        if ($action === 'rejected') {
             if ($payment->status === 'approved') {
                 $user->balance = max(0, $user->balance - $payment->amount);
                 $user->save();
             }
         }
 
-        $payment->status = $request->action;
+        $payment->status = $action;
         $payment->save();
 
         UserLedger::where(['user_id' => $payment->user_id, 'reason' => 'user_deposit', 'amount' => $payment->amount])
-            ->update(['status' => $request->action]);
+            ->update(['status' => $action]);
 
         return response()->json([
             'status'  => true,
-            'message' => "Deposit of Rs. " . number_format($payment->amount) . " marked as {$request->action} successfully!",
+            'message' => "Deposit of Rs. " . number_format($payment->amount) . " marked as {$action} successfully!",
             'deposit' => $payment
         ]);
     }
@@ -270,11 +272,12 @@ class AdminApiController extends Controller
      */
     public function withdrawalAction(Request $request)
     {
-        $request->validate([
-            'id'     => 'required|integer',
-            'action' => 'required|in:approved,rejected',
-            'trx'    => 'nullable|string',
-        ]);
+        $rawAction = strtolower(trim($request->action ?? ''));
+        $action = in_array($rawAction, ['approve', 'approved']) ? 'approved' : (in_array($rawAction, ['reject', 'rejected']) ? 'rejected' : null);
+
+        if (!$action) {
+            return response()->json(['status' => false, 'message' => 'Invalid action! Must be approve or reject.'], 422);
+        }
 
         $withdraw = Withdrawal::find($request->id);
         if (!$withdraw) {
@@ -282,9 +285,11 @@ class AdminApiController extends Controller
         }
 
         $user = User::find($withdraw->user_id);
+        $trx = trim($request->trx ?? '') ?: (trim($request->reason ?? '') ?: (trim($request->note ?? '') ?: ('WD-' . strtoupper(Str::random(8)))));
+        $note = trim($request->note ?? '') ?: (trim($request->reason ?? '') ?: 'Details incorrect');
 
-        if ($request->action === 'approved') {
-            $withdraw->trx = $request->trx ?: ('WD-' . strtoupper(Str::random(8)));
+        if ($action === 'approved') {
+            $withdraw->trx = $trx;
             $withdraw->status = 'approved';
             $withdraw->save();
 
@@ -299,7 +304,7 @@ class AdminApiController extends Controller
             $ledger->save();
         }
 
-        if ($request->action === 'rejected') {
+        if ($action === 'rejected') {
             $withdraw->status = 'rejected';
             $withdraw->save();
 
@@ -311,7 +316,7 @@ class AdminApiController extends Controller
             $ledger = new UserLedger();
             $ledger->user_id = $withdraw->user_id;
             $ledger->reason = 'withdraw_rejected';
-            $ledger->perticulation = 'Withdrawal rejected and refunded back to balance: ' . ($request->note ?? 'Details incorrect');
+            $ledger->perticulation = 'Withdrawal rejected and refunded back to balance: ' . $note;
             $ledger->amount = $withdraw->amount;
             $ledger->debit = 0;
             $ledger->status = 'rejected';
@@ -321,7 +326,7 @@ class AdminApiController extends Controller
 
         return response()->json([
             'status'     => true,
-            'message'    => "Withdrawal of Rs. " . number_format($withdraw->amount) . " marked as {$request->action} successfully!",
+            'message'    => "Withdrawal of Rs. " . number_format($withdraw->amount) . " marked as {$action} successfully!",
             'withdrawal' => $withdraw
         ]);
     }
@@ -331,15 +336,15 @@ class AdminApiController extends Controller
      */
     public function searchUser(Request $request)
     {
-        $q = trim($request->query('query', ''));
+        $q = trim($request->query('query', $request->query('search', $request->query('q', ''))));
         if (empty($q)) {
-            $users = User::orderByDesc('id')->take(30)->get(['id', 'name', 'phone', 'ref_id', 'balance', 'status', 'created_at']);
+            $users = User::orderByDesc('id')->take(40)->get(['id', 'name', 'phone', 'ref_id', 'balance', 'status', 'created_at']);
         } else {
             $users = User::where('phone', 'like', "%{$q}%")
                 ->orWhere('ref_id', 'like', "%{$q}%")
                 ->orWhere('name', 'like', "%{$q}%")
                 ->orWhere('id', is_numeric($q) ? (int)$q : 0)
-                ->take(30)
+                ->take(40)
                 ->get(['id', 'name', 'phone', 'ref_id', 'balance', 'status', 'created_at']);
         }
 
@@ -355,18 +360,27 @@ class AdminApiController extends Controller
      */
     public function manualDeposit(Request $request)
     {
-        $request->validate([
-            'user_identifier' => 'required|string',
-            'amount'          => 'required|numeric|min:1',
-            'method_name'     => 'nullable|string',
-            'trx'             => 'nullable|string',
-            'remarks'         => 'nullable|string',
-        ]);
+        $identifier = $request->user_identifier ?? ($request->user_id ?? ($request->phone ?? $request->identifier));
+        if (empty($identifier)) {
+            return response()->json(['status' => false, 'message' => 'User identifier or phone/ID is required!'], 422);
+        }
 
-        $query = trim($request->user_identifier);
-        $user = User::where('phone', $query)
+        $amount = (float)$request->amount;
+        if ($amount < 1) {
+            return response()->json(['status' => false, 'message' => 'Please enter a valid amount (minimum Rs. 1)!'], 422);
+        }
+
+        $query = trim((string)$identifier);
+        $cleanPhone = preg_replace('/[^0-9]/', '', $query);
+        $phoneWithoutZero = ltrim($cleanPhone, '0');
+        $phoneWithZero = '0' . $phoneWithoutZero;
+
+        $user = User::where('id', is_numeric($query) ? (int)$query : 0)
+            ->orWhere('phone', $query)
+            ->orWhere('phone', $phoneWithZero)
+            ->orWhere('phone', $phoneWithoutZero)
+            ->orWhere('phone', 'like', "%{$phoneWithoutZero}%")
             ->orWhere('ref_id', $query)
-            ->orWhere('id', is_numeric($query) ? (int)$query : 0)
             ->first();
 
         if (!$user) {
@@ -376,7 +390,6 @@ class AdminApiController extends Controller
             ], 404);
         }
 
-        $amount = (float)$request->amount;
         $methodName = $request->method_name ?: 'Admin Manual Deposit';
         $trx = trim($request->trx ?? '') ?: ('ADM-' . strtoupper(Str::random(8)));
         $remarks = trim($request->remarks ?? '') ?: 'Direct balance credit by Admin Mobile App';

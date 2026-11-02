@@ -295,9 +295,9 @@
               use App\Models\Purchase;
               use App\Models\UserLedger;
         
-              $purchases = Purchase::where('user_id', auth()->id())->where('status', 'active')->get();
+              $purchases = Purchase::with('package')->where('user_id', auth()->id())->where('status', 'active')->get();
               
-              $dailyPurchases = $purchases->filter(function($p) { return optional($p->package)->tab == 'vip'; });
+              $dailyPurchases = $purchases->filter(function($p) { return optional($p->package)->tab != 'fixed'; });
               $welfarePurchases = $purchases->filter(function($p) { return optional($p->package)->tab == 'fixed'; });
           ?>
 
@@ -318,7 +318,8 @@
 
                 $baseTime = $last_claim ? \Carbon\Carbon::parse($last_claim->created_at) : \Carbon\Carbon::parse($purchase->created_at);
                 $nextClaimTime = $baseTime->copy()->addHours(24);
-                $canClaim = now()->greaterThanOrEqualTo($nextClaimTime);
+                $remainingSeconds = max(0, now()->diffInSeconds($nextClaimTime, false));
+                $canClaim = ($remainingSeconds <= 0);
                 $dailyRevenue = (float)($element->daily_limit ?: ($element->commission_with_avg_amount / max(1, $element->validity)));
             @endphp
           <div class="my_trade_chart_body ">
@@ -358,7 +359,7 @@
                           </button>
                       @else
                           <button class="claim-btn" id="countdown-{{ $purchase->id }}" style="background:#1e293b; color:#fbbf24; border:1px solid #fbbf24; border-radius:10px; padding:7px 12px; font-weight:700;">
-                            <i class="fa-regular fa-clock"></i> 00h 00m 00s
+                            <i class="fa-regular fa-clock"></i> Calculating...
                           </button>
                       @endif
                   </aside>
@@ -370,34 +371,44 @@
           @if(!$canClaim)
             <script>
                 (function() {
-                    const countdownElement = document.getElementById("countdown-{{ $purchase->id }}");
+                    var remaining = {{ (int)$remainingSeconds }};
+                    var countdownElement = document.getElementById("countdown-{{ $purchase->id }}");
                     if (!countdownElement) return;
 
-                    const endTime = new Date("{{ $nextClaimTime->toIso8601String() }}").getTime();
+                    function formatTime(s) {
+                        var h = Math.floor(s / 3600);
+                        var m = Math.floor((s % 3600) / 60);
+                        var sec = s % 60;
+                        return (h < 10 ? '0' + h : h) + 'h ' + (m < 10 ? '0' + m : m) + 'm ' + (sec < 10 ? '0' + sec : sec) + 's';
+                    }
 
                     function updateClock() {
-                        const now = new Date().getTime();
-                        const distance = endTime - now;
-
-                        if (distance <= 0) {
+                        if (remaining <= 0) {
                             countdownElement.innerHTML = '<i class="fa-solid fa-gift"></i> Claim Rs. {{ number_format($dailyRevenue, 2) }}';
                             countdownElement.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
                             countdownElement.style.color = '#fff';
                             countdownElement.style.border = 'none';
+                            countdownElement.style.boxShadow = '0 4px 15px rgba(16,185,129,0.4)';
                             countdownElement.style.cursor = 'pointer';
-                            countdownElement.onclick = () => window.location.href = "/my/vip?purchase_id={{$purchase->id}}&vip_id={{$element->id}}";
+                            countdownElement.onclick = function() {
+                                window.location.href = "/my/vip?purchase_id={{$purchase->id}}&vip_id={{$element->id}}";
+                            };
                             return;
                         }
 
-                        const hours = Math.floor(distance / (1000 * 60 * 60));
-                        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                        countdownElement.innerHTML = `<i class="fa-regular fa-clock"></i> ${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
+                        countdownElement.innerHTML = '<i class="fa-regular fa-clock"></i> ' + formatTime(remaining);
+                        remaining--;
                     }
 
                     updateClock();
-                    setInterval(updateClock, 1000);
+                    var clockTimer = setInterval(function() {
+                        if (remaining <= 0) {
+                            clearInterval(clockTimer);
+                            updateClock();
+                        } else {
+                            updateClock();
+                        }
+                    }, 1000);
                 })();
             </script>
           @endif
