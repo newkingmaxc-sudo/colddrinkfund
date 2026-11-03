@@ -470,19 +470,29 @@ class AdminApiController extends Controller
      */
     public function emergencyToggle(Request $request)
     {
-        $request->validate([
-            'target' => 'required|in:deposit,withdraw',
-            'action' => 'required|in:pause,resume'
-        ]);
+        $target = strtolower(trim($request->target ?? ($request->type ?? '')));
+        $action = strtolower(trim($request->action ?? ($request->status ?? '')));
 
-        $key = ($request->target === 'deposit') ? 'deposit_status' : 'withdraw_status';
-        $val = ($request->action === 'pause') ? 'paused' : 'active';
+        if (!in_array($target, ['deposit', 'withdraw', 'maintenance'])) {
+            return response()->json(['status' => false, 'message' => 'Target must be deposit, withdraw, or maintenance!'], 422);
+        }
 
+        if ($target === 'maintenance') {
+            $isMaint = in_array($action, ['pause', 'active', 'true', '1', 'on']);
+            setting(['maintenance_mode' => $isMaint ? 1 : 0])->save();
+            return response()->json([
+                'status'  => true,
+                'message' => 'Maintenance mode is now ' . ($isMaint ? 'ENABLED' : 'DISABLED') . '!'
+            ]);
+        }
+
+        $key = ($target === 'deposit') ? 'deposit_status' : 'withdraw_status';
+        $val = in_array($action, ['pause', 'paused', 'inactive', 'off', '0']) ? 'paused' : 'active';
         setting([$key => $val])->save();
 
         return response()->json([
             'status'  => true,
-            'message' => ucfirst($request->target) . " service is now " . strtoupper($val) . "!"
+            'message' => ucfirst($target) . " service is now " . strtoupper($val) . "!"
         ]);
     }
 
@@ -590,15 +600,19 @@ class AdminApiController extends Controller
 
     public function createNotice(Request $request)
     {
-        $request->validate(['title' => 'required|string', 'content' => 'required|string']);
-        $notice = new \App\Models\Notice();
-        $notice->title = trim($request->title);
-        $notice->description = trim($request->content);
-        $notice->date = date('Y-m-d H:i');
-        $notice->save();
+        $title = trim($request->title ?? ($request->notice_title ?? 'System Announcement'));
+        $content = trim($request->content ?? ($request->notice_desc ?? ($request->description ?? '')));
+
+        $model = new \App\Models\Notice();
+        $model->user_id      = $request->filled('user_id') ? (int)$request->user_id : null;
+        $model->notice_type  = $request->notice_type ?? 'popup';
+        $model->notice_title = $title;
+        $model->notice_desc  = $content;
+        $model->status       = $request->status ?? 'active';
+        $model->save();
 
         return response()->json([
-            'status' => true,
+            'status'  => true,
             'message' => 'Notice broadcasted successfully to all platform users!'
         ]);
     }
@@ -622,14 +636,17 @@ class AdminApiController extends Controller
 
     public function updateAppVersion(Request $request)
     {
-        $request->validate([
-            'version_name' => 'required|string',
-            'download_url' => 'required|url',
-        ]);
+        $versionName = trim($request->version_name ?? ($request->version ?? '2.0.0'));
+        $downloadUrl = trim($request->download_url ?? ($request->url ?? ($request->download_link ?? 'https://colddrinkfund.vercel.app/ColdDrinkAdmin.apk')));
+        $changelog = trim($request->changelog ?? ($request->notes ?? ''));
+
         $version = \App\Models\AppVersion::orderByDesc('version_code')->first() ?: new \App\Models\AppVersion();
-        $version->version_name = trim($request->version_name);
+        $version->version_name = $versionName;
         $version->version_code = ($version->version_code ?: 1) + 1;
-        $version->download_url = trim($request->download_url);
+        $version->download_url = $downloadUrl;
+        if (!empty($changelog)) {
+            $version->changelog = $changelog;
+        }
         $version->is_force = $request->boolean('is_force', false);
         $version->save();
 
@@ -779,6 +796,95 @@ class AdminApiController extends Controller
         return response()->json([
             'status' => true,
             'message' => "User {$u->phone} is now appointed Franchise Agent for {$u->agent_city} at {$u->agent_commission_pct}% override!"
+        ]);
+    }
+
+    /**
+     * 17. RED ENVELOPES
+     */
+    public function redEnvelopes()
+    {
+        $envelopes = \App\Models\RedEnvelope::withCount('claims')->orderByDesc('id')->take(30)->get();
+        return response()->json(['status' => true, 'data' => $envelopes]);
+    }
+
+    public function createRedEnvelope(Request $request)
+    {
+        $request->validate([
+            'title'        => 'required|string',
+            'total_amount' => 'required|numeric|min:1',
+            'max_claimers' => 'required|integer|min:1',
+        ]);
+        $total = (float)$request->total_amount;
+        $maxC = (int)$request->max_claimers;
+        $envelope = \App\Models\RedEnvelope::create([
+            'title'            => trim($request->title),
+            'total_amount'     => $total,
+            'remaining_amount' => $total,
+            'max_claimers'     => $maxC,
+            'claimed_count'    => 0,
+            'min_reward'       => (float)($request->min_reward ?: 1),
+            'max_reward'       => (float)($request->max_reward ?: max(1, $total / $maxC)),
+            'status'           => 'active',
+        ]);
+        return response()->json(['status' => true, 'message' => 'Lucky Red Envelope created successfully!', 'data' => $envelope]);
+    }
+
+    /**
+     * 18. BONUS & PROMO CODES
+     */
+    public function bonusCodes()
+    {
+        $codes = \App\Models\Bonus::orderByDesc('id')->take(30)->get();
+        return response()->json(['status' => true, 'data' => $codes]);
+    }
+
+    public function createBonusCode(Request $request)
+    {
+        $request->validate(['code' => 'required|string', 'amount' => 'required|numeric']);
+        $bonus = new \App\Models\Bonus();
+        $bonus->code   = strtoupper(trim($request->code));
+        $bonus->amount = (float)$request->amount;
+        $bonus->status = 'active';
+        $bonus->save();
+        return response()->json(['status' => true, 'message' => 'Bonus code created successfully!', 'data' => $bonus]);
+    }
+
+    /**
+     * 19. DIRECT USER BALANCE ADJUSTMENT
+     */
+    public function adjustBalance(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|integer',
+            'amount'  => 'required|numeric|min:0.01',
+            'type'    => 'required|in:add,subtract,plus,minus',
+        ]);
+        $user = User::find($request->user_id);
+        if (!$user) return response()->json(['status' => false, 'message' => 'User not found!'], 404);
+        $amt = (float)$request->amount;
+        if ($request->type === 'add' || $request->type === 'plus') {
+            $user->balance += $amt;
+            $sign = '+';
+        } else {
+            $user->balance = max(0, $user->balance - $amt);
+            $sign = '-';
+        }
+        $user->save();
+        $ledger = new UserLedger();
+        $ledger->user_id = $user->id;
+        $ledger->reason = 'admin_balance_adjustment';
+        $ledger->perticulation = "Admin Balance Adjustment: {$sign} Rs. " . number_format($amt);
+        $ledger->amount = $amt;
+        $ledger->debit = $amt;
+        $ledger->status = 'approved';
+        $ledger->date = date('Y-m-d H:i');
+        $ledger->save();
+
+        return response()->json([
+            'status'      => true,
+            'message'     => "Successfully updated balance for {$user->phone}! New Balance: Rs. " . number_format($user->balance, 2),
+            'new_balance' => $user->balance
         ]);
     }
 }

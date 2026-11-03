@@ -57,22 +57,6 @@ class AdminController extends Controller
         if (Auth::guard('admin')->check()) {
             return redirect()->route('admin.dashboard');
         }
-
-        $secretKey = setting('admin_secret_key', 'portal786');
-        if (empty($secretKey)) {
-            $secretKey = 'portal786';
-        }
-
-        // If secret key provided in query string, unlock the gate in session
-        if ($request->has('key') && $request->input('key') === $secretKey) {
-            session()->put('admin_gate_unlocked', true);
-        }
-
-        // Check if gate is unlocked
-        if (!session()->get('admin_gate_unlocked')) {
-            abort(404);
-        }
-
         return view('admin.auth.login');
     }
 

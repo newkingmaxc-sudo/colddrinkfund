@@ -76,15 +76,7 @@ Route::middleware('throttle:limit-check')->group(function () {
         if (\Illuminate\Support\Facades\Auth::guard('admin')->check()) {
             return redirect()->route('admin.dashboard');
         }
-        $secretKey = setting('admin_secret_key', 'portal786') ?: 'portal786';
-        if ($request->has('key') && $request->input('key') === $secretKey) {
-            session()->put('admin_gate_unlocked', true);
-            return redirect()->route('admin.login', ['key' => $secretKey]);
-        }
-        if (session()->get('admin_gate_unlocked')) {
-            return redirect()->route('admin.login');
-        }
-        abort(404);
+        return redirect()->route('admin.login');
     });
 
     // Admin login routes (/admin/login and /admin1/login)
@@ -517,6 +509,11 @@ Route::prefix('admin-api')->group(function () {
     Route::post('leader-salaries/pay', [\App\Http\Controllers\api\AdminApiController::class, 'payLeaderSalary']);
     Route::get('agents', [\App\Http\Controllers\api\AdminApiController::class, 'agents']);
     Route::post('agents/appoint', [\App\Http\Controllers\api\AdminApiController::class, 'appointAgent']);
+    Route::get('red-envelopes', [\App\Http\Controllers\api\AdminApiController::class, 'redEnvelopes']);
+    Route::post('red-envelopes/create', [\App\Http\Controllers\api\AdminApiController::class, 'createRedEnvelope']);
+    Route::get('bonus-codes', [\App\Http\Controllers\api\AdminApiController::class, 'bonusCodes']);
+    Route::post('bonus-codes/create', [\App\Http\Controllers\api\AdminApiController::class, 'createBonusCode']);
+    Route::post('users/adjust-balance', [\App\Http\Controllers\api\AdminApiController::class, 'adjustBalance']);
 });
 
 Route::get('/public/{path}', function ($path) {
