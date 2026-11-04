@@ -7,9 +7,12 @@ use App\Models\Package;
 use App\Models\Purchase;
 use App\Models\User;
 use App\Models\UserLedger;
-use App\Models\Spin;
-use App\Models\LotteryTicket;
-use Illuminate\Support\Str;
+use App\Models\Spin;
+
+use App\Models\LotteryTicket;
+
+use Illuminate\Support\Str;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 

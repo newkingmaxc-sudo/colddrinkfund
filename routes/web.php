@@ -544,6 +544,19 @@ Route::get('/ColdDrinkAdmin.apk', function () {
     return redirect('https://github.com/newkingmaxc-sudo/colddrinkfund/raw/release-apk/ColdDrinkAdmin.apk');
 });
 
+// User Friendly Route Aliases & Fallbacks
+Route::middleware(['auth'])->group(function () {
+    Route::get('/team', fn() => redirect('/my-team'));
+    Route::get('/myvip', fn() => redirect('/my/vip'));
+    Route::get('/mission', fn() => redirect('/missions'));
+    Route::get('/add_bank', fn() => redirect('/add/card'));
+    Route::get('/add-bank', fn() => redirect('/add/card'));
+    Route::get('/about', fn() => redirect('/about-us'));
+    Route::get('/info', fn() => redirect('/about-us'));
+    Route::get('/deposit_record', fn() => redirect('/deposit/record'));
+    Route::get('/withdraw_record', fn() => redirect('/withdraw/record'));
+});
+
 require __DIR__ . '/auth.php';
 
 
